@@ -8,5 +8,5 @@ export async function main(ns) {
 	var outputFileName = "/TheDroid/initDownload.js";
 
 	await ns.wget(githubURL, outputFileName);
-	ns.spawn(outputFileName, 1);
+	ns.run(outputFileName, 1);
 }
