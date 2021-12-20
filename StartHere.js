@@ -3,14 +3,12 @@ export async function main(ns) {
 	if (ns.getHostname() !== "home") {
 		throw new Exception("Run the script from home");
 	}
-
 	// My Stuff
-	var githubURL = "https://raw.github.com/TheDroidYourLookingFor/BitBurner-Scripts/master/src/HomeRun.js";
-	var outputDirectory = "/";
-	var outputFileName = "HomeRun.js";
+	var githubURL = "https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/StartHere.js";
+	var outputFileName = "/TheDroid/StartHere.js";
 	var launchAfterDL = false;
 	var launchThreads = 1;
 	
 	await ns.wget(githubURL,outputFileName);
-	if (launchAfterDL) s.spawn(outputFileName, launchThreads);
+	if (launchAfterDL) ns.spawn("StartHere.js", launchThreads);
 }
