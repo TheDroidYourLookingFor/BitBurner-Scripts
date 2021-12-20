@@ -2,13 +2,18 @@
 
 Scripts for Bitburner, An Epic Hacking Game
 
+* [Play Bitburner](https://danielyxie.github.io/bitburner/)
+* [Bitburner Github](https://github.com/danielyxie/bitburner)
+
 ### Documentation and Guides
 
 * [Bitburner Documentation and Syntax](https://github.com/danielyxie/bitburner/blob/dev/markdown/bitburner.ns.md)
 
 ### Bitburner Communities
 
+* [TeemoPewPew on Twitch.tv](https://www.twitch.tv/teemopewpew) (me)
 * [Bitburner Discord](https://discord.gg/vB4uHDy)
+* [Bitburner Reddit](https://old.reddit.com/r/Bitburner/)
 
 ## Credits and Notes
 
