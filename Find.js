@@ -1,7 +1,7 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
-	const useDebug = true;
+	const useDebug = false;
 
 	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
@@ -45,16 +45,16 @@ export async function main(ns) {
 
 			if (ns.hasRootAccess(svName)) {
 				if (svCurMoney < 50000) {
-					await ns.write(usrDirectory + "broke_Targets.txt", svName
-						+ "," + ns.getServerMaxRam(svName)
-						+ "," + ns.getServerNumPortsRequired(svName)
-						+ "," + ns.getServerMinSecurityLevel(svName)
-						+ "," + ns.getServerRequiredHackingLevel(svName)
-						+ "," + ns.getHackTime(svName)
-						+ "," + ns.getServerMoneyAvailable(svName)
-						+ "," + ns.getServerMaxMoney(svName)
-						+ "," + ns.getServerGrowth(svName)
-						+ "\r\n");
+					// await ns.write(usrDirectory + "broke_Targets.txt", svName
+					// 	+ "," + ns.getServerMaxRam(svName)
+					// 	+ "," + ns.getServerNumPortsRequired(svName)
+					// 	+ "," + ns.getServerMinSecurityLevel(svName)
+					// 	+ "," + ns.getServerRequiredHackingLevel(svName)
+					// 	+ "," + ns.getHackTime(svName)
+					// 	+ "," + ns.getServerMoneyAvailable(svName)
+					// 	+ "," + ns.getServerMaxMoney(svName)
+					// 	+ "," + ns.getServerGrowth(svName)
+					// 	+ "\r\n");
 				} else {
 					svScore = ((svMaxMoney * 100 / svGrowth) / svExecTime);
 					if (svScore > bestTargetScore) {
