@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	ns.tail("/TheDroid/Find.js", "home");
+	//ns.tail("/TheDroid/Find.js", "home");
 
 	/** @param {NS} ns **/
 	async function lookForTargets(ns) {
