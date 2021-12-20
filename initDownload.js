@@ -8,7 +8,7 @@ const filesToDownload = [
   'Manager-Hacknet.js',
   'Manager-Server.js',
   'Manager-Startup.js',
-  'Maanger-Stock.js',
+  'Manager-Stock.js',
   'hack.js',
   'weaken.js',
   'grow.js',
