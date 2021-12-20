@@ -18,7 +18,7 @@ export async function main(ns) {
 		ns.clear("/TheDroid/nmap.txt");
 		for (var i = 0; i < servers.length; ++i) {
 			hostname = servers[i];
-			await ns.write("nmap.txt", hostname
+			await ns.write("/TheDroid/nmap.txt", hostname
 				+ "," + ns.getServerMaxRam(hostname)
 				+ "," + ns.getServerNumPortsRequired(hostname)
 				+ "," + ns.getServerMinSecurityLevel(hostname)

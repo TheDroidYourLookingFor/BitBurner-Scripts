@@ -55,6 +55,6 @@ export async function main(ns) {
 
   if (launchScript) {
     ns.tprint(`[${localeHHMMSS()}] Spawning ` + scriptToLaunch)
-    ns.spawn(outputDir + scriptToLaunch, scriptToLaunchThreads);
+    ns.run(outputDir + scriptToLaunch, scriptToLaunchThreads);
   }
 }
