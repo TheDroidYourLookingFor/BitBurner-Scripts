@@ -17,6 +17,8 @@ Scripts for Bitburner, An Epic Hacking Game
   * run Distribute.js
 * These commands would map your network to /TheDroid/networkProbeData.txt, search through the records to find the best target, hack all viable targets, distribute our scripts, and make all hacked targets run our scripts against a target.
 
+## Other Resources and Links
+
 ### Documentation and Guides
 
 * [Bitburner Documentation and Syntax](https://github.com/danielyxie/bitburner/blob/dev/markdown/bitburner.ns.md)
