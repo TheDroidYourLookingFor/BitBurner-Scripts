@@ -5,6 +5,10 @@ Scripts for Bitburner, An Epic Hacking Game
 * [Play Bitburner](https://danielyxie.github.io/bitburner/)
 * [Bitburner Github](https://github.com/danielyxie/bitburner)
 
+### Quickstart Guide
+
+* wget https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/StartHere.js /TheDroid/StartHere.js
+
 ### Documentation and Guides
 
 * [Bitburner Documentation and Syntax](https://github.com/danielyxie/bitburner/blob/dev/markdown/bitburner.ns.md)
