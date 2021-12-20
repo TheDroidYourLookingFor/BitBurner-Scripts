@@ -15,8 +15,9 @@ export async function main(ns) {
 		var bestTarget = await ns.read(usrDirectory + "best_target.txt").split(",");
 		var tName = bestTarget[0];
 
-		var rows = await ns.read(usrDirectory + "nmap.txt").split("\r\n");
+		var rows = await ns.read(usrDirectory + "networkProbeData.txt").split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
+			ns.tprint(i);
 			var serverData = rows[i].split(',');
 			if (serverData.length < 7) break;
 			var svName = serverData[0];
