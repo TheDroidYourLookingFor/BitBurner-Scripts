@@ -1,7 +1,8 @@
 /** @param {NS} ns **/
 export async function main(ns) {
+	const usrDirectory = "/TheDroid/";
 	var svName = ns.args[0];
-	await ns.write("/TheDroid/best_target.txt", svName
+	await ns.write(usrDirectory + "best_target.txt", svName
 		+ "," + ns.getServerMaxRam(svName)
 		+ "," + ns.getServerNumPortsRequired(svName)
 		+ "," + ns.getServerMinSecurityLevel(svName)
@@ -11,7 +12,7 @@ export async function main(ns) {
 		+ "," + ns.getServerMaxMoney(svName)
 		+ "," + ns.getServerGrowth(svName)
 		+ "\r\n", "w");
-	ns.tprint("\r\n" + "/TheDroid/best_target.txt", svName
+	ns.tprint("\r\n" + usrDirectory + "best_target.txt", svName
 		+ "," + ns.getServerMaxRam(svName)
 		+ "," + ns.getServerNumPortsRequired(svName)
 		+ "," + ns.getServerMinSecurityLevel(svName)

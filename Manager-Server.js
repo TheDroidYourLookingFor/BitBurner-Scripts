@@ -1,5 +1,8 @@
 /** @param {NS} ns **/
 export async function main(ns) {
+	const usrDirectory = "/TheDroid/";
+	const useDebug = false;
+	if (useDebug) ns.tail(usrDirectory + "Manager-Server.js", "home");
 	var deployRam = ns.args[0];
 
 	/** @param {NS} ns **/
@@ -21,7 +24,7 @@ export async function main(ns) {
 			}
 			await ns.asleep(500);
 		}
-		ns.exec("/TheDroid/SetupNewTargets.js", "home", 1);
+		ns.exec(usrDirectory + "SetupNewTargets.js", "home", 1);
 	}
 
 	if (ns.args[0] == null) {

@@ -1,24 +1,25 @@
 /** @param {NS} ns **/
 export async function main(ns) {
+	const usrDirectory = "/TheDroid/";
 	/** @param {NS} ns **/
 	async function processNmap(ns) {
 		ns.tprint("Beginning distribution of scripts to all servers.");
-		var hackScripts = ["/TheDroid/weaken.js", "/TheDroid/hack.js", "/TheDroid/grow.js", "/TheDroid/aio.js"];
-		var hack_mem = ns.getScriptRam("/TheDroid/weaken.js", "home");
-		var aio_mem = ns.getScriptRam("/TheDroid/aio.js", "home");
+		var hackScripts = [usrDirectory + "weaken.js", usrDirectory + "hack.js", usrDirectory + "grow.js", usrDirectory + "aio.js"];
+		var hack_mem = ns.getScriptRam(usrDirectory + "weaken.js", "home");
+		var aio_mem = ns.getScriptRam(usrDirectory + "aio.js", "home");
 
 		var hackThreadWeight = 40;
 		var growThreadWeight = 50;
 		var weakenThreadWeight = 10;
 
-		var bestTarget = await ns.read("/TheDroid/best_target.txt").split(",");
+		var bestTarget = await ns.read(usrDirectory + "best_target.txt").split(",");
 		var tName = bestTarget[0];
 		if (!ns.hasRootAccess(bestTarget[0])) {
 			ns.tprint("We lack root on the target. Please pick another target.");
 			ns.exit();
 		}
 
-		var rows = await ns.read("/TheDroid/nmap.txt").split("\r\n");
+		var rows = await ns.read(usrDirectory + "nmap.txt").split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
 			if (serverData.length < 8) break;

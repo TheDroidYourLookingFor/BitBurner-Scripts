@@ -1,6 +1,8 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	//ns.tail("/TheDroid/Find.js", "home");
+	const usrDirectory = "/TheDroid/";
+	const useDebug = false;
+	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
 	/** @param {NS} ns **/
 	async function lookForTargets(ns) {
@@ -14,7 +16,7 @@ export async function main(ns) {
 			if (ns.fileExists(portBusters[i], "home")) ++numBusters;
 		}
 
-		var rows = await ns.read("/TheDroid/nmap.txt").split("\r\n");
+		var rows = await ns.read(usrDirectory + "networkProbeData.txt").split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
 			if (serverData.length < 9) break;
@@ -41,7 +43,7 @@ export async function main(ns) {
 
 			if (ns.hasRootAccess(svName)) {
 				if (svCurMoney < 50000) {
-					await ns.write("/TheDroid/Broke-Targets.txt", svName
+					await ns.write(usrDirectory + "broke_Targets.txt", svName
 						+ "," + ns.getServerMaxRam(svName)
 						+ "," + ns.getServerNumPortsRequired(svName)
 						+ "," + ns.getServerMinSecurityLevel(svName)
@@ -62,7 +64,7 @@ export async function main(ns) {
 			}
 			ns.print(i);
 		}
-		await ns.write("/TheDroid/best_target.txt", rows[bestTargetIndex], "w");
+		await ns.write(usrDirectory + "best_target.txt", rows[bestTargetIndex], "w");
 		outputStats(ns, svName);
 	}
 

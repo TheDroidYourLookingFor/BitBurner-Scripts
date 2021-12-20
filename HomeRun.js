@@ -1,8 +1,9 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	var hackScripts = ["/TheDroid/weaken.js", "/TheDroid/hack.js", "/TheDroid/grow.js", "/TheDroid/aio.js"];
+	const usrDirectory = "/TheDroid/";
+	var hackScripts = [usrDirectory + "weaken.js", usrDirectory + "hack.js", usrDirectory + "grow.js", usrDirectory + "aio.js"];
 	var localHost = ns.getHostname();
-	var bestTarget = ns.read("/TheDroid/best_target.txt").split(",");
+	var bestTarget = ns.read(usrDirectory + "best_target.txt").split(",");
 	var tName = bestTarget[0];
 
 	var localMaxRAM = ns.getServerMaxRam(localHost);

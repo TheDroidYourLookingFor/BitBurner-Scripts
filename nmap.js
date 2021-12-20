@@ -1,5 +1,8 @@
 /** @param {NS} ns **/
 export async function main(ns) {
+	const usrDirectory = "/TheDroid/";
+	const useDebug = false;
+	if (useDebug) ns.tail(usrDirectory + "nmap.js", "home");
 	var servers = ["home"];
 	var newScan;
 	var hostname;
@@ -15,10 +18,10 @@ export async function main(ns) {
 	}
 	/** @param {NS} ns **/
 	async function outputProbeToFile(ns) {
-		ns.clear("/TheDroid/nmap.txt");
+		ns.clear(usrDirectory + "networkProbeData.txt");
 		for (var i = 0; i < servers.length; ++i) {
 			hostname = servers[i];
-			await ns.write("/TheDroid/nmap.txt", hostname
+			await ns.write(usrDirectory + "networkProbeData.txt", hostname
 				+ "," + ns.getServerMaxRam(hostname)
 				+ "," + ns.getServerNumPortsRequired(hostname)
 				+ "," + ns.getServerMinSecurityLevel(hostname)
