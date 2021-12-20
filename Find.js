@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	ns.tail("Find.js", "home");
+	ns.tail("/TheDroid/Find.js", "home");
 
 	/** @param {NS} ns **/
 	async function lookForTargets(ns) {
@@ -16,7 +16,7 @@ export async function main(ns) {
 			if (ns.fileExists(portBusters[i], "home")) ++numBusters;
 		}
 
-		var rows = await ns.read("nmap.txt").split("\r\n");
+		var rows = await ns.read("/TheDroid/nmap.txt").split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
 			if (serverData.length < 7) break;
@@ -40,7 +40,6 @@ export async function main(ns) {
 			ns.tprint(svGrowth);
 			lastTarget = svName;
 
-			ns.tprint("we get here");
 			if (!(ns.hasRootAccess(svName)) && (numBusters >= svPortsNeeded) && (myHackLevel >= svReqHack)) {
 				if (numBusters > 0) ns.brutessh(svName);
 				if (numBusters > 1) ns.ftpcrack(svName);
@@ -67,7 +66,7 @@ export async function main(ns) {
 			ns.print(i);
 		}
 		
-		await ns.write("best_target.txt", rows[bestTargetIndex], "w");
+		await ns.write("/TheDroid/best_target.txt", rows[bestTargetIndex], "w");
 		outputStats(ns, svName);
 	}
 
