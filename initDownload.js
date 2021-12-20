@@ -11,6 +11,7 @@ const filesToDownload = [
   'Manager-Server.js',
   'Manager-Startup.js',
   'Manager-Stock.js',
+  'HomeRun.js',
   'hack.js',
   'weaken.js',
   'grow.js',
