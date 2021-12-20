@@ -3,6 +3,7 @@ const scriptToLaunch = 'Manager-Startup.js';
 const scriptToLaunchThreads = 1;
 const launchScript = true;
 const usrDirectory = "/TheDroid/";
+const scVersion = 1.00;
 
 const baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/'
 const filesToDownload = [
@@ -41,6 +42,25 @@ export async function main(ns) {
   if (hostname !== 'home') {
     throw new Exception('Run the script from home')
   }
+
+  ns.toast("Welcome to Droid Scripts!")
+  ns.tprint("Getting started with Droid scripts. Please wait while we download."
+    + "\n Version: " + scVersion
+    + "\n Quick start information:"
+    + "\n run Manager-Startup.js"
+    + "\n Please edit Manager-Startup.js if you'd like to take full advantage."
+    + "\n The only daemon which will start by default is Manager-Deployment.js."
+    + "\n "
+    + "\n Manual Start Information:"
+    + "\n run nmap.js"
+    + "\n find.js"
+    + "\n Distribute.js"
+    + "\n Run these files in order to probe the network for hosts, write"
+    + "\n those hosts to file, evaluate the hosts ranking them, and then"
+    + "\n hack any hackable hosts. Once hacked it will copy our Hack, Weaken, and Grow"
+    + "\n script to run. It will evenly distribute the three on the host against a target."
+    + "\n"
+  );
 
   for (let i = 0; i < filesToDownload.length; i++) {
     const filename = filesToDownload[i]
