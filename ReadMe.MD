@@ -12,9 +12,9 @@ Download the installation script with the command below. The downloaded script w
 Once downloaded you can cd /TheDroid to view the files.
 To start everything from scratch use: run Manager-Startup.js
 * You can also do the manual process. Which for Deployment would be the commands below in order.
-* * run nmap.js
-* * run Find.js
-* * run Distribute.js
+  * run nmap.js
+  * run Find.js
+  * run Distribute.js
 These commands would map your network to /TheDroid/networkProbeData.txt, search through the records to find the best target, hack all viable targets, distribute our scripts, and make all hacked targets run our scripts against a target.
 
 ### Documentation and Guides
