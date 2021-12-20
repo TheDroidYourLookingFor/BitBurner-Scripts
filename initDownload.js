@@ -53,6 +53,8 @@ export async function main(ns) {
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
 
-  ns.tprint(`[${localeHHMMSS()}] Spawning ` + scriptToLaunch)
-  if (launchScript) ns.spawn(scriptToLaunch, scriptToLaunchThreads);
+  if (launchScript) {
+    ns.tprint(`[${localeHHMMSS()}] Spawning ` + scriptToLaunch)
+    ns.spawn(outputDir + scriptToLaunch, scriptToLaunchThreads);
+  }
 }
