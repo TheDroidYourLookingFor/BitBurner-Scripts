@@ -21,7 +21,7 @@ export async function main(ns) {
 			}
 			await ns.asleep(500);
 		}
-		ns.exec("SetupNewTargets.js", "home", 1);
+		ns.exec("/TheDroid/SetupNewTargets.js", "home", 1);
 	}
 
 	if (ns.args[0] == null) {

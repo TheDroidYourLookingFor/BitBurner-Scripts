@@ -1,6 +1,8 @@
 /** @param {NS} ns **/
 const scriptToLaunch = 'Manager-Startup.js';
 const scriptToLaunchThreads = 1;
+const launchScript = false;
+const outputDir = "/TheDroid/";
 
 const baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/'
 const filesToDownload = [
@@ -46,11 +48,11 @@ export async function main(ns) {
     await ns.rm(filename)
     await ns.sleep(200)
     ns.tprint(`[${localeHHMMSS()}] Trying to download ${path}`)
-    await ns.wget(path + '?ts=' + new Date().getTime(), filename)
+    await ns.wget(path + '?ts=' + new Date().getTime(), outputDir + filename)
   }
 
   valuesToRemove.map((value) => localStorage.removeItem(value))
 
   ns.tprint(`[${localeHHMMSS()}] Spawning ` + scriptToLaunch)
-  ns.spawn(scriptToLaunch, scriptToLaunchThreads)
+  if (launchScript) ns.spawn(scriptToLaunch, scriptToLaunchThreads);
 }

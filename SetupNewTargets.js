@@ -3,18 +3,18 @@ export async function main(ns) {
 	/** @param {NS} ns **/
 	async function processNmap(ns) {
 		ns.tprint("Beginning distribution of scripts to all servers.");
-		var hackScripts = ["weaken.js", "hack.js", "grow.js", "aio.js"];
-		var hack_mem = ns.getScriptRam("weaken.js", "home");
-		var aio_mem = ns.getScriptRam("aio.js", "home");
+		var hackScripts = ["/TheDroid/weaken.js", "/TheDroid/hack.js", "/TheDroid/grow.js", "/TheDroid/aio.js"];
+		var hack_mem = ns.getScriptRam("/TheDroid/weaken.js", "home");
+		var aio_mem = ns.getScriptRam("/TheDroid/aio.js", "home");
 
 		var hackThreadWeight = 40;
 		var growThreadWeight = 50;
 		var weakenThreadWeight = 10;
 
-		var bestTarget = await ns.read("best_target.txt").split(",");
+		var bestTarget = await ns.read("/TheDroid/best_target.txt").split(",");
 		var tName = bestTarget[0];
 
-		var rows = await ns.read("nmap.txt").split("\r\n");
+		var rows = await ns.read("/TheDroid/nmap.txt").split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
 			if (serverData.length < 7) break;
@@ -23,7 +23,7 @@ export async function main(ns) {
 			var num_threads = Math.floor(svRamAvail / hack_mem);
 
 			if (ns.hasRootAccess(svName) && svName != "home") {
-				if (ns.isRunning("hack.js", svName, tName) || ns.isRunning("aio.js", svName, tName)) {
+				if (ns.isRunning("/TheDroid/hack.js", svName, tName) || ns.isRunning("/TheDroid/aio.js", svName, tName)) {
 					// skip host for now
 				} else {
 					await ns.scp(hackScripts, "home", svName);

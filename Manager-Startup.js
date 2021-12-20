@@ -9,22 +9,22 @@ export async function main(ns) {
 	var autoManageHomeSrv = true;
 
 
-	if (autoManageHacking && ns.getHostname() == "home" && !ns.scriptRunning("Manager-Deployment.js")) {
-		ns.run("Manager-Deployment.js", 1);
+	if (autoManageHacking && ns.getHostname() == "home" && !ns.scriptRunning("/TheDroid/Manager-Deployment.js")) {
+		ns.run("/TheDroid/Manager-Deployment.js", 1);
 	}
 
-	if (autoManageHackNet && ns.getHostname() == "home" && !ns.scriptRunning("Manager-Hacknet.js") && ns.hacknet.numNodes() < autoManageHackNetNodes) {
-		ns.run("Manager-Hacknet.js", 1);
+	if (autoManageHackNet && ns.getHostname() == "home" && !ns.scriptRunning("/TheDroid/Manager-Hacknet.js") && ns.hacknet.numNodes() < autoManageHackNetNodes) {
+		ns.run("/TheDroid/Manager-Hacknet.js", 1);
 	}
 
-	if (autoManageServers && ns.getHostname() == "home" && !ns.scriptRunning("Manager-Server.js") && ns.getServerMaxRam("pserv-0") < autoManageServersRam) {
-		ns.run("Manager-Server.js", 1, autoManageServersRam);
+	if (autoManageServers && ns.getHostname() == "home" && !ns.scriptRunning("/TheDroid/Manager-Server.js") && ns.getServerMaxRam("pserv-0") < autoManageServersRam) {
+		ns.run("/TheDroid/Manager-Server.js", 1, autoManageServersRam);
 	}
 
-	if (autoManageStock && ns.getHostname() == "home" && !ns.scriptRunning("Manager-Stock.js")) {
-		ns.run("Manager-Stock.js", 1);
+	if (autoManageStock && ns.getHostname() == "home" && !ns.scriptRunning("/TheDroid/Manager-Stock.js")) {
+		ns.run("/TheDroid/Manager-Stock.js", 1);
 	}
-	if (autoManageHomeSrv && ns.getHostname() == "home" && !ns.scriptRunning("hack.js")) {
-		ns.run("HomeRun.js", 1);
+	if (autoManageHomeSrv && ns.getHostname() == "home" && !ns.scriptRunning("/TheDroid/hack.js")) {
+		ns.run("/TheDroid/HomeRun.js", 1);
 	}
 }

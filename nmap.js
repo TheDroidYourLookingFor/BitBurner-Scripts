@@ -15,7 +15,7 @@ export async function main(ns) {
 	}
 	/** @param {NS} ns **/
 	async function outputProbeToFile(ns) {
-		ns.clear("nmap.txt");
+		ns.clear("/TheDroid/nmap.txt");
 		for (var i = 0; i < servers.length; ++i) {
 			hostname = servers[i];
 			await ns.write("nmap.txt", hostname
