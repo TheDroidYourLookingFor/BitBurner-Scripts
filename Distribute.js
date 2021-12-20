@@ -22,7 +22,7 @@ export async function main(ns) {
 		var rows = await ns.read(usrDirectory + "networkProbeData.txt").split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
-			if (serverData.length < 8) break;
+			if (serverData.length < 9) break;
 			var svName = serverData[0];
 			var svRamAvail = ns.getServerMaxRam(svName);
 			var num_threads = Math.floor(svRamAvail / hack_mem);

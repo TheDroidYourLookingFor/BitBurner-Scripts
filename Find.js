@@ -1,7 +1,7 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
-	const useDebug = false;
+	const useDebug = true;
 
 	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
@@ -17,6 +17,7 @@ export async function main(ns) {
 			if (ns.fileExists(portBusters[i], "home")) ++numBusters;
 		}
 
+		ns.clear(usrDirectory + "broke_Targets.txt");
 		var rows = await ns.read(usrDirectory + "networkProbeData.txt").split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
