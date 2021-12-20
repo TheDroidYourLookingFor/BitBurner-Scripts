@@ -4,26 +4,6 @@ const scriptToLaunchThreads = 1;
 const launchScript = true;
 const usrDirectory = "/TheDroid/";
 
-async function loadConfig(ns) {
-  var userConfig = await ns.read(usrDirectory + "userConfig.awesome").split("\r\n");
-  for (var i = 0; i < userConfig.length; ++i) {
-    var userData = userConfig[i].split(',');
-    if (userData.length < 18) break;
-    var curVersion = userData[1];
-    var outputDir = userData[3];
-    var autoManageHacking = userData[5];
-    var autoManageHackNet = userData[7];
-    var autoManageHackNetNodes = userData[9];
-    var autoManageStock = userData[11];
-    var autoManageServers = userData[13];
-    var autoManageServersRam = userData[15];
-    var autoManageHomeSrv = userData[17];
-
-    usrDirectory = outputDir;
-  }
-}
-loadConfig(ns);
-
 const baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/'
 const filesToDownload = [
   'Manager-Deployment.js',

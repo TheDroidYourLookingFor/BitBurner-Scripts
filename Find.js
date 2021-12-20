@@ -2,6 +2,7 @@
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
 	const useDebug = false;
+
 	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
 	/** @param {NS} ns **/
