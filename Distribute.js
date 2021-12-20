@@ -19,7 +19,7 @@ export async function main(ns) {
 			ns.exit();
 		}
 
-		var rows = await ns.read(usrDirectory + "nmap.txt").split("\r\n");
+		var rows = await ns.read(usrDirectory + "networkProbeData.txt").split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
 			if (serverData.length < 8) break;
