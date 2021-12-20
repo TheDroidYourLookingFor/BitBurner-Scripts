@@ -4,11 +4,11 @@ export async function main(ns) {
 		throw new Exception("Run the script from home");
 	}
 	// My Stuff
-	var githubURL = "https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/StartHere.js";
-	var outputFileName = "/TheDroid/StartHere.js";
+	var githubURL = "https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/initDownload.js";
+	var outputFileName = "/TheDroid/initDownload.js";
 	var launchAfterDL = false;
 	var launchThreads = 1;
 	
 	await ns.wget(githubURL,outputFileName);
-	if (launchAfterDL) ns.spawn("StartHere.js", launchThreads);
+	if (launchAfterDL) ns.spawn("initDownload.js", launchThreads);
 }
