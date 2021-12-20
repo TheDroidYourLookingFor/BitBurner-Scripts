@@ -21,7 +21,7 @@ Scripts for Bitburner, An Epic Hacking Game
 
 ## Credits and Notes
 
-While a good deal of the good here is from my head. I did get ideas from the wiki.
+While a good deal of the code here is from my head. I did get ideas from the wiki.
 *Credit belongs to the authors who wrote the scripts*.
 This is a repository to preserve the work that has been done
 creating these scripts.
