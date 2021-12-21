@@ -18,24 +18,39 @@ export async function main(ns) {
 	}
 	/** @param {NS} ns **/
 	async function outputProbeToFile(ns) {
+		if (useDebug) ns.tprint("Beginning network probe.");
 		ns.clear(usrDirectory + "networkProbeData.txt");
+		ns.clear(usrDirectory + "broke_Targets.txt");
 		for (var i = 0; i < servers.length; ++i) {
 			hostname = servers[i];
-			await ns.write(usrDirectory + "networkProbeData.txt", hostname
-				+ "," + ns.getServerMaxRam(hostname)
-				+ "," + ns.getServerNumPortsRequired(hostname)
-				+ "," + ns.getServerMinSecurityLevel(hostname)
-				+ "," + ns.getServerRequiredHackingLevel(hostname)
-				+ "," + ns.getHackTime(hostname)
-				+ "," + ns.getServerMoneyAvailable(hostname)
-				+ "," + ns.getServerMaxMoney(hostname)
-				+ "," + ns.getServerGrowth(hostname)
-				+ "\r\n");
+			if (!ns.getServerMaxMoney(hostname) == 0) {
+				await ns.write(usrDirectory + "networkProbeData.txt", hostname
+					+ "," + ns.getServerMaxRam(hostname)
+					+ "," + ns.getServerNumPortsRequired(hostname)
+					+ "," + ns.getServerMinSecurityLevel(hostname)
+					+ "," + ns.getServerRequiredHackingLevel(hostname)
+					+ "," + ns.getHackTime(hostname)
+					+ "," + ns.getServerMoneyAvailable(hostname)
+					+ "," + ns.getServerMaxMoney(hostname)
+					+ "," + ns.getServerGrowth(hostname)
+					+ "\r\n");
+			} else {
+				await ns.write(usrDirectory + "broke_Targets.txt", hostname
+					+ "," + ns.getServerMaxRam(hostname)
+					+ "," + ns.getServerNumPortsRequired(hostname)
+					+ "," + ns.getServerMinSecurityLevel(hostname)
+					+ "," + ns.getServerRequiredHackingLevel(hostname)
+					+ "," + ns.getHackTime(hostname)
+					+ "," + ns.getServerMoneyAvailable(hostname)
+					+ "," + ns.getServerMaxMoney(hostname)
+					+ "," + ns.getServerGrowth(hostname)
+					+ "\r\n");
+			}
 			probeNetwork(ns);
 		}
+		if (useDebug) ns.tprint("Network mapped.");
 	}
 	// write some launch commands
-	ns.tprint("Beginning network probe.");
 	await outputProbeToFile(ns);
-	ns.tprint("Network mapped.");
+	
 }

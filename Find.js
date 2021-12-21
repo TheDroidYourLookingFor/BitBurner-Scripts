@@ -17,7 +17,6 @@ export async function main(ns) {
 			if (ns.fileExists(portBusters[i], "home")) ++numBusters;
 		}
 
-		ns.clear(usrDirectory + "broke_Targets.txt");
 		var rows = await ns.read(usrDirectory + "networkProbeData.txt").split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
@@ -40,7 +39,7 @@ export async function main(ns) {
 				if (numBusters > 3) ns.httpworm(svName);
 				if (numBusters > 4) ns.sqlinject(svName);
 				ns.nuke(svName);
-				ns.tprint("Server hacked: " + svName);
+				if (useDebug) ns.tprint("Server hacked: " + svName);
 			}
 
 			if (ns.hasRootAccess(svName)) {
@@ -58,7 +57,7 @@ export async function main(ns) {
 				} else {
 					svScore = ((svMaxMoney * 100 / svGrowth) / svExecTime);
 					if (svScore > bestTargetScore) {
-						ns.print("New High Score: " + bestTargetScore);
+						if (useDebug) ns.print("New High Score: " + bestTargetScore);
 						bestTargetScore = svScore;
 						bestTargetIndex = i;
 					}
@@ -67,7 +66,7 @@ export async function main(ns) {
 			ns.print(i);
 		}
 		await ns.write(usrDirectory + "best_target.txt", rows[bestTargetIndex], "w");
-		outputStats(ns, svName);
+		if (useDebug) outputStats(ns, svName);
 	}
 
 	async function outputStats(ns, svrName) {
