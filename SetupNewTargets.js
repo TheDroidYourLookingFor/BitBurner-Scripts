@@ -47,7 +47,7 @@ export async function main(ns) {
 					var grow_threads = Math.floor(((growThreadWeight / 100) * num_threads));
 					var weaken_threads = Math.floor(((weakenThreadWeight / 100) * num_threads));
 
-					if (ns.isRunning(usrDirectory + hackScripts[1], svName, tName)) {
+					if (ns.isRunning(hackScripts[1], svName, tName)) {
 						if (useDebug) ns.print("Hack already running on " + svName);
 					} else {
 						await uploadToHost(svName);
@@ -61,7 +61,7 @@ export async function main(ns) {
 				} else {
 					if (svRamAvail > aio_mem) {
 						num_threads = Math.floor(svRamAvail / aio_mem);
-						if (ns.isRunning(usrDirectory + hackScripts[3], svName, tName) || ns.isRunning(usrDirectory + hackScripts[3], svName, tName)) {
+						if (ns.isRunning(hackScripts[3], svName, tName) || ns.isRunning(hackScripts[3], svName, tName)) {
 							if (useDebug) ns.print("Hack already running on " + svName);
 						} else {
 							if (useDebug) ns.print("Beginning low memory attack script on " + tName + " from " + svName);
