@@ -49,9 +49,13 @@ export async function main(ns) {
 				if (num_threads >= 6) {
 					if (useDebug) ns.tprint("Beginning multithreaded attack on " + tName + " from " + svName + ".");
 					if ((num_threads & 1) != 0) num_threads = num_threads - hack_mem;
-					var hack_threads = Math.round(((hackThreadWeight / 100) * num_threads));
+					var hack_threads = Math.floor(((hackThreadWeight / 100) * num_threads));
 					var grow_threads = Math.floor(((growThreadWeight / 100) * num_threads));
 					var weaken_threads = Math.floor(((weakenThreadWeight / 100) * num_threads));
+					if (useDebug) ns.tprint("Hack Threads: " + hack_threads
+					+ "\r\nGrow Threads: " + grow_threads
+					+ "\r\nWeaken Threads: " + weaken_threads
+					);
 
 					if (ns.isRunning(hackScripts[1], svName, tName)) {
 						if (useDebug) ns.tprint("Hack already running on " + svName);
