@@ -7,7 +7,7 @@ export async function main(ns) {
 	const usrProbeData = usrDirectory + "best_target.txt";
 	const usrProbeData2 = usrDirectory + "networkProbeData.txt";
 	const usrProbeData3 = usrDirectory + "broke_Targets.txt";
-	
+
 	var myHackLevel = ns.getHackingLevel();
 	var numBusters = 0;
 	var portBusters = ['BruteSSH.exe', 'FTPCrack.exe', 'relaySMTP.exe', 'HTTPWorm.exe', 'SQLInject.exe'];
@@ -34,8 +34,27 @@ export async function main(ns) {
 			if (useDebug) ns.tprint("Server hacked: " + svName);
 		}
 	}
+	async function lookForHackableTargs(ns, fileName) {
+		var rows = await ns.read(fileName).split("\r\n");
+		for (var i = 0; i < rows.length; ++i) {
+			var serverData = rows[i].split(',');
+			if (serverData.length < 9) break;
+			var svName = serverData[0];
+			var svRam = serverData[1];
+			var svPortsNeeded = serverData[2];
+			var svMinSec = serverData[3];
+			var svReqHack = serverData[4];
+			var svExecTime = serverData[5];
+			var svCurMoney = serverData[6];
+			var svMaxMoney = serverData[7];
+			var svGrowth = serverData[8];
+			var svScore;
+
+			if (!ns.hasRootAccess(svName)) hackTarg(ns, svName, svPortsNeeded, svReqHack);
+		}
+	}
 	/** @param {NS} ns **/
-	async function lookForTargets(ns, fileName) {
+	async function lookForBestTarget(ns, fileName) {
 		if (useDebug) ns.tprint("Reading: " + fileName);
 		var bestTargetIndex = 15;
 		var bestTargetScore = 0;
@@ -55,8 +74,6 @@ export async function main(ns) {
 			var svGrowth = serverData[8];
 			var svScore;
 
-			if (!ns.hasRootAccess(svName)) hackTarg(ns, svName, svPortsNeeded, svReqHack);
-
 			if (ns.hasRootAccess(svName) && (myHackLevel >= svReqHack)) {
 				if (svCurMoney < 50000 || svMaxMoney == 0) {
 					// They have no money to hack
@@ -71,11 +88,11 @@ export async function main(ns) {
 			}
 		}
 		await ns.write(usrProbeData, rows[bestTargetIndex], "w");
-		if (useDebug) outputStats(ns, svName);
-		await ns.asleep(250);
+		if (useDebug) await outputStats(ns, svName, rows[bestTargetIndex]);
+		await ns.sleep(250);
 	}
 
-	async function outputStats(ns, svrName) {
+	async function outputStats(ns, svrName, svrBest) {
 		var svName = svrName;
 		var svRAM = ns.getServerMaxRam(svName);
 		var svPorts = ns.getServerNumPortsRequired(svName);
@@ -102,12 +119,15 @@ export async function main(ns) {
 			+ "\r\nServer Growth: " + svGrowth
 			+ "\r\nServer Money: " + ns.nFormat(svCurMoney, '$0,0.00')
 			+ "\r\nServer Max Money: " + ns.nFormat(svMaxMoney, '$0,0.00')
-			+ "\r\n" + rows[bestTargetIndex]
+			+ "\r\n" + svrBest
 			+ "\r\n-------------------------------------");
 	}
 
 	// Do things
-	await lookForTargets(ns, usrProbeData3);
-	await ns.sleep(250);
-	await lookForTargets(ns, usrProbeData2);
+	await lookForHackableTargs(ns, usrProbeData2);
+	await ns.sleep(50);
+	await lookForBestTarget(ns, usrProbeData3);
+	await ns.sleep(50);
+	await lookForBestTarget(ns, usrProbeData2);
+	await ns.sleep(50);
 }
