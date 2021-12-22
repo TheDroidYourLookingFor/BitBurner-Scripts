@@ -10,7 +10,7 @@ export async function main(ns) {
 	var weakenThreadWeight = 15;
 	var hackThreadWeight = 55;
 	var growThreadWeight = 30;
-	var bufferRAM = 48;
+	var bufferRAM = 64;
 
 	while (true) {
 		var localMaxRAM = ns.getServerMaxRam(localHost);
