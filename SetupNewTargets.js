@@ -16,8 +16,8 @@ export async function main(ns) {
 	var hackScripts = [usrDirectory + "weaken.js", usrDirectory + "hack.js", usrDirectory + "grow.js", usrDirectory + "aio.js"];
 	var hack_mem = ns.getScriptRam(usrDirectory + "weaken.js", "home");
 	var aio_mem = ns.getScriptRam(usrDirectory + "aio.js", "home");
-	var targName;
-	var bestTarget;
+	const bestTarget = await ns.read(usrDirectory + "best_target.txt").split(",");
+	const targName = bestTarget[0];
 
 	/** @param {NS} ns **/
 	async function uploadToHost(svHost) {
@@ -98,9 +98,6 @@ export async function main(ns) {
 	async function processNmap(ns) {
 
 		if (useDebug) ns.tprint("Beginning distribution of scripts to all servers.");
-		
-		bestTarget = await ns.read(usrDirectory + "best_target.txt").split(",");
-		targName = bestTarget[0];
 		if (useDebug) ns.tprint("Best Target: " + targName);
 		if (useDebug) ns.tprint("Reading " + usrProbeData2);
 		await beginNetworkAttack(ns, usrProbeData2, targName);
