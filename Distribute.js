@@ -16,8 +16,8 @@ export async function main(ns) {
 	var hackScripts = [usrDirectory + "weaken.js", usrDirectory + "hack.js", usrDirectory + "grow.js", usrDirectory + "aio.js"];
 	var hack_mem = ns.getScriptRam(usrDirectory + "weaken.js", "home");
 	var aio_mem = ns.getScriptRam(usrDirectory + "aio.js", "home");
-	var targName;
-	var bestTarget;
+	const bestTarget = await ns.read(usrDirectory + "best_target.txt").split(",");
+	const targName = bestTarget[0];
 
 	/** @param {NS} ns **/
 	async function uploadToHost(svHost) {
@@ -49,9 +49,13 @@ export async function main(ns) {
 				if (num_threads >= 6) {
 					if (useDebug) ns.tprint("Beginning multithreaded attack on " + tName + " from " + svName + ".");
 					if ((num_threads & 1) != 0) num_threads = num_threads - hack_mem;
-					var hack_threads = Math.round(((hackThreadWeight / 100) * num_threads));
+					var hack_threads = Math.floor(((hackThreadWeight / 100) * num_threads));
 					var grow_threads = Math.floor(((growThreadWeight / 100) * num_threads));
 					var weaken_threads = Math.floor(((weakenThreadWeight / 100) * num_threads));
+					if (useDebug) ns.tprint("\r\n" + "Hack Threads: " + hack_threads
+						+ "\r\nGrow Threads: " + grow_threads
+						+ "\r\nWeaken Threads: " + weaken_threads
+					);
 
 					await uploadToHost(svName);
 					if (useDebug) ns.tprint("Executing " + hackScripts[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
@@ -90,9 +94,6 @@ export async function main(ns) {
 	async function processNmap(ns) {
 
 		if (useDebug) ns.tprint("Beginning distribution of scripts to all servers.");
-
-		bestTarget = await ns.read(usrDirectory + "best_target.txt").split(",");
-		targName = bestTarget[0];
 		if (useDebug) ns.tprint("Best Target: " + targName);
 		if (useDebug) ns.tprint("Reading " + usrProbeData2);
 		await beginNetworkAttack(ns, usrProbeData2, targName);
