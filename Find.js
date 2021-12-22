@@ -2,12 +2,13 @@
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
 	const useDebug = false;
-	const usrProbeData = new String("best_target.txt");
+	const usrProbeData = usrDirectory + "best_target.txt";
+	const usrProbeData2 = usrDirectory + "networkProbeData.txt";
 
 	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
 	/** @param {NS} ns **/
-	async function lookForTargets(ns, fileName) {
+	async function lookForTargets(ns) {
 		var myHackLevel = ns.getHackingLevel();
 		var bestTargetIndex = 15;
 		var bestTargetScore = 0;
@@ -18,7 +19,7 @@ export async function main(ns) {
 			if (ns.fileExists(portBusters[i], "home")) ++numBusters;
 		}
 
-		var rows = await ns.read(fileName).split("\r\n");
+		var rows = await ns.read(usrProbeData2).split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
 			if (serverData.length < 9) break;
@@ -43,7 +44,7 @@ export async function main(ns) {
 				if (useDebug) ns.tprint("Server hacked: " + svName);
 			}
 
-			if (ns.hasRootAccess(svName)) {
+			if (ns.hasRootAccess(svName) && (myHackLevel >= svReqHack)) {
 				if (svCurMoney < 50000) {
 					// await ns.write(usrDirectory + "broke_Targets.txt", svName
 					// 	+ "," + ns.getServerMaxRam(svName)
@@ -66,7 +67,7 @@ export async function main(ns) {
 			}
 			ns.print(i);
 		}
-		await ns.write(usrDirectory + "best_target.txt", rows[bestTargetIndex], "w");
+		await ns.write(usrProbeData, rows[bestTargetIndex], "w");
 		if (useDebug) outputStats(ns, svName);
 	}
 
@@ -102,5 +103,5 @@ export async function main(ns) {
 	}
 
 	// Do things
-	lookForTargets(ns, usrDirectory + usrProbeData);
+	lookForTargets(ns);
 }
