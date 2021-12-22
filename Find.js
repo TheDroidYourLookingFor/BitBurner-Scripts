@@ -2,7 +2,7 @@
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
 	const useDebug = false;
-	const usrProbeData = new String("best_Targets.txt");
+	const usrProbeData = new String("best_target.txt");
 
 	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
