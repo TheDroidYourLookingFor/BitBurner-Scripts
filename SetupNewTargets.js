@@ -1,5 +1,13 @@
 /** @param {NS} ns **/
 export async function main(ns) {
+	const args = ns.flags([['help', false]]);
+	if (args.help) {
+		ns.tprint("This script will distribute our scripts to any hosts not running them.");
+		ns.tprint(`USAGE: run ${ns.getScriptName()}`);
+		ns.tprint("Example:");
+		ns.tprint(`> run ${ns.getScriptName()}`);
+		return;
+	}
 	const useDebug = false;
 	if (useDebug) ns.tail(ns.getScriptName())
 	const usrDirectory = "/TheDroid/";
