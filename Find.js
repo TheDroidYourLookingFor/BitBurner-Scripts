@@ -2,25 +2,32 @@
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
 	const useDebug = false;
+	if (useDebug) ns.tail(ns.getScriptName());
+
 	const usrProbeData = usrDirectory + "best_target.txt";
 	const usrProbeData2 = usrDirectory + "networkProbeData.txt";
 	const usrProbeData3 = usrDirectory + "broke_Targets.txt";
-
-	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
+	
+	var myHackLevel = ns.getHackingLevel();
+	var numBusters = 0;
+	var portBusters = ['BruteSSH.exe', 'FTPCrack.exe', 'relaySMTP.exe', 'HTTPWorm.exe', 'SQLInject.exe'];
+	for (var i = 0; i < portBusters.length; i++) {
+		if (ns.fileExists(portBusters[i], "home")) ++numBusters;
+	}
 
 	/** @param {NS} ns **/
-	function hackTarg(ns, svName) {
-		var numBusters = 0;
-		var portBusters = ['BruteSSH.exe', 'FTPCrack.exe', 'relaySMTP.exe', 'HTTPWorm.exe', 'SQLInject.exe'];
-		for (var i = 0; i < portBusters.length; i++) {
-			if (ns.fileExists(portBusters[i], "home")) ++numBusters;
-		}
-
+	function hackTarg(ns, svName, svPortsNeeded, svReqHack) {
+		if (useDebug) ns.tprint("Attempting to hack target: " + svName);
 		if (!(ns.hasRootAccess(svName)) && (numBusters >= svPortsNeeded) && (myHackLevel >= svReqHack)) {
+			if (useDebug) ns.tprint("Attempting to BruteSSH target: " + svName);
 			if (numBusters > 0) ns.brutessh(svName);
+			if (useDebug) ns.tprint("Attempting to FTPCrack target: " + svName);
 			if (numBusters > 1) ns.ftpcrack(svName);
+			if (useDebug) ns.tprint("Attempting to RelaySMTP target: " + svName);
 			if (numBusters > 2) ns.relaysmtp(svName);
+			if (useDebug) ns.tprint("Attempting to HTTPWorm target: " + svName);
 			if (numBusters > 3) ns.httpworm(svName);
+			if (useDebug) ns.tprint("Attempting to SQLInject target: " + svName);
 			if (numBusters > 4) ns.sqlinject(svName);
 			ns.nuke(svName);
 			if (useDebug) ns.tprint("Server hacked: " + svName);
@@ -28,7 +35,7 @@ export async function main(ns) {
 	}
 	/** @param {NS} ns **/
 	async function lookForTargets(ns, fileName) {
-		var myHackLevel = ns.getHackingLevel();
+		if (useDebug) ns.tprint("Reading: " + fileName);
 		var bestTargetIndex = 15;
 		var bestTargetScore = 0;
 
@@ -47,33 +54,24 @@ export async function main(ns) {
 			var svGrowth = serverData[8];
 			var svScore;
 
-			hackTarg(ns, svName);
+			if (!ns.hasRootAccess(svName)) hackTarg(ns, svName, svPortsNeeded, svReqHack);
 
 			if (ns.hasRootAccess(svName) && (myHackLevel >= svReqHack)) {
 				if (svCurMoney < 50000) {
-					// await ns.write(usrDirectory + "broke_Targets.txt", svName
-					// 	+ "," + ns.getServerMaxRam(svName)
-					// 	+ "," + ns.getServerNumPortsRequired(svName)
-					// 	+ "," + ns.getServerMinSecurityLevel(svName)
-					// 	+ "," + ns.getServerRequiredHackingLevel(svName)
-					// 	+ "," + ns.getHackTime(svName)
-					// 	+ "," + ns.getServerMoneyAvailable(svName)
-					// 	+ "," + ns.getServerMaxMoney(svName)
-					// 	+ "," + ns.getServerGrowth(svName)
-					// 	+ "\r\n");
+					// They broke lets ignore em
 				} else {
 					svScore = ((svMaxMoney * 100 / svGrowth) / svExecTime);
 					if (svScore > bestTargetScore) {
-						if (useDebug) ns.print("New High Score: " + bestTargetScore);
+						if (useDebug) ns.tprint("New High Score: " + bestTargetScore);
 						bestTargetScore = svScore;
 						bestTargetIndex = i;
 					}
 				}
 			}
-			ns.print(i);
 		}
 		await ns.write(usrProbeData, rows[bestTargetIndex], "w");
 		if (useDebug) outputStats(ns, svName);
+		ns.asleep(250);
 	}
 
 	async function outputStats(ns, svrName) {
@@ -89,7 +87,7 @@ export async function main(ns) {
 		var svScore = (100 - svMinSec) * (svMaxMoney - svCurMoney) * svGrowth / svExecTime;
 		var svScore00 = ((100 - svMinSec) * svMaxMoney * svGrowth) / svExecTime;
 		var svScore01 = ((svMaxMoney - svCurMoney) / svGrowth) / svExecTime;
-		ns.print(""
+		ns.tprint(""
 			+ "\r\n-------------------------------------"
 			+ "\r\nScore: " + svScore
 			+ "\r\nScore00: " + svScore00
@@ -109,5 +107,6 @@ export async function main(ns) {
 
 	// Do things
 	lookForTargets(ns, usrProbeData2);
+	await ns.asleep(50);
 	lookForTargets(ns, usrProbeData3);
 }
