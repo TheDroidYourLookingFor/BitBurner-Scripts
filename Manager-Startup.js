@@ -2,8 +2,7 @@
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
 	var autoManageHacking = true;
-	var autoManageHackNet = false;
-	var autoManageHackNetNodes = 8;
+	var autoManageHackNet = true;
 	var autoManageStock = false;
 	var autoManageServers = false;
 	var autoManageServersRam = 8;
@@ -16,7 +15,7 @@ export async function main(ns) {
 		ns.run(usrDirectory + "Manager-Deployment.js", 1);
 	}
 
-	if (autoManageHackNet && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Hacknet.js", ns.getHostname()) && ns.hacknet.numNodes() < autoManageHackNetNodes) {
+	if (autoManageHackNet && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Hacknet.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Hacknet for Auto Hacknet Upgrading");
 		ns.run(usrDirectory + "Manager-Hacknet.js", 1);
 	}
