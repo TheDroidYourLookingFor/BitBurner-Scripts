@@ -57,7 +57,7 @@ export async function main(ns) {
 			if (!ns.hasRootAccess(svName)) hackTarg(ns, svName, svPortsNeeded, svReqHack);
 
 			if (ns.hasRootAccess(svName) && (myHackLevel >= svReqHack)) {
-				if (svCurMoney < 50000) {
+				if (svMaxMoney < 50000) {
 					// They broke lets ignore em
 				} else {
 					svScore = ((svMaxMoney * 100 / svGrowth) / svExecTime);
@@ -106,7 +106,7 @@ export async function main(ns) {
 	}
 
 	// Do things
-	lookForTargets(ns, usrProbeData2);
-	await ns.asleep(50);
 	lookForTargets(ns, usrProbeData3);
+	await ns.asleep(50);
+	lookForTargets(ns, usrProbeData2);
 }
