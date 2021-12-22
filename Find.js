@@ -2,11 +2,13 @@
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
 	const useDebug = false;
+	const usrProbeData = new String("networkProbeData.txt");
+	const usrProbeData2 = new String("broke_Targets.txt");
 
 	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
 	/** @param {NS} ns **/
-	async function lookForTargets(ns) {
+	async function lookForTargets(ns, fileName) {
 		var myHackLevel = ns.getHackingLevel();
 		var bestTargetIndex = 15;
 		var bestTargetScore = 0;
@@ -17,7 +19,7 @@ export async function main(ns) {
 			if (ns.fileExists(portBusters[i], "home")) ++numBusters;
 		}
 
-		var rows = await ns.read(usrDirectory + "networkProbeData.txt").split("\r\n");
+		var rows = await ns.read(fileName).split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
 			if (serverData.length < 9) break;
@@ -101,5 +103,6 @@ export async function main(ns) {
 	}
 
 	// Do things
-	lookForTargets(ns);
+	lookForTargets(ns, usrProbeData);
+	lookForTargets(ns, usrProbeData2);
 }
