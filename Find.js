@@ -9,7 +9,7 @@ export async function main(ns) {
 	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
 	/** @param {NS} ns **/
-	function hackAllTargs(ns, svName) {
+	function hackTarg(ns, svName) {
 		var numBusters = 0;
 		var portBusters = ['BruteSSH.exe', 'FTPCrack.exe', 'relaySMTP.exe', 'HTTPWorm.exe', 'SQLInject.exe'];
 		for (var i = 0; i < portBusters.length; i++) {
@@ -47,7 +47,7 @@ export async function main(ns) {
 			var svGrowth = serverData[8];
 			var svScore;
 
-			hackAllTargs(ns, svName);
+			hackTarg(ns, svName);
 
 			if (ns.hasRootAccess(svName) && (myHackLevel >= svReqHack)) {
 				if (svCurMoney < 50000) {
