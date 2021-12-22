@@ -72,7 +72,7 @@ export async function main(ns) {
 		}
 		await ns.write(usrProbeData, rows[bestTargetIndex], "w");
 		if (useDebug) outputStats(ns, svName);
-		ns.asleep(250);
+		await ns.asleep(250);
 	}
 
 	async function outputStats(ns, svrName) {
@@ -107,7 +107,7 @@ export async function main(ns) {
 	}
 
 	// Do things
-	lookForTargets(ns, usrProbeData3);
-	await ns.asleep(50);
-	lookForTargets(ns, usrProbeData2);
+	await lookForTargets(ns, usrProbeData3);
+	await ns.sleep(250);
+	await lookForTargets(ns, usrProbeData2);
 }
