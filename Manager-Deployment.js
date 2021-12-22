@@ -12,9 +12,9 @@ export async function main(ns) {
 	const usrMode = 4;
 	while (true) {
 		ns.run(usrDirectory + "nmap.js", 1);
-		await ns.sleep(250);
+		await ns.sleep(1000);
 		ns.run(usrDirectory + "Find.js", 1);
-		await ns.sleep(250);
+		await ns.sleep(1000);
 		switch (usrMode) {
 			default:
 				ns.run(usrDirectory + "SetupNewTargets.js", 1);
