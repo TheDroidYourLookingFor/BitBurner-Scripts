@@ -102,5 +102,5 @@ export async function main(ns) {
 	}
 
 	// Do things
-	lookForTargets(ns, usrProbeData);
+	lookForTargets(ns, usrDirectory + usrProbeData);
 }
