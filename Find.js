@@ -4,22 +4,35 @@ export async function main(ns) {
 	const useDebug = false;
 	const usrProbeData = usrDirectory + "best_target.txt";
 	const usrProbeData2 = usrDirectory + "networkProbeData.txt";
+	const usrProbeData3 = usrDirectory + "broke_Targets.txt";
 
 	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
 	/** @param {NS} ns **/
-	async function lookForTargets(ns) {
-		var myHackLevel = ns.getHackingLevel();
-		var bestTargetIndex = 15;
-		var bestTargetScore = 0;
-
+	function hackAllTargs(ns, svName) {
 		var numBusters = 0;
 		var portBusters = ['BruteSSH.exe', 'FTPCrack.exe', 'relaySMTP.exe', 'HTTPWorm.exe', 'SQLInject.exe'];
 		for (var i = 0; i < portBusters.length; i++) {
 			if (ns.fileExists(portBusters[i], "home")) ++numBusters;
 		}
 
-		var rows = await ns.read(usrProbeData2).split("\r\n");
+		if (!(ns.hasRootAccess(svName)) && (numBusters >= svPortsNeeded) && (myHackLevel >= svReqHack)) {
+			if (numBusters > 0) ns.brutessh(svName);
+			if (numBusters > 1) ns.ftpcrack(svName);
+			if (numBusters > 2) ns.relaysmtp(svName);
+			if (numBusters > 3) ns.httpworm(svName);
+			if (numBusters > 4) ns.sqlinject(svName);
+			ns.nuke(svName);
+			if (useDebug) ns.tprint("Server hacked: " + svName);
+		}
+	}
+	/** @param {NS} ns **/
+	async function lookForTargets(ns, fileName) {
+		var myHackLevel = ns.getHackingLevel();
+		var bestTargetIndex = 15;
+		var bestTargetScore = 0;
+
+		var rows = await ns.read(fileName).split("\r\n");
 		for (var i = 0; i < rows.length; ++i) {
 			var serverData = rows[i].split(',');
 			if (serverData.length < 9) break;
@@ -34,15 +47,7 @@ export async function main(ns) {
 			var svGrowth = serverData[8];
 			var svScore;
 
-			if (!(ns.hasRootAccess(svName)) && (numBusters >= svPortsNeeded) && (myHackLevel >= svReqHack)) {
-				if (numBusters > 0) ns.brutessh(svName);
-				if (numBusters > 1) ns.ftpcrack(svName);
-				if (numBusters > 2) ns.relaysmtp(svName);
-				if (numBusters > 3) ns.httpworm(svName);
-				if (numBusters > 4) ns.sqlinject(svName);
-				ns.nuke(svName);
-				if (useDebug) ns.tprint("Server hacked: " + svName);
-			}
+			hackAllTargs(ns, svName);
 
 			if (ns.hasRootAccess(svName) && (myHackLevel >= svReqHack)) {
 				if (svCurMoney < 50000) {
@@ -103,5 +108,6 @@ export async function main(ns) {
 	}
 
 	// Do things
-	lookForTargets(ns);
+	lookForTargets(ns, usrProbeData2);
+	lookForTargets(ns, usrProbeData3);
 }
