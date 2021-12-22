@@ -100,10 +100,10 @@ export async function main(ns) {
 	async function processNmap(ns) {
 
 		if (useDebug) ns.tprint("Beginning distribution of scripts to all servers.");
-		if (useDebug) ns.tprint("Reading " + usrProbeData);
-		await beginNetworkAttack(ns, usrProbeData);
 		if (useDebug) ns.tprint("Reading " + usrProbeData2);
 		await beginNetworkAttack(ns, usrProbeData2);
+		if (useDebug) ns.tprint("Reading " + usrProbeData);
+		await beginNetworkAttack(ns, usrProbeData);
 		if (useDebug) ns.tprint("Finished distributing scripts to all servers.");
 	}
 
