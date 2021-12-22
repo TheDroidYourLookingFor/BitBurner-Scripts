@@ -3,7 +3,7 @@ export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
 	const useDebug = false;
 	const usrProbeData = new String("networkProbeData.txt");
-	const usrProbeData2 = new String("broke_Targets.txt");
+	//const usrProbeData2 = new String("broke_Targets.txt");
 
 	if (useDebug) ns.tail(usrDirectory + "Find.js", "home");
 
@@ -104,5 +104,5 @@ export async function main(ns) {
 
 	// Do things
 	lookForTargets(ns, usrProbeData);
-	lookForTargets(ns, usrProbeData2);
+	//lookForTargets(ns, usrProbeData2);
 }
