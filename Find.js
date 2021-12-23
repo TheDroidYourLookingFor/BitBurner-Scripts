@@ -1,13 +1,13 @@
 /** @param {NS} ns **/
 import {
-	usrDirectory,
+	userDirectory,
 	lookForBestTarget,
 	lookForHackableTargs
 } from "/TheDroid/TheDroid-Core.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {
-	let usrDir = usrDirectory;
+	let usrDir = userDirectory;
 	const usrProbeData2 = usrDir + "networkProbeData.txt";
 	const usrProbeData3 = usrDir + "broke_Targets.txt";
 	// Do things
