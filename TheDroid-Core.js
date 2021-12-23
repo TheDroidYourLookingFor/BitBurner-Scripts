@@ -2,7 +2,7 @@ export var userDirectory = new String("/TheDroid/");
 export var usrProbeData00 = new String("networkProbeData.txt");
 export var usrProbeData01 = new String("broke_Targets.txt");
 export var usrProbeData02 = new String("best_target.txt");
-export var userDebug = new Boolean(true);
+export var userDebug = new Boolean(false);
 
 /** @param {NS} ns **/
 export function userHackingLevel(ns) {
