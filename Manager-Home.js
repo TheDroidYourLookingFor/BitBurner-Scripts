@@ -7,9 +7,9 @@ export async function main(ns) {
 	var hack_mem = ns.getScriptRam(hackScripts[1], localHost);
 	var grow_mem = ns.getScriptRam(hackScripts[2], localHost);
 	// Need to evalute these values later.. best guess for now?
-	var weakenThreadWeight = 15;
-	var hackThreadWeight = 55;
-	var growThreadWeight = 30;
+	var weakenThreadWeight = 50;
+	var hackThreadWeight = 25;
+	var growThreadWeight = 25;
 	var bufferRAM = 64;
 
 	while (true) {
