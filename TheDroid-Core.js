@@ -2,7 +2,7 @@ export var userDirectory = new String("/TheDroid/");
 export var usrProbeData00 = new String("networkProbeData.txt");
 export var usrProbeData01 = new String("broke_Targets.txt");
 export var usrProbeData02 = new String("best_target.txt");
-export var userDebug = new Boolean(false);
+export var userDebug = false;
 
 /** @param {NS} ns **/
 export function userHackingLevel(ns) {
@@ -43,6 +43,27 @@ export function srvGetHackTime(ns, svName) {
 /** @param {NS} ns **/
 export function srvCheckRootAccess(ns, svName) {
 	return ns.hasRootAccess(svName);
+}
+/** @param {NS} ns **/
+export async function attackSrvHack(ns, svName) {
+	const useDebug = userDebug;
+	if (useDebug) ns.tprint("Hacking " + svName + " from " + ns.getHostname());
+	await ns.hack(svName);
+	await ns.sleep(250);
+}
+/** @param {NS} ns **/
+export async function attackSrvGrow(ns, svName) {
+	const useDebug = userDebug;
+	if (useDebug) ns.tprint("Growing " + svName + " from " + ns.getHostname());
+	await ns.grow(svName);
+	await ns.sleep(250);
+}
+/** @param {NS} ns **/
+export async function attackSrvWeaken(ns, svName) {
+	const useDebug = userDebug;
+	if (useDebug) ns.tprint("Weakening " + svName + " from " + ns.getHostname());
+	await ns.weaken(svName);
+	await ns.sleep(250);
 }
 /** @param {NS} ns **/
 export async function srvKillAll(ns, svName) {
@@ -233,7 +254,8 @@ export async function lookForBestTarget(ns, fileName) {
 			if (svCurMoney < 50000 || svMaxMoney == 0) {
 				// They have no money to hack
 			} else {
-				svScore = ((svMaxMoney * 100 / svGrowth) / svExecTime);
+				svScore = Math.round((100 - svMinSec) * svMaxMoney * svGrowth / svExecTime);
+				//svScore = ((svMaxMoney * 100 / svGrowth) / svExecTime);
 				if (svScore > bestTargetScore) {
 					if (useDebug) ns.tprint("New High Score: " + bestTargetScore);
 					bestTargetScore = svScore;
@@ -338,15 +360,15 @@ export function srvFullHack(ns, svName, svPortsNeeded, svReqHack) {
 export async function beginNetworkAttack(ns, checkRunning, fileName, tName) {
 	const useDebug = userDebug;
 	const usrDirectory = userDirectory;
-	const hackScripts = [usrDirectory + "weaken.js", usrDirectory + "hack.js", usrDirectory + "grow.js", usrDirectory + "aio.js"];
+	const hackScripts = [usrDirectory + "weaken.js", usrDirectory + "hack.js", usrDirectory + "grow.js", usrDirectory + "aio.js", usrDirectory + "TheDroid-Core.js"];
 	var hack_mem = ns.getScriptRam(usrDirectory + "weaken.js", "home");
 	var aio_mem = ns.getScriptRam(usrDirectory + "aio.js", "home");
 	if (useDebug) ns.tprint("Hack Memory: " + hack_mem);
 	if (useDebug) ns.tprint("AIO Memory: " + aio_mem);
 
-	var weakenThreadWeight = 15;
-	var hackThreadWeight = 55;
-	var growThreadWeight = 30;
+	var weakenThreadWeight = 40;
+	var hackThreadWeight = 20;
+	var growThreadWeight = 40;
 
 	var rows = await ns.read(usrDirectory + fileName).split("\r\n");
 	for (var i = 0; i < rows.length; ++i) {
@@ -379,15 +401,6 @@ export async function beginNetworkAttack(ns, checkRunning, fileName, tName) {
 					if (useDebug) ns.tprint("Executing " + hackScripts[2] + " with " + grow_threads + " threads on " + tName + " from " + svName);
 					ns.exec(hackScripts[2], svName, grow_threads, tName);
 					await ns.sleep(250);
-
-					svRamAvail = ns.getServerMaxRam(svName);
-					var svRamUsed = ns.getServerUsedRam(svName);
-					num_threads = (svRamAvail - svRamUsed) / hack_mem;
-					if (num_threads > 0) {
-						ns.kill(hackScripts[1], svName, tName);
-						if (useDebug) ns.tprint("Executing " + hackScripts[1] + " with " + num_threads + " threads on " + tName + " from " + svName);
-						ns.exec(hackScripts[1], svName, (hack_threads + num_threads), tName);
-					}
 				}
 			} else {
 				if (svRamAvail > aio_mem) {
