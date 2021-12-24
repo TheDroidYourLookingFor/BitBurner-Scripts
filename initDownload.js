@@ -7,12 +7,17 @@ const scVersion = 1.00;
 
 const baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/'
 const filesToDownload = [
+  'TheDroid-Core.js',
   'Manager-Deployment.js',
   'Manager-Hacknet.js',
   'Manager-Server.js',
   'Manager-Startup.js',
   'Manager-Stock.js',
   'Manager-Home.js',
+  'Manager-Snow.js',
+  'Manager-CustomStats.js',
+  'Manager-ProfitGraph.js',
+  'Manager-Windows.js',
   'hack.js',
   'weaken.js',
   'grow.js',
@@ -26,6 +31,7 @@ const filesToDownload = [
 ]
 const valuesToRemove = ['BB_SERVER_MAP'];
 
+ns.getServerMaxRam("home")
 function localeHHMMSS(ms = 0) {
   if (!ms) {
     ms = new Date().getTime();
