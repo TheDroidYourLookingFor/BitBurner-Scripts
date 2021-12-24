@@ -1,17 +1,44 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
+	var autoWindowMinimze = false;
+	var autoCustomStats = false;
+	var autoProfitGraph = false;
+	var autoSnow = false;
 	var autoManageHacking = true;
 	var autoManageHackNet = true;
 	var autoManageStock = false;
 	var autoManageServers = false;
-	var autoManageServersRam = 8;
 	var autoManageHomeSrv = true;
 
 	ns.toast("Droid Scripts Startup beginning");
 
+	if (autoWindowMinimze && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Windows.js", ns.getHostname())) {
+		ns.toast("Starting Manager-Windows for window minimizing");
+		ns.run(usrDirectory + "Manager-Windows.js", 1);
+	}
+
+	if (autoCustomStats && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-CustomStats.js", ns.getHostname())) {
+		ns.toast("Starting Manager-CustomStats for additional stats on HUD");
+		ns.run(usrDirectory + "Manager-CustomStats.js", 1);
+	}
+
+	if (autoProfitGraph && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-ProfitGraph.js", ns.getHostname())) {
+		ns.toast("Starting Manager-ProfitGraph for graph on HUD");
+		ns.run(usrDirectory + "Manager-ProfitGraph.js", 1);
+	}
+
+	if (autoSnow && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Snow.js", ns.getHostname())) {
+		ns.toast("Starting Manager-Snow to make it snow.");
+		ns.run(usrDirectory + "Manager-Snow.js", 1);
+	}
+
 	if (autoManageHacking && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Deployment.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Deployment for auto hacking.")
+		ns.run(usrDirectory + "nmap.js", 1);
+		await ns.asleep(50);
+		ns.run(usrDirectory + "find.js", 1);
+		await ns.asleep(50);
 		ns.run(usrDirectory + "Manager-Deployment.js", 1);
 	}
 
@@ -20,7 +47,7 @@ export async function main(ns) {
 		ns.run(usrDirectory + "Manager-Hacknet.js", 1);
 	}
 
-	if (autoManageServers && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Server.js", ns.getHostname()) && ns.getServerMaxRam("pserv-0") < autoManageServersRam) {
+	if (autoManageServers && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Server.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Server for Auto VPS Upgrading");
 		ns.run(usrDirectory + "Manager-Server.js", 1, autoManageServersRam);
 	}
