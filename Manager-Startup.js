@@ -36,9 +36,9 @@ export async function main(ns) {
 	if (autoManageHacking && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Deployment.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Deployment for auto hacking.")
 		ns.run(usrDirectory + "nmap.js", 1);
-		await ns.asleep(50);
+		await ns.sleep(50);
 		ns.run(usrDirectory + "find.js", 1);
-		await ns.asleep(50);
+		await ns.sleep(50);
 		ns.run(usrDirectory + "Manager-Deployment.js", 1);
 	}
 
