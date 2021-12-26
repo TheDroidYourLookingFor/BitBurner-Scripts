@@ -18,6 +18,7 @@ const filesToDownload = [
   'Manager-CustomStats.js',
   'Manager-ProfitGraph.js',
   'Manager-Windows.js',
+  'Manager-Contracts.js',
   'hack.js',
   'weaken.js',
   'grow.js',
