@@ -18,7 +18,6 @@ const filesToDownload = [
   'Manager-CustomStats.js',
   'Manager-ProfitGraph.js',
   'Manager-Windows.js',
-  'Manager-Contracts.js',
   'hack.js',
   'weaken.js',
   'grow.js',
@@ -81,7 +80,10 @@ export async function main(ns) {
   valuesToRemove.map((value) => localStorage.removeItem(value));
 
   if (launchScript) {
-    ns.tprint(`[${localeHHMMSS()}] Spawning ` + scriptToLaunch);
+    ns.tprint(`[${localeHHMMSS()}] Spawning ` + usrDirectory + "nmap.js");
+    ns.run(usrDirectory + "nmap.js", 1);
+    await ns.sleep(100);
+    ns.tprint(`[${localeHHMMSS()}] Spawning ` + usrDirectory + scriptToLaunch);
     ns.run(usrDirectory + scriptToLaunch, scriptToLaunchThreads);
   }
 }
