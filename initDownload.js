@@ -32,7 +32,6 @@ const filesToDownload = [
 ]
 const valuesToRemove = ['BB_SERVER_MAP'];
 
-ns.getServerMaxRam("home")
 function localeHHMMSS(ms = 0) {
   if (!ms) {
     ms = new Date().getTime();
