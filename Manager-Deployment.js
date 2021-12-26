@@ -25,11 +25,13 @@ export async function main(ns) {
 		if (useNmap) {
 			ns.run(usrDirectory + "nmap.js", 1);
 			await ns.sleep(1000);
-			if (useAutoHack) {
-				lookForHackableTargs(ns, usrProbeData00);
-				await ns.sleep(250);
-				lookForHackableTargs(ns, usrProbeData01);
-			}
+		}
+		if (useAutoHack) {
+			ns.run(usrDirectory + "nmap.js", 1);
+			await ns.sleep(1000);
+			await lookForHackableTargs(ns, usrDirectory + usrProbeData00);
+			await ns.sleep(250);
+			await lookForHackableTargs(ns, usrDirectory + usrProbeData01);
 		}
 		if (useFind) {
 			ns.run(usrDirectory + "Find.js", 1);
