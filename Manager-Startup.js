@@ -1,13 +1,13 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
-	var autoWindowMinimze = true;
-	var autoCustomStats = true;
-	var autoProfitGraph = true;
+	var autoWindowMinimze = false;
+	var autoCustomStats = false;
+	var autoProfitGraph = false;
 	var autoSnow = false;
 	var autoManageHacking = true;
 	var autoManageHackNet = true;
-	var autoManageStock = true;
+	var autoManageStock = false;
 	var autoManageServers = true;
 	var autoManageHomeSrv = true;
 
