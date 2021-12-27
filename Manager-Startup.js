@@ -1,14 +1,14 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
-	var autoWindowMinimze = false;
-	var autoCustomStats = false;
-	var autoProfitGraph = false;
+	var autoWindowMinimze = true;
+	var autoCustomStats = true;
+	var autoProfitGraph = true;
 	var autoSnow = false;
 	var autoManageHacking = true;
 	var autoManageHackNet = true;
-	var autoManageStock = false;
-	var autoManageServers = false;
+	var autoManageStock = true;
+	var autoManageServers = true;
 	var autoManageHomeSrv = true;
 
 	ns.toast("Droid Scripts Startup beginning");
@@ -36,9 +36,9 @@ export async function main(ns) {
 	if (autoManageHacking && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Deployment.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Deployment for auto hacking.")
 		ns.run(usrDirectory + "nmap.js", 1);
-		await ns.sleep(50);
-		ns.run(usrDirectory + "find.js", 1);
-		await ns.sleep(50);
+		await ns.sleep(1000);
+		ns.run(usrDirectory + "Find.js", 1);
+		await ns.sleep(1000);
 		ns.run(usrDirectory + "Manager-Deployment.js", 1);
 	}
 
@@ -49,7 +49,7 @@ export async function main(ns) {
 
 	if (autoManageServers && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Server.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Server for Auto VPS Upgrading");
-		ns.run(usrDirectory + "Manager-Server.js", 1, autoManageServersRam);
+		ns.run(usrDirectory + "Manager-Server.js", 1);
 	}
 
 	if (autoManageStock && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Stock.js", ns.getHostname())) {
