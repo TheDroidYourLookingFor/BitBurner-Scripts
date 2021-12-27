@@ -9,8 +9,8 @@ import {
 /** @param {NS} ns **/
 export async function main(ns) {
 	const useNmap = true;
-	const useFind = false;
-	const useAutoHack = true;
+	const useFind = true;
+	const useAutoHack = false;
 	const usrDirectory = userDirectory;
 	const args = ns.flags([['help', false]]);
 	if (args.help) {
