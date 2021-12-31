@@ -4,8 +4,21 @@ export var usrProbeData01 = new String("broke_Targets.txt");
 export var usrProbeData02 = new String("best_target.txt");
 export var userDebug = false;
 
-export function debugMessage(ns, message){
-	if (userDebug) ns.tprint(`[${localeHHMMSS()}] ` + message)
+/** @param {NS} ns **/
+export function debugMessage(ns, message) {
+	const usrDebug = userDebug;
+	if (usrDebug) consoleMessage(ns, `[DEBUG] ` + message)
+}
+/** @param {NS} ns **/
+export function consoleMessage(ns, message) {
+	ns.tprintf(`[${localeHHMMSS()}]` + message)
+}
+/** @param {NS} ns **/
+export function localeHHMMSS(ms = 0) {
+	if (!ms) {
+		ms = new Date().getTime()
+	}
+	return new Date(ms).toLocaleTimeString()
 }
 /** @param {NS} ns **/
 export function userHackingLevel(ns) {
@@ -421,14 +434,6 @@ export function getItem(key) {
 	let item = localStorage.getItem(key)
 
 	return item ? JSON.parse(item) : undefined
-}
-/** @param {NS} ns **/
-export function localeHHMMSS(ms = 0) {
-	if (!ms) {
-		ms = new Date().getTime()
-	}
-
-	return new Date(ms).toLocaleTimeString()
 }
 /** @param {NS} ns **/
 export function convert2DArrayToString(arr) {

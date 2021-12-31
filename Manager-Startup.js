@@ -6,9 +6,9 @@ export async function main(ns) {
 	var autoProfitGraph = false;
 	var autoSnow = false;
 	var autoManageHacking = true;
-	var autoManageHackNet = true;
+	var autoManageHackNet = false;
 	var autoManageStock = false;
-	var autoManageServers = true;
+	var autoManageServers = false;
 	var autoManageHomeSrv = true;
 
 	ns.toast("Droid Scripts Startup beginning");

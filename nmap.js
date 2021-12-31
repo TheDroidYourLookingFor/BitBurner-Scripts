@@ -6,7 +6,6 @@ export async function main(ns) {
 	var servers = ["home"];
 	var newScan;
 	var hostname;
-
 	/** @param {NS} ns **/
 	async function probeNetwork(ns) {
 		newScan = ns.scan(hostname);
@@ -52,5 +51,4 @@ export async function main(ns) {
 	}
 	// write some launch commands
 	await outputProbeToFile(ns);
-	
 }

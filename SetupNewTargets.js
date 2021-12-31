@@ -3,6 +3,7 @@ import {
 	userDebug,
 	userDirectory,
 	beginNetworkAttack,
+	debugMessage,
 	usrProbeData00,
 	usrProbeData01,
 	usrProbeData02
@@ -28,13 +29,13 @@ export async function main(ns) {
 
 	/** @param {NS} ns **/
 	async function processNmap(ns) {
-		if (useDebug) ns.tprint("Beginning distribution of scripts to all servers.");
-		if (useDebug) ns.tprint("Best Target: " + targName);
-		if (useDebug) ns.tprint("Reading " + usrProbeData2);
+		debugMessage(ns,"Beginning distribution of scripts to all servers.");
+		debugMessage(ns,"Best Target: " + targName);
+		debugMessage(ns,"Reading " + usrProbeData2);
 		await beginNetworkAttack(ns, true, usrProbeData2, targName);
-		if (useDebug) ns.tprint("Reading " + usrProbeData);
+		debugMessage(ns,"Reading " + usrProbeData);
 		await beginNetworkAttack(ns, true, usrProbeData, targName);
-		if (useDebug) ns.tprint("Finished distributing scripts to all servers.");
+		debugMessage(ns,"Finished distributing scripts to all servers.");
 	}
 
 	await processNmap(ns);
