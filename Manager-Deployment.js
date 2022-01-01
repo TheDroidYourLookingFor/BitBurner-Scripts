@@ -28,7 +28,7 @@ export async function main(ns) {
 	serverList = [];
 	var svTarget = "joesguns";
 	var lastTarget = svTarget;
-	const hackScripts = [usrDirectory + "weaken.js", usrDirectory + "hack.js", usrDirectory + "grow.js"];
+	const hackScripts = [usrDirectory + "Target-Weaken.js", usrDirectory + "Target-Hack.js", usrDirectory + "Target-Grow.js"];
 	const scriptCore = usrDirectory + "TheDroid-Core.js";
 
 	const args = ns.flags([['help', false]]);
