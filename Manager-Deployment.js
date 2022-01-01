@@ -1,6 +1,7 @@
 /** @param {NS} ns **/
 import {
-	userDirectory,
+	scriptCore,
+	scriptWHG,
 	consoleMessage,
 	lookForHackableTargs,
 	lookForBestTarget,
@@ -13,7 +14,10 @@ import {
 	prepareTargets,
 	probeNetwork,
 	outputDeploymentCountdown,
-	deploymentCountdown
+	deploymentCountdown,
+	setTotalThreads,
+	setTotalServers,
+	countTotalThreads
 } from "/TheDroid/TheDroid-Core.js";
 
 var serverList = [];
@@ -22,14 +26,12 @@ export async function main(ns) {
 	const useAutoHack = true;
 	const useAutoFindBest = true;
 	const useHomeServer = true;
-	const usrDirectory = userDirectory;
 	ns.tail();
 	ns.disableLog('ALL');
 	serverList = [];
 	var svTarget = "joesguns";
 	var lastTarget = svTarget;
-	const hackScripts = [usrDirectory + "Target-Weaken.js", usrDirectory + "Target-Hack.js", usrDirectory + "Target-Grow.js"];
-	const scriptCore = usrDirectory + "TheDroid-Core.js";
+	var lastMode = "weaken";
 
 	const args = ns.flags([['help', false]]);
 	if (args.help) {
@@ -39,7 +41,7 @@ export async function main(ns) {
 		ns.tprint(`> run ${ns.getScriptName()}`);
 		return;
 	}
-
+	
 	outputDeploymentCountdown(ns, 0, true);
 	while (true) {
 		if (useAutoHack) {
@@ -64,21 +66,35 @@ export async function main(ns) {
 		var securityThresh = srvGetMinSecurityLevel(ns, svTarget) + 5;
 
 		if (srvGetSecurityLevel(ns, svTarget) > securityThresh) {
-			if (useHomeServer) prepareHome(ns, hackScripts[0], svTarget, 64, hackScripts[1], hackScripts[2]);
+			if (lastMode != "weaken") {
+				lastMode = "weaken";
+				setTotalServers(0);
+				setTotalThreads(0);
+			}
+			if (useHomeServer) prepareHome(ns, scriptWHG[0], svTarget, 64, scriptWHG[1], scriptWHG[2]);
 			serverList = probeNetwork(ns);
-			try { await prepareTargets(ns, serverList, hackScripts[0], scriptCore, svTarget); } catch { }
+			try { await prepareTargets(ns, serverList, scriptWHG[0], scriptCore, svTarget); } catch(e) { }
 		} else if (srvGetMoneyAvailable(ns, svTarget) < moneyThresh) {
-			if (useHomeServer) prepareHome(ns, hackScripts[2], svTarget, 64, hackScripts[0], hackScripts[1]);
+			if (lastMode != "grow") {
+				lastMode = "grow";
+				setTotalServers(0);
+				setTotalThreads(0);
+			}
+			if (useHomeServer) prepareHome(ns, scriptWHG[2], svTarget, 64, scriptWHG[0], scriptWHG[1]);
 			serverList = probeNetwork(ns);
-			try { await prepareTargets(ns, serverList, hackScripts[2], scriptCore, svTarget); } catch { }
+			try { await prepareTargets(ns, serverList, scriptWHG[2], scriptCore, svTarget); } catch(e) { }
 		} else {
-			if (useHomeServer) prepareHome(ns, hackScripts[1], svTarget, 64, hackScripts[0], hackScripts[2]);
+			if (lastMode != "attack") {
+				lastMode = "attack";
+				setTotalServers(0);
+				setTotalThreads(0);
+			}
+			if (useHomeServer) prepareHome(ns, scriptWHG[1], svTarget, 64, scriptWHG[0], scriptWHG[2]);
 			serverList = probeNetwork(ns);
-			try { await prepareTargets(ns, serverList, hackScripts[1], scriptCore, svTarget); } catch { }
+			try { await prepareTargets(ns, serverList, scriptWHG[1], scriptCore, svTarget); } catch(e) { }
 		}
 
 		await ns.asleep(250);
-		if (deploymentCountdown > 0) outputDeploymentCountdown(ns, 250, false);
-		outputDeployment(ns, svTarget);
+		outputDeployment(ns, svTarget, lastMode);
 	}
 }
