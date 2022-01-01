@@ -40,9 +40,6 @@ export function srvGetReqHackingLevel(ns, svName) {
 export function srvGetMinSecurityLevel(ns, svName) {
 	return ns.getServerMinSecurityLevel(svName);
 }
-export function srvGetSecurityLevel(ns, svName) {
-	return ns.getServerSecurityLevel(svName);
-}
 /** @param {NS} ns **/
 export function srvGetGrowth(ns, svName) {
 	return ns.getServerGrowth(svName);
@@ -215,45 +212,72 @@ export function nFormatter(num, digits) {
 	});
 	return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
 }
+
 /** @param {NS} ns **/
 export function autocomplete(data, args) {
 	return [...data.servers];
 }
+
 /** @param {NS} ns **/
-export function lookForHackableTargs(ns, serverList) {
-	serverList.forEach(function (server) {
-		if (!srvCheckRootAccess(ns, server.hostname)) srvFullHack(ns, server.hostname, server.numOpenPortsRequired, server.requiredHackingSkill);
-	});
+export async function lookForHackableTargs(ns, fileName) {
+	var rows = await ns.read(fileName).split("\r\n");
+	for (var i = 0; i < rows.length; ++i) {
+		var serverData = rows[i].split(',');
+		if (serverData.length < 9) break;
+		var svName = serverData[0];
+		var svRam = serverData[1];
+		var svPortsNeeded = serverData[2];
+		var svMinSec = serverData[3];
+		var svReqHack = serverData[4];
+		var svExecTime = serverData[5];
+		var svCurMoney = serverData[6];
+		var svMaxMoney = serverData[7];
+		var svGrowth = serverData[8];
+		var svScore;
+
+		if (!srvCheckRootAccess(ns, svName)) srvFullHack(ns, svName, svPortsNeeded, svReqHack);
+	}
 }
 /** @param {NS} ns **/
-export async function lookForBestTarget(ns, serverList) {
-	var bestTarget;
+export async function lookForBestTarget(ns, fileName) {
+	const usrDirectory = userDirectory;
+	let usrProbeData = usrDirectory + "best_target.txt";
+	debugMessage(ns, "Reading: " + fileName);
+	var bestTargetIndex = 15;
 	var bestTargetScore = 0;
 
-	serverList.forEach(function (server) {
-		if (srvCheckRootAccess(ns, server.hostname) && (userHackingLevel(ns) >= server.requiredHackingSkill)) {
-			if (server.moneyMax == 0) {
+	var rows = await ns.read(fileName).split("\r\n");
+	for (var i = 0; i < rows.length; ++i) {
+		var serverData = rows[i].split(',');
+		if (serverData.length < 9) break;
+		var svName = serverData[0];
+		var svRam = serverData[1];
+		var svPortsNeeded = serverData[2];
+		var svMinSec = serverData[3];
+		var svReqHack = serverData[4];
+		var svExecTime = serverData[5];
+		var svCurMoney = serverData[6];
+		var svMaxMoney = serverData[7];
+		var svGrowth = serverData[8];
+		var svScore;
+
+		if (srvCheckRootAccess(ns, svName) && (userHackingLevel(ns) >= svReqHack)) {
+			if (svCurMoney < 50000 || svMaxMoney == 0) {
 				// They have no money to hack
 			} else {
-				var svExecTime = srvGetHackTime(ns, server.hostname);
-				//let svScore = Math.round((100 - server.minDifficulty) * server.moneyMax * server.serverGrowth / svExecTime);
-				//let svScore = Math.round(((server.moneyMax * 100 / server.serverGrowth) / svExecTime));
-				let svScore = Math.round((server.moneyMax / server.minDifficulty) / svExecTime);
+				svScore = Math.round((100 - svMinSec) * svMaxMoney * svGrowth / svExecTime);
+				//svScore = ((svMaxMoney * 100 / svGrowth) / svExecTime);
 				if (svScore > bestTargetScore) {
-					if (server.hostname != "n00dles") {
-						debugMessage(ns, "New High Score: " + bestTargetScore);
-						bestTargetScore = svScore;
-						bestTarget = server.hostname;
-					} else if (server.hostname == "n00dles" && userHackingLevel(ns) <= 250) {
-						debugMessage(ns, "New High Score: " + bestTargetScore);
-						bestTargetScore = svScore;
-						bestTarget = server.hostname;
-					}
+					debugMessage(ns, "New High Score: " + bestTargetScore);
+					bestTargetScore = svScore;
+					bestTargetIndex = i;
 				}
 			}
 		}
-	});
-	return bestTarget;
+	}
+	await ns.write(usrProbeData, rows[bestTargetIndex], "w");
+	if (userDebug) await outputStats(ns, svName, rows[bestTargetIndex]);
+	await ns.sleep(250);
 }
 
 /** @param {NS} ns **/
@@ -330,10 +354,10 @@ export function srvFullHack(ns, svName, svPortsNeeded, svReqHack) {
 		if (numBusters > 4) ns.sqlinject(svName);
 		ns.nuke(svName);
 		//ns.installBackdoor();
-		consoleMessage(ns, "Server hacked: " + svName);
+		debugMessage(ns, "Server hacked: " + svName);
 	} else {
-		if (numBusters < svPortsNeeded)
-			debugMessage(ns, "We do not have enough port busters."
+		if (numBusters < svPortsNeeded && userDebug)
+			ns.tprint("We do not have enough port busters."
 				+ "\r\nRequired: " + svReqHack
 				+ "\r\nCurrent: " + numBusters
 			);
@@ -821,21 +845,15 @@ export async function findContracts(ns, fileName, contractsDb) {
 		}
 	}
 }
-export function setTotalThreads(curValue) {
-	totalThreads = curValue;
-}
-export var totalThreads = 0;
-export var lastTotalThreads = 0;
-export function setTotalServers(curValue) {
-	totalServers = curValue;
-}
-export var totalServers = 0;
-export var lastTotalServers = 0;
+var totalThreads;
+var totalServers;
 /** @param {NS} ns **/
 export async function prepareTargets(ns, svList, svScript, svScriptCore, tName) {
+	totalThreads = 0;
+	totalServers = 0;
 	var script_mem = ns.getScriptRam(svScript, "home");
 	for (const svHost of svList) {
-		if (svHost.hasAdminRights && svHost.maxRam > script_mem && !ns.isRunning(svScript, svHost.hostname, tName)) {
+		if (svHost.hasAdminRights && svHost.maxRam > script_mem && !ns.scriptRunning(svScript, svHost.hostname)) {
 			let num_threads = Math.floor(svHost.maxRam / script_mem);
 			if (num_threads > 0) {
 				await ns.scp(svScript, "home", svHost.hostname);
@@ -845,43 +863,24 @@ export async function prepareTargets(ns, svList, svScript, svScriptCore, tName) 
 				ns.exec(svScript, svHost.hostname, num_threads, tName);
 				if (svScript.includes("weaken")) {
 					var weakTime = msToTime(ns.getWeakenTime(tName));
-					deploymentCountdown = ns.getWeakenTime(tName);
 					debugMessage(ns, "[WEAKEN]" + svHost.hostname + " execution time " + weakTime + " with " + num_threads + " threads.");
 				}
 				if (svScript.includes("grow")) {
 					var growTime = msToTime(ns.getGrowTime(tName));
-					deploymentCountdown = ns.getGrowTime(tName);
 					debugMessage(ns, "[GROW]" + svHost.hostname + " execution time " + growTime + " with " + num_threads + " threads.");
 				}
 				if (svScript.includes("hack")) {
 					var hackTime = msToTime(ns.getHackTime(tName));
-					deploymentCountdown = ns.getHackTime(tName);
 					debugMessage(ns, "[HACK]" + svHost.hostname + " execution time " + hackTime + " with " + num_threads + " threads.");
 				}
-				if (lastTotalThreads < totalThreads) {
-					totalThreads += num_threads;
-				}
-				if (lastTotalServers < totalServers) {
-					++totalServers;
-				}
+				totalThreads += num_threads;
+				++totalServers;
 			}
 		}
 	}
 	if (svScript.includes("weaken") && totalThreads > 0) consoleMessage(ns, "[WEAKEN]" + "Began weakening with " + totalThreads + " total threads from " + totalServers + " servers.");
 	if (svScript.includes("grow") && totalThreads > 0) consoleMessage(ns, "[GROW]" + "Began growing with " + totalThreads + " total threads from " + totalServers + " servers.");
 	if (svScript.includes("hack") && totalThreads > 0) consoleMessage(ns, "[HACK]" + "Began attacking with " + totalThreads + " total threads from " + totalServers + " servers.");
-}
-/** @param {NS} ns **/
-export function prepareHome(ns, svScript, tName, bufferRAM, svScript01, svScript02) {
-	if (ns.scriptRunning(svScript, ns.getHostname()) && !ns.isRunning(svScript, ns.getHostname(), tName)) ns.scriptKill(svScript, ns.getHostname());
-	if (ns.scriptRunning(svScript01, ns.getHostname())) ns.scriptKill(svScript01, ns.getHostname());
-	if (ns.scriptRunning(svScript02, ns.getHostname())) ns.scriptKill(svScript02, ns.getHostname());
-
-	var svRamAvail = ((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) - bufferRAM);
-	var num_threads = svRamAvail / ns.getScriptRam(svScript, "home");
-	if (num_threads > 0 && !ns.isRunning(svScript, ns.getHostname(), tName)) {
-		ns.exec(svScript, "home", num_threads, tName);
-	}
 }
 /** @param {NS} ns **/
 export function msToTime(duration) {
@@ -920,7 +919,7 @@ export function probeNetwork(ns) {
 		hostname = servers[i];
 		networkScan = ns.scan(hostname);
 		for (var j = 0; j < networkScan.length; j++) {
-			if (servers.indexOf(networkScan[j]) == -1) {
+			if (servers.indexOf(networkScan[j]) == -1 && ns.getRunningScript()) {
 				servers.push(networkScan[j]);
 				debugMessage(ns, "Found host: " + networkScan[j]);
 				serverList.push(ns.getServer(networkScan[j]))
@@ -930,14 +929,6 @@ export function probeNetwork(ns) {
 	debugMessage(ns, "Network mapped.");
 	return serverList;
 }
-export function outputDeploymentCountdown(ns, curValue, setValue) {
-	if (setValue) {
-		deploymentCountdown = curValue;
-	} else {
-		deploymentCountdown -= curValue;
-	}
-}
-export var deploymentCountdown;
 /** @param {NS} ns **/
 export function outputDeployment(ns, svTarget) {
 	let money = srvGetMoneyAvailable(ns, svTarget);
@@ -949,23 +940,18 @@ export function outputDeployment(ns, svTarget) {
 	var svRAM = ns.getServerMaxRam(svTarget);
 	var svPorts = ns.getServerNumPortsRequired(svTarget);
 	var svReqHack = ns.getServerRequiredHackingLevel(svTarget);
-	var svSec = ns.getServerSecurityLevel(svTarget);
 	var svMinSec = ns.getServerMinSecurityLevel(svTarget);
 	var svGrowth = ns.getServerGrowth(svTarget);
 	var svCurMoney = ns.getServerMoneyAvailable(svTarget);
 	var svMaxMoney = ns.getServerMaxMoney(svTarget);
-	var max_length = 22;
-	var border_max_length = 53;
+	var max_length = 25;
+	var border_max_length = 45;
 	var outputTheDruid = "TheDroid Deployment";
-	var outputCountdown = "\r\nCountdown:"
-	var outputTotalThreads = "\r\nTotal Threads:"
-	var outputTotalServers = "\r\nTotal Servers:"
 	var outputBlank = "\r\n";
 	var outputHost = "\r\nHost:"
 	var outputMaxRam = "\r\nMax Ram:"
 	var outputPorts = "\r\nPorts:"
 	var outputReqHacking = "\r\nRequired Hacking:"
-	var outputSec = "\r\nSecurity:"
 	var outputMinSec = "\r\nMin Security:"
 	var outputSrvGrowth = "\r\nServer Growth:"
 	var outputSrvMoney = "\r\nServer Money:"
@@ -978,21 +964,21 @@ export function outputDeployment(ns, svTarget) {
 	ns.print(""
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		+ outputBlank
-		+ ' '.repeat(15) + outputTheDruid
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
-		+ outputTotalServers + ' '.repeat(max_length - outputTotalServers.length) + totalThreads
-		+ outputTotalThreads + ' '.repeat(max_length - outputTotalThreads.length) + totalThreads
+		+ ' '.repeat(12) + outputTheDruid
+		+ outputBlank + outputBlank
+		+ ' '.repeat(15) + "Threads"
+		+ outputBlank + '-'.repeat(border_max_length)
 		+ outputSecurity + ' '.repeat(max_length - outputSecurity.length) + `+${(sec - minSec).toFixed(2)}`
 		+ outputHack + ' '.repeat(max_length - outputHack.length) + `${ns.tFormat(ns.getHackTime(svTarget))} (t=${Math.ceil(ns.hackAnalyzeThreads(svTarget, money))})`
 		+ outputGrow + ' '.repeat(max_length - outputGrow.length) + `${ns.tFormat(ns.getGrowTime(svTarget))} (t=${Math.ceil(ns.growthAnalyze(svTarget, maxMoney / money))})`
 		+ outputWeaken + ' '.repeat(max_length - outputWeaken.length) + `${ns.tFormat(ns.getWeakenTime(svTarget))} (t=${Math.ceil((sec - minSec) * 20)})`
-		+ outputCountdown + ' '.repeat(max_length - outputCountdown.length) + msToTime(deploymentCountdown)
+		+ outputBlank + outputBlank
+		+ ' '.repeat(15) + "Target Stats"
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		+ outputHost + ' '.repeat(max_length - outputHost.length) + svTarget
 		+ outputMaxRam + ' '.repeat(max_length - outputMaxRam.length) + svRAM + "GB"
 		+ outputPorts + ' '.repeat(max_length - outputPorts.length) + svPorts
 		+ outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack
-		+ outputSec + ' '.repeat(max_length - outputSec.length) + svSec
 		+ outputMinSec + ' '.repeat(max_length - outputMinSec.length) + svMinSec
 		+ outputSrvGrowth + ' '.repeat(max_length - outputSrvGrowth.length) + svGrowth
 		+ outputSrvMoney + ' '.repeat(max_length - outputSrvMoney.length) + ns.nFormat(svCurMoney, '$0,0.00')

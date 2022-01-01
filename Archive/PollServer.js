@@ -13,9 +13,6 @@ export async function main(ns) {
 	var svScore00 = nFormatter(Math.round((100 - svMinSec) * svMaxMoney * svGrowth / svExecTime), 2);
 	var svScore01 = ns.nFormat(((svMaxMoney / svGrowth) / svExecTime), '0.0000');
 	let hackThreads = Math.floor((0.50 / ns.hackAnalyze(svName)));
-	let ha = ns.hackAnalyze(svName);
-	let ga = ns.growthAnalyze(svName, 2);
-	let wa = ns.weakenAnalyze(svName, 1);
 	var max_length = 30;
 	var border_max_length = 45;
 	var outputBlank = "\r\n";
@@ -27,9 +24,6 @@ export async function main(ns) {
 	var outputPorts = "\r\nPorts:"
 	var outputHackTime = "\r\nHack Time:"
 	var outputHackThreads = "\r\nNeeded Hack Threads:"
-	var outputHackAnalyze = "\r\nHack Analyze:"
-	var outputGrowAnalyze = "\r\nGrow Analyze:"
-	var outputWeakenAnalyze = "\r\nWeaken Analyze:"
 	var outputReqHacking = "\r\nRequired Hacking:"
 	var outputMinSec = "\r\nMin Security:"
 	var outputSrvGrowth = "\r\nServer Growth:"
@@ -47,9 +41,6 @@ export async function main(ns) {
 		+ outputHackTime + ' '.repeat(max_length - outputHackTime.length) + ns.nFormat(svExecTime, '0.00')
 		+ outputHackThreads + ' '.repeat(max_length - outputHackThreads.length) + ns.nFormat(hackThreads, '0.00')
 		+ outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack
-		+ outputHackAnalyze + ' '.repeat(max_length - outputHackAnalyze.length) + ha
-		+ outputWeakenAnalyze + ' '.repeat(max_length - outputWeakenAnalyze.length) + ga
-		+ outputGrowAnalyze + ' '.repeat(max_length - outputGrowAnalyze.length) + wa
 		+ outputMinSec + ' '.repeat(max_length - outputMinSec.length) + svMinSec
 		+ outputSrvGrowth + ' '.repeat(max_length - outputSrvGrowth.length) + svGrowth
 		+ outputSrvMoney + ' '.repeat(max_length - outputSrvMoney.length) + ns.nFormat(svCurMoney, '$0,0.00')

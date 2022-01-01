@@ -10,7 +10,7 @@ export async function main(ns) {
     }
 
     const useDebug = false;
-    if (useDebug) ns.tail();
+    if (useDebug) ns.tail(ns.getScriptName());
     const usrDirectory = "/TheDroid/";
     const doc = eval("document");
     //const doc = document; // This is expensive! (25GB RAM) Perhaps there's a way around it? ;)

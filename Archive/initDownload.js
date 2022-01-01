@@ -8,20 +8,26 @@ const scVersion = 1.00;
 const baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/'
 const filesToDownload = [
   'TheDroid-Core.js',
-  'Manager-Contracts.js',
-  'Manager-CustomStats.js',
   'Manager-Deployment.js',
   'Manager-Hacknet.js',
-  'Manager-ProfitGraph.js',
   'Manager-Server.js',
-  'Manager-Snow.js',
   'Manager-Startup.js',
   'Manager-Stock.js',
+  'Manager-Home.js',
+  'Manager-Snow.js',
+  'Manager-CustomStats.js',
+  'Manager-ProfitGraph.js',
   'Manager-Windows.js',
-  'Target-Hack.js',
-  'Target-Weaken.js',
-  'Target-Grow.js',
-  'PollServer.js'
+  'hack.js',
+  'weaken.js',
+  'grow.js',
+  'aio.js',
+  'Distribute.js',
+  'Find.js',
+  'PollServer.js',
+  'SetupNewTargets.js',
+  'SetTarget.js',
+  'nmap.js',
 ]
 const valuesToRemove = ['BB_SERVER_MAP'];
 
