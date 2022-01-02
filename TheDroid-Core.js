@@ -4,6 +4,7 @@ export var usrProbeData01 = new String("broke_Targets.txt");
 export var usrProbeData02 = new String("best_target.txt");
 export var userDebug = false;
 
+export const scriptAll = [userDirectory + "Target-Weaken.js", userDirectory + "Target-Hack.js", userDirectory + "Target-Grow.js", userDirectory + "Target-AIO.js", userDirectory + "TheDroid-Core.js"];
 export const scriptWHG = [userDirectory + "Target-Weaken.js", userDirectory + "Target-Hack.js", userDirectory + "Target-Grow.js"];
 export const scriptCore = userDirectory + "TheDroid-Core.js";
 
@@ -239,7 +240,8 @@ export async function lookForBestTarget(ns, serverList) {
 				// They have no money to hack
 			} else {
 				var svExecTime = srvGetHackTime(ns, server.hostname);
-				let svScore = Math.round((100 - server.minDifficulty) * server.moneyMax * server.serverGrowth / svExecTime);
+				// let svScore = Math.round((100 - server.minDifficulty) * server.moneyMax * server.serverGrowth / svExecTime);
+				let svScore = Math.round((server.moneyMax / server.minDifficulty) * server.serverGrowth / svExecTime);
 				//let svScore = Math.round(((server.moneyMax * 100 / server.serverGrowth) / svExecTime));
 				//let svScore = Math.round((server.moneyMax / server.minDifficulty) / svExecTime);
 				if (svScore > bestTargetScore) {
@@ -835,6 +837,150 @@ export function setTotalServers(curValue) {
 	totalServers = curValue;
 }
 /** @param {NS} ns **/
+export async function deployTarget(ns, svHost, svScript, svScriptCore, tName, maxThreads) {
+	var script_mem = ns.getScriptRam(svScript, "home");
+	if (svHost.hasAdminRights && svHost.maxRam > script_mem && !ns.isRunning(svScript, svHost.hostname, tName)) {
+		let num_threads = Math.floor(svHost.maxRam / script_mem);
+		if (num_threads > 0) {
+			if (num_threads > maxThreads) num_threads = maxThreads;
+			await ns.scp(svScript, "home", svHost.hostname);
+			await ns.scp(svScriptCore, "home", svHost.hostname);
+			debugMessage(ns, "Executing " + svScript + " with " + num_threads + " threads on " + tName + " from " + svHost.hostname);
+			ns.exec(svScript, svHost.hostname, num_threads, tName);
+			if (svScript.includes("weaken")) {
+				debugMessage(ns, "[WEAKEN]" + svHost.hostname + " began weakening " + tName + " with " + num_threads + " threads.");
+			}
+			if (svScript.includes("grow")) {
+				debugMessage(ns, "[GROW]" + svHost.hostname + " began growing " + tName + " with " + num_threads + " threads.");
+			}
+			if (svScript.includes("hack")) {
+				debugMessage(ns, "[HACK]" + svHost.hostname + " began hacking " + tName + " with " + num_threads + " threads.");
+			}
+			return num_threads;
+		}
+	}
+	return 0;
+}
+/** @param {NS} ns **/
+export async function networkAttack(ns, checkRunning, tName) {
+	let serverList = probeNetwork(ns);
+	var hack_mem = ns.getScriptRam(scriptWHG[0]);
+	var aio_mem = ns.getScriptRam(scriptAll[3]);
+	debugMessage(ns, "Hack Memory: " + hack_mem);
+	debugMessage(ns, "AIO Memory: " + aio_mem);
+
+	var weakenThreadWeight = 60;
+	var hackThreadWeight = 20;
+	var growThreadWeight = 20;
+
+	for (const svHost of serverList) {
+		var svName = svHost.hostname;
+		var svRamAvail = ns.getServerMaxRam(svName);
+		var num_threads = Math.floor(svRamAvail / hack_mem);
+
+		if (srvCheckRootAccess(ns, svName) && svName != "home") {
+			if (num_threads >= 10) {
+				if ((num_threads & 1) != 0) num_threads = num_threads - hack_mem;
+				var hack_threads = Math.floor(((hackThreadWeight / 100) * num_threads));
+				var grow_threads = Math.floor(((growThreadWeight / 100) * num_threads));
+				var weaken_threads = Math.floor(((weakenThreadWeight / 100) * num_threads));
+
+				if ((ns.isRunning(scriptWHG[1], svName, tName, "0") || ns.isRunning(scriptWHG[1], svName, tName, "1")) && checkRunning) {
+					debugMessage(ns, "Hack already running on " + svName);
+				} else {
+					debugMessage(ns, "Hack Threads: " + hack_threads
+						+ "\r\nGrow Threads: " + grow_threads
+						+ "\r\nWeaken Threads: " + weaken_threads
+					);
+					debugMessage(ns, "Beginning multithreaded attack on " + tName + " from " + svName + ".");
+					await uploadToHost(ns, svName, scriptAll);
+					debugMessage(ns, "Executing " + scriptAll[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
+					ns.exec(scriptWHG[1], svName, hack_threads / 2, tName, "0");
+					debugMessage(ns, "Executing " + scriptWHG[0] + " with " + weaken_threads + " threads on " + tName + " from " + svName);
+					ns.exec(scriptWHG[0], svName, weaken_threads / 2, tName, "0");
+					debugMessage(ns, "Executing " + scriptWHG[2] + " with " + grow_threads + " threads on " + tName + " from " + svName);
+					ns.exec(scriptWHG[2], svName, grow_threads / 2, tName, "0");
+					await ns.sleep(250);
+
+					debugMessage(ns, "Executing " + scriptAll[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
+					ns.exec(scriptWHG[1], svName, hack_threads / 2, tName, "1");
+					debugMessage(ns, "Executing " + scriptWHG[0] + " with " + weaken_threads + " threads on " + tName + " from " + svName);
+					ns.exec(scriptWHG[0], svName, weaken_threads / 2, tName, "1");
+					debugMessage(ns, "Executing " + scriptWHG[2] + " with " + grow_threads + " threads on " + tName + " from " + svName);
+					ns.exec(scriptWHG[2], svName, grow_threads / 2, tName, "1");
+				}
+				// } else if (num_threads <= 8 && num_threads > 4) {
+				// 	if ((num_threads & 1) != 0) num_threads = num_threads - hack_mem;
+				// 	var hack_threads = Math.floor(((hackThreadWeight / 100) * num_threads));
+				// 	var grow_threads = Math.floor(((growThreadWeight / 100) * num_threads));
+				// 	var weaken_threads = Math.floor(((weakenThreadWeight / 100) * num_threads));
+
+				// 	if (ns.isRunning(scriptWHG[1], svName, tName, "0") && checkRunning) {
+				// 		debugMessage(ns, "Hack already running on " + svName);
+				// 	} else {
+				// 		debugMessage(ns, "Hack Threads: " + hack_threads
+				// 			+ "\r\nGrow Threads: " + grow_threads
+				// 			+ "\r\nWeaken Threads: " + weaken_threads
+				// 		);
+				// 		debugMessage(ns, "Beginning multithreaded attack on " + tName + " from " + svName + ".");
+				// 		await uploadToHost(ns, svName, scriptAll);
+				// 		debugMessage(ns, "Executing " + scriptAll[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
+				// 		ns.exec(scriptWHG[1], svName, hack_threads, tName, "0");
+				// 		debugMessage(ns, "Executing " + scriptWHG[0] + " with " + weaken_threads + " threads on " + tName + " from " + svName);
+				// 		ns.exec(scriptWHG[0], svName, weaken_threads, tName, "0");
+				// 		debugMessage(ns, "Executing " + scriptWHG[2] + " with " + grow_threads + " threads on " + tName + " from " + svName);
+				// 		ns.exec(scriptWHG[2], svName, grow_threads, tName, "0");
+				// 		await ns.sleep(250);
+				// 	}
+			} else {
+				if (svRamAvail > aio_mem) {
+					num_threads = Math.floor(svRamAvail / aio_mem);
+					if (ns.isRunning(scriptAll[3], svName, tName)) {
+						debugMessage(ns, "Hack already running on " + svName);
+					} else {
+						debugMessage(ns, "Beginning low memory attack script on " + tName + " from " + svName);
+						await uploadToHost(ns, svName, scriptAll);
+						if (num_threads > 0) {
+							debugMessage(ns, "Executing " + scriptAll[3] + " with " + num_threads + " threads on " + tName + " from " + svName);
+							ns.exec(scriptAll[3], svName, num_threads, tName);
+						}
+					}
+				}
+			}
+
+		}
+		await ns.asleep(1);
+	}
+}
+/** @param {NS} ns **/
+export async function prepareTarget(ns, svHost, svScript, svScriptCore, tName) {
+	var script_mem = ns.getScriptRam(svScript, "home");
+	if (svHost.hasAdminRights && svHost.maxRam > script_mem && !ns.isRunning(svScript, svHost.hostname, tName)) {
+		let num_threads = Math.floor(svHost.maxRam / script_mem);
+		if (num_threads > 0) {
+			await ns.scp(svScript, "home", svHost.hostname);
+			await ns.scp(svScriptCore, "home", svHost.hostname);
+			//ns.killall(svHost.hostname);
+			debugMessage(ns, "Executing " + svScript + " with " + num_threads + " threads on " + tName + " from " + svHost.hostname);
+			ns.exec(svScript, svHost.hostname, num_threads, tName);
+			if (svScript.includes("weaken")) {
+				var weakTime = msToTime(ns.getWeakenTime(tName));
+				debugMessage(ns, "[WEAKEN]" + svHost.hostname + " began weakening " + tName + " with " + num_threads + " threads.");
+			}
+			if (svScript.includes("grow")) {
+				var growTime = msToTime(ns.getGrowTime(tName));
+				debugMessage(ns, "[GROW]" + svHost.hostname + " began growing " + tName + " with " + num_threads + " threads.");
+			}
+			if (svScript.includes("hack")) {
+				var hackTime = msToTime(ns.getHackTime(tName));
+				debugMessage(ns, "[HACK]" + svHost.hostname + " began hacking " + tName + " with " + num_threads + " threads.");
+			}
+			return num_threads;
+		}
+	}
+	return 0;
+}
+/** @param {NS} ns **/
 export async function prepareTargets(ns, svList, svScript, svScriptCore, tName) {
 	var script_mem = ns.getScriptRam(svScript, "home");
 	for (const svHost of svList) {
@@ -848,31 +994,19 @@ export async function prepareTargets(ns, svList, svScript, svScriptCore, tName) 
 				ns.exec(svScript, svHost.hostname, num_threads, tName);
 				if (svScript.includes("weaken")) {
 					var weakTime = msToTime(ns.getWeakenTime(tName));
-					// deploymentCountdown = ns.getWeakenTime(tName);
 					debugMessage(ns, "[WEAKEN]" + svHost.hostname + " execution time " + weakTime + " with " + num_threads + " threads.");
 				}
 				if (svScript.includes("grow")) {
 					var growTime = msToTime(ns.getGrowTime(tName));
-					// deploymentCountdown = ns.getGrowTime(tName);
 					debugMessage(ns, "[GROW]" + svHost.hostname + " execution time " + growTime + " with " + num_threads + " threads.");
 				}
 				if (svScript.includes("hack")) {
 					var hackTime = msToTime(ns.getHackTime(tName));
-					// deploymentCountdown = ns.getHackTime(tName);
 					debugMessage(ns, "[HACK]" + svHost.hostname + " execution time " + hackTime + " with " + num_threads + " threads.");
-				}
-				if (lastTotalThreads <= totalThreads) {
-					totalThreads += num_threads;
-				}
-				if (lastTotalServers <= totalServers) {
-					++totalServers;
 				}
 			}
 		}
 	}
-	if (svScript.includes("weaken") && totalThreads > 0) consoleMessage(ns, "[WEAKEN]" + "Began weakening with " + totalThreads + " total threads from " + totalServers + " servers.");
-	if (svScript.includes("grow") && totalThreads > 0) consoleMessage(ns, "[GROW]" + "Began growing with " + totalThreads + " total threads from " + totalServers + " servers.");
-	if (svScript.includes("hack") && totalThreads > 0) consoleMessage(ns, "[HACK]" + "Began attacking with " + totalThreads + " total threads from " + totalServers + " servers.");
 }
 /** @param {NS} ns **/
 export function prepareHome(ns, svScript, tName, bufferRAM, svScript01, svScript02) {
@@ -898,19 +1032,6 @@ export function msToTime(duration) {
 	seconds = (seconds < 10) ? "0" + seconds : seconds;
 
 	return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
-}
-/** @param {NS} ns **/
-export function countNetworkThreads(serverList, script_mem) {
-	var networkThreads = 0;
-	serverList.forEach(function (server) {
-		if (server.root && server.maxram > 0) {
-			let num_threads = Math.floor(server.maxram / script_mem);
-			if (num_threads > 0) {
-				networkThreads += num_threads;
-			}
-		}
-	})
-	return networkThreads;
 }
 /** @param {NS} ns **/
 export function probeNetwork(ns) {
@@ -955,30 +1076,119 @@ export function countTotalServers(ns) {
 	return totalServers;
 }
 /** @param {NS} ns **/
+export function countNetworkThreads(serverList, script_mem) {
+	var networkThreads = 0;
+	serverList.forEach(function (server) {
+		if (server.root && server.maxram > 0) {
+			let num_threads = Math.floor(server.maxram / script_mem);
+			if (num_threads > 0) {
+				networkThreads += num_threads;
+			}
+		}
+	})
+	return networkThreads;
+}
+/** @param {NS} ns **/
+export async function countTotalScriptThreads(ns, svTarget, svScript) {
+	let serverList = probeNetwork(ns);
+	let totalThreads = 0;
+	serverList.forEach(function (server) {
+		try {
+			if (ns.getRunningScript(svScript, server.hostname, svTarget).threads > 0) {
+				totalThreads += ns.getRunningScript(svScript, server.hostname, svTarget).threads;
+			}
+		} catch (e) { }
+	})
+	return totalThreads;
+}
+/** @param {NS} ns **/
+// export function countTotalScriptThreads(ns, svTarget, svScript) {
+// 	let serverList = probeNetwork(ns);
+// 	let totalThreads = 0;
+// 	serverList.forEach(function (server) {
+// 		if (ns.scriptRunning(svScript, server.hostname).threads > 0) {
+// 			try { if (ns.getRunningScript(svScript, server.hostname, svTarget).threads != null) totalThreads += ns.getRunningScript(svScript, server.hostname, svTarget).threads; } catch (e) { }
+// 		}
+// 	})
+// 	return totalThreads;
+// }
+/** @param {NS} ns **/
 export function countTotalThreads(ns, svTarget) {
 	let serverList = probeNetwork(ns);
 	let totalThreads = 0;
 	serverList.forEach(function (server) {
 		scriptWHG.forEach(function (svScript) {
-			if (ns.scriptRunning(svScript, server.hostname)) {
-				totalThreads += ns.getRunningScript(svScript, server.hostname, svTarget).threads;
-			}
+			try {
+				if (ns.scriptRunning(svScript, server.hostname)) {
+					totalThreads += ns.getRunningScript(svScript, server.hostname, svTarget).threads;
+				}
+			} catch (e) { }
 		})
 	})
 	return totalThreads;
 }
+
+var lastTotalThreadsWeaken = 0;
+var lastTotalThreadsGrow = 0;
+var lastTotalThreadsHack = 0;
 /** @param {NS} ns **/
-export function checkRunningTime(ns, svTarget) {
+export function displayTotalThreads(ns) {
+	var serverList = probeNetwork(ns);
+	var totalThreadsWeaken = 0;
+	var totalThreadsGrow = 0;
+	var totalThreadsHack = 0;
+	var totalServersWeaken = 0;
+	var totalServersGrow = 0;
+	var totalServersHack = 0;
+
+	serverList.forEach(function (server) {
+		scriptWHG.forEach(function (svScript) {
+			try {
+				if (ns.scriptRunning(svScript, server.hostname)) {
+					if (svScript.includes("weaken")) {
+						totalThreadsWeaken += ns.scriptRunning(svScript, server.hostname).threads;
+						++totalServersWeaken;
+					}
+					if (svScript.includes("grow")) {
+						totalThreadsGrow += ns.scriptRunning(svScript, server.hostname).threads;
+						++totalServersGrow;
+					}
+					if (svScript.includes("hack")) {
+						totalThreadsHack += ns.scriptRunning(svScript, server.hostname).threads;
+						++totalServersHack;
+					}
+				}
+			} catch (e) { }
+		})
+	})
+	if (totalThreadsWeaken > 0 && totalThreadsWeaken != lastTotalThreadsWeaken) {
+		lastTotalThreadsWeaken = totalThreadsWeaken;
+		consoleMessage(ns, "[WEAKEN]" + "Weakening with " + totalThreadsWeaken + " total threads from " + totalServersWeaken + " servers.");
+	}
+	if (totalThreadsGrow > 0 && totalThreadsGrow != lastTotalThreadsGrow) {
+		lastTotalThreadsGrow = totalThreadsGrow;
+		consoleMessage(ns, "[GROW]" + "Growing with " + totalThreadsGrow + " total threads from " + totalServersGrow + " servers.");
+	}
+	if (totalThreadsHack > 0 && totalThreadsHack != lastTotalThreadsHack) {
+		lastTotalThreadsHack = totalThreadsHack;
+		consoleMessage(ns, "[HACK]" + "Attacking with " + totalThreadsHack + " total threads from " + totalServersHack + " servers.");
+	}
+}
+/** @param {NS} ns **/
+export function checkRunningTime(ns, svTarget, curMode) {
+	if (curMode == "WHG") return ns.scriptRunning("/TheDroid/Manager-Deployment.js", "home").onlineRunningTime;
 	let serverList = probeNetwork(ns);
 	let rTime = 0;
 	scriptWHG.forEach(function (svScript) {
-		if (ns.scriptRunning(svScript, serverList[0].hostname)) {
-			rTime = ns.getRunningScript(svScript, serverList[0].hostname, svTarget).onlineRunningTime;
-			if (svScript.includes("weaken")) deploymentCountdown = ns.getWeakenTime(svTarget);
-			if (svScript.includes("grow")) deploymentCountdown = ns.getGrowTime(svTarget);
-			if (svScript.includes("hack")) deploymentCountdown = ns.getHackTime(svTarget);
-			return rTime;
-		}
+		try {
+			if (ns.scriptRunning(svScript, serverList[0].hostname)) {
+				rTime = ns.getRunningScript(svScript, serverList[0].hostname, svTarget).onlineRunningTime;
+				if (svScript.includes("weaken")) deploymentCountdown = ns.getWeakenTime(svTarget);
+				if (svScript.includes("grow")) deploymentCountdown = ns.getGrowTime(svTarget);
+				if (svScript.includes("hack")) deploymentCountdown = ns.getHackTime(svTarget);
+				return rTime;
+			}
+		} catch (e) { }
 	})
 	return rTime;
 }
@@ -1017,19 +1227,24 @@ export function outputDeployment(ns, svTarget, lastMode) {
 	var outputHack = "\r\nHack:"
 	var outputGrow = "\r\nGrow:"
 	var outputWeaken = "\r\nWeaken:"
-
+	var outputRunning;
+	if (lastMode == "WHG") {
+		outputRunning = msToTime(checkRunningTime(ns, "home") * 1000);
+	} else {
+		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000);
+	}
 	ns.print(""
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		+ outputBlank
 		+ ' '.repeat(15) + outputTheDruid
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
+		+ outputMode + ' '.repeat(max_length - outputMode.length) + lastMode
+		+ outputCountdown + ' '.repeat(max_length - outputCountdown.length) + outputRunning
 		+ outputTotalServers + ' '.repeat(max_length - outputTotalServers.length) + countTotalServers(ns)
 		+ outputTotalThreads + ' '.repeat(max_length - outputTotalThreads.length) + countTotalThreads(ns, svTarget)
 		+ outputHack + ' '.repeat(max_length - outputHack.length) + `${ns.tFormat(ns.getHackTime(svTarget))} (t=${Math.ceil(ns.hackAnalyzeThreads(svTarget, money))})`
 		+ outputGrow + ' '.repeat(max_length - outputGrow.length) + `${ns.tFormat(ns.getGrowTime(svTarget))} (t=${Math.ceil(ns.growthAnalyze(svTarget, maxMoney / money))})`
 		+ outputWeaken + ' '.repeat(max_length - outputWeaken.length) + `${ns.tFormat(ns.getWeakenTime(svTarget))} (t=${Math.ceil((sec - minSec) * 20)})`
-		+ outputMode + ' '.repeat(max_length - outputMode.length) + lastMode
-		+ outputCountdown + ' '.repeat(max_length - outputCountdown.length) + msToTime(checkRunningTime(ns, svTarget) * 1000)
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		+ outputHost + ' '.repeat(max_length - outputHost.length) + svTarget
 		+ outputMaxRam + ' '.repeat(max_length - outputMaxRam.length) + svRAM + "GB"
