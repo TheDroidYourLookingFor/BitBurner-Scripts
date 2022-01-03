@@ -12,6 +12,7 @@ const filesToDownload = [
   'Manager-CustomStats.js',
   'Manager-Deployment.js',
   'Manager-Hacknet.js',
+  'Manager-Home.js',
   'Manager-ProfitGraph.js',
   'Manager-Server.js',
   'Manager-Snow.js',
@@ -21,7 +22,8 @@ const filesToDownload = [
   'Target-Hack.js',
   'Target-Weaken.js',
   'Target-Grow.js',
-  'PollServer.js'
+  'PollServer.js',
+  'RunOnAll.js'
 ]
 const valuesToRemove = ['BB_SERVER_MAP'];
 
@@ -49,15 +51,6 @@ export async function main(ns) {
     + "\n run Manager-Startup.js"
     + "\n Please edit Manager-Startup.js if you'd like to take full advantage."
     + "\n The only daemon which will start by default is Manager-Deployment.js."
-    + "\n "
-    + "\n Manual Start Information:"
-    + "\n run nmap.js"
-    + "\n find.js"
-    + "\n Distribute.js"
-    + "\n Run these files in order to probe the network for hosts, write"
-    + "\n those hosts to file, evaluate the hosts ranking them, and then"
-    + "\n hack any hackable hosts. Once hacked it will copy our Hack, Weaken, and Grow"
-    + "\n script to run. It will evenly distribute the three on the host against a target."
     + "\n"
   );
 
@@ -74,9 +67,6 @@ export async function main(ns) {
   valuesToRemove.map((value) => localStorage.removeItem(value));
 
   if (launchScript) {
-    ns.tprint(`[${localeHHMMSS()}] Spawning ` + usrDirectory + "nmap.js");
-    ns.run(usrDirectory + "nmap.js", 1);
-    await ns.sleep(100);
     ns.tprint(`[${localeHHMMSS()}] Spawning ` + usrDirectory + scriptToLaunch);
     ns.run(usrDirectory + scriptToLaunch, scriptToLaunchThreads);
   }

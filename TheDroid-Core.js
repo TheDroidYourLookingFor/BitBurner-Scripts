@@ -883,9 +883,16 @@ export async function networkAttack(ns, checkRunning, tName) {
 				if ((num_threads & 1) != 0) num_threads = num_threads - hack_mem;
 				var hack_threads = Math.floor(((hackThreadWeight / 100) * num_threads));
 				var grow_threads = Math.floor(((growThreadWeight / 100) * num_threads));
-				var weaken_threads = Math.floor(((weakenThreadWeight / 100) * num_threads));
+				var weaken_threads = Math.floor(((weakenThreadWeight / 100) * num_threads) / 2);
 
-				if ((ns.isRunning(scriptWHG[1], svName, tName, "0") || ns.isRunning(scriptWHG[1], svName, tName, "1")) && checkRunning) {
+				// Cyn's HWGW Delays
+				// hackDelay = times.weaken - times.hack - timeDelay*3
+				// weak1Delay = 0
+				// growDelay = times.weaken - times.grow - timeDelay
+				// weak2Delay = timeDelay*2
+				// const endTime = performance.now() + (times.weaken - times.hack) - timeB * 4
+
+				if (ns.isRunning(scriptWHG[1], svName, tName) && checkRunning) {
 					debugMessage(ns, "Hack already running on " + svName);
 				} else {
 					debugMessage(ns, "Hack Threads: " + hack_threads
@@ -895,43 +902,17 @@ export async function networkAttack(ns, checkRunning, tName) {
 					debugMessage(ns, "Beginning multithreaded attack on " + tName + " from " + svName + ".");
 					await uploadToHost(ns, svName, scriptAll);
 					debugMessage(ns, "Executing " + scriptAll[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[1], svName, hack_threads / 2, tName, "0");
+					ns.exec(scriptWHG[1], svName, hack_threads, tName,);
 					debugMessage(ns, "Executing " + scriptWHG[0] + " with " + weaken_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[0], svName, weaken_threads / 2, tName, "0");
+					ns.exec(scriptWHG[0], svName, weaken_threads, tName, "0");
 					debugMessage(ns, "Executing " + scriptWHG[2] + " with " + grow_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[2], svName, grow_threads / 2, tName, "0");
+					ns.exec(scriptWHG[2], svName, grow_threads, tName,);
 					await ns.sleep(250);
 
-					debugMessage(ns, "Executing " + scriptAll[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[1], svName, hack_threads / 2, tName, "1");
+					num_threads = Math.floor((ns.getServerMaxRam(svName) - ns.getServerUsedRam(svName)) / ns.getScriptRam(scriptWHG[0]));
 					debugMessage(ns, "Executing " + scriptWHG[0] + " with " + weaken_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[0], svName, weaken_threads / 2, tName, "1");
-					debugMessage(ns, "Executing " + scriptWHG[2] + " with " + grow_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[2], svName, grow_threads / 2, tName, "1");
+					ns.exec(scriptWHG[0], svName, num_threads, tName, "1");
 				}
-				// } else if (num_threads <= 8 && num_threads > 4) {
-				// 	if ((num_threads & 1) != 0) num_threads = num_threads - hack_mem;
-				// 	var hack_threads = Math.floor(((hackThreadWeight / 100) * num_threads));
-				// 	var grow_threads = Math.floor(((growThreadWeight / 100) * num_threads));
-				// 	var weaken_threads = Math.floor(((weakenThreadWeight / 100) * num_threads));
-
-				// 	if (ns.isRunning(scriptWHG[1], svName, tName, "0") && checkRunning) {
-				// 		debugMessage(ns, "Hack already running on " + svName);
-				// 	} else {
-				// 		debugMessage(ns, "Hack Threads: " + hack_threads
-				// 			+ "\r\nGrow Threads: " + grow_threads
-				// 			+ "\r\nWeaken Threads: " + weaken_threads
-				// 		);
-				// 		debugMessage(ns, "Beginning multithreaded attack on " + tName + " from " + svName + ".");
-				// 		await uploadToHost(ns, svName, scriptAll);
-				// 		debugMessage(ns, "Executing " + scriptAll[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
-				// 		ns.exec(scriptWHG[1], svName, hack_threads, tName, "0");
-				// 		debugMessage(ns, "Executing " + scriptWHG[0] + " with " + weaken_threads + " threads on " + tName + " from " + svName);
-				// 		ns.exec(scriptWHG[0], svName, weaken_threads, tName, "0");
-				// 		debugMessage(ns, "Executing " + scriptWHG[2] + " with " + grow_threads + " threads on " + tName + " from " + svName);
-				// 		ns.exec(scriptWHG[2], svName, grow_threads, tName, "0");
-				// 		await ns.sleep(250);
-				// 	}
 			} else {
 				if (svRamAvail > aio_mem) {
 					num_threads = Math.floor(svRamAvail / aio_mem);
@@ -950,6 +931,70 @@ export async function networkAttack(ns, checkRunning, tName) {
 
 		}
 		await ns.asleep(1);
+	}
+}
+/** @param {NS} ns **/
+export async function batch(ns, batchSize, svTarget) {
+	var svScripts = scriptWHG;
+	var serverList = probeNetwork(ns);
+	var attackerList = [];
+	let svHostCount = 0;
+	for (const svHost of serverList) {
+		if (svHost.hasAdminRights) {
+			attackerList.push(svHost);
+			await ns.scp(svScripts, "home", svHost.hostname);
+			svHostCount++;
+		}
+	}
+	await ns.sleep(1);
+
+	for (let i = 0; i < batchSize; i++) {
+		debugMessage(ns, `[SUCCESS]Started Batch ID: ${i}`);
+		var minSecLvl = ns.getServerMinSecurityLevel(svTarget);
+		var maxMoney = ns.getServerMaxMoney(svTarget);
+		var targetMoneyPercentage = 0.85;
+		var securityThresh = minSecLvl;
+		var hackValue;
+		var hackThreads;
+
+		if (ns.getServerMoneyAvailable(svTarget) < (maxMoney * 0.9)) {
+			consoleMessage(ns, `[ERROR]Target too low current money to begin.`);
+			ns.run("/TheDroid/RunOnAll.js", 1, "weaken", svTarget, "25");
+			ns.run("/TheDroid/RunOnAll.js", 1, "grow", svTarget, "25");
+			await ns.sleep(5*60*1000);
+		}
+
+		hackValue = maxMoney * targetMoneyPercentage
+		hackThreads = ns.hackAnalyzeThreads(svTarget, Math.floor(hackValue));
+		var weakThreads = Math.ceil((minSecLvl + 15 - securityThresh) / 0.05);
+		var growRatio = 1 / (1 - targetMoneyPercentage);
+		var growThreads = Math.ceil(ns.growthAnalyze(svTarget, growRatio) * 1.5);
+
+		var weakTime = ns.getWeakenTime(svTarget);
+		var hackTime = weakTime * 0.25;
+		var growTime = weakTime * 0.8;
+		var timeDelay = 100;
+		var hackDelay = weakTime - hackTime - timeDelay * 3;
+		var weak1Delay = 0;
+		var growDelay = weakTime - growTime - timeDelay;
+		var weak2Delay = timeDelay * 2;
+		var randomArg = Math.random();
+		var delay = i * (4 * svHostCount * timeDelay);
+		debugMessage(ns, "weak1Delay: " + weak1Delay + " weak2Delay: " + weak2Delay + " hackDelay: " + hackDelay + " growDelay: " + growDelay + " delay:" + delay)
+
+		for (let server of attackerList) {
+			debugMessage(ns, "Server: " + server.hostname + " Weak: " + weakThreads + " Hack: " + hackThreads + " Grow: " + growThreads)
+			let wMem = ns.getScriptRam(svScripts[0]);
+			let availableThreads = Math.floor(server.maxRam / wMem) / 4;
+			if (availableThreads > 0) {
+				ns.exec(svScripts[1], server.hostname, availableThreads, svTarget, hackDelay + delay, randomArg);
+				ns.exec(svScripts[0], server.hostname, availableThreads, svTarget, weak1Delay + delay, randomArg);
+				ns.exec(svScripts[2], server.hostname, availableThreads, svTarget, growDelay + delay, randomArg);
+				ns.exec(svScripts[0], server.hostname, availableThreads, svTarget, weak2Delay + delay, randomArg);
+				delay += timeDelay * 4
+			}
+		}
+		await ns.sleep(1);
 	}
 }
 /** @param {NS} ns **/
@@ -1183,9 +1228,9 @@ export function checkRunningTime(ns, svTarget, curMode) {
 		try {
 			if (ns.scriptRunning(svScript, serverList[0].hostname)) {
 				rTime = ns.getRunningScript(svScript, serverList[0].hostname, svTarget).onlineRunningTime;
-				if (svScript.includes("weaken")) deploymentCountdown = ns.getWeakenTime(svTarget);
-				if (svScript.includes("grow")) deploymentCountdown = ns.getGrowTime(svTarget);
-				if (svScript.includes("hack")) deploymentCountdown = ns.getHackTime(svTarget);
+				if (svScript.includes("Weaken")) deploymentCountdown = ns.getWeakenTime(svTarget);
+				if (svScript.includes("Grow")) deploymentCountdown = ns.getGrowTime(svTarget);
+				if (svScript.includes("Hack")) deploymentCountdown = ns.getHackTime(svTarget);
 				return rTime;
 			}
 		} catch (e) { }
@@ -1193,7 +1238,7 @@ export function checkRunningTime(ns, svTarget, curMode) {
 	return rTime;
 }
 /** @param {NS} ns **/
-export function outputDeployment(ns, svTarget, lastMode) {
+export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
 	let money = srvGetMoneyAvailable(ns, svTarget);
 	if (money === 0) money = 1;
 	const maxMoney = srvGetMaxMoney(ns, svTarget);
@@ -1228,10 +1273,13 @@ export function outputDeployment(ns, svTarget, lastMode) {
 	var outputGrow = "\r\nGrow:"
 	var outputWeaken = "\r\nWeaken:"
 	var outputRunning;
-	if (lastMode == "WHG") {
+	if (lastMode == "WHG" | lastMode == "WWHG") {
 		outputRunning = msToTime(checkRunningTime(ns, "home") * 1000);
 	} else {
-		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000);
+		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000) + " / " + msToTime(ns.getWeakenTime(svTarget));
+	}
+	if (svRunTime != null) {
+		outputRunning = msToTime(svRunTime * 1000);
 	}
 	ns.print(""
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)

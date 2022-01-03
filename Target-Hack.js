@@ -16,8 +16,6 @@ export async function main(ns) {
   }
   const target = ns.args[0];
   debugMessage(ns, "Hacking " + target + " from " + ns.getHostname());
-  while (true) {
-    await attackSrvHack(ns, target);
-    await ns.asleep(250);
-  }
+  await ns.sleep(ns.args[1]);
+  await attackSrvHack(ns, target);
 }

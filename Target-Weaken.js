@@ -16,8 +16,6 @@ export async function main(ns) {
   }
   const target = ns.args[0];
   debugMessage(ns, "Weaken " + target + " from " + ns.getHostname());
-  while (true) {
-    await attackSrvWeaken(ns, target);
-    await ns.asleep(250);
-  }
+  await ns.sleep(ns.args[1]);
+  await attackSrvWeaken(ns, target);
 }

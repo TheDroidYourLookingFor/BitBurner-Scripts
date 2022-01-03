@@ -1,37 +1,30 @@
 /** @param {NS} ns **/
 import {
-	scriptCore,
 	scriptWHG,
-	deployTarget,
 	consoleMessage,
 	debugMessage,
 	lookForHackableTargs,
 	lookForBestTarget,
 	outputDeployment,
 	networkAttack,
-	srvGetMaxMoney,
-	srvGetMinSecurityLevel,
-	srvGetSecurityLevel,
-	srvGetMoneyAvailable,
 	probeNetwork,
-	outputDeploymentCountdown,
-	countTotalScriptThreads,
-	displayTotalThreads
+	batch
 } from "/TheDroid/TheDroid-Core.js";
 
 var serverList = [];
-var attackList = ["foodnstuff", "joesguns", "sigma-cosmetics", "hong-fang-tea", "harakiri-sushi", "iron-gym"];
+var attackerList = [];
 /** @param {NS} ns **/
 export async function main(ns) {
+	const batchLoops = 10;
 	const useAutoHack = true;
-	const useAutoFindBest = true;
+	const useAutoFindBest = false;
 	const useHomeServer = true;
-	const deployMode00 = true;
-	const deployMode01 = false;
+	const deployMode00 = false;
+	const deployMode01 = true;
 	ns.tail();
 	ns.disableLog('ALL');
 	serverList = [];
-	var svTarget = "n00dles";
+	var svTarget = "the-hub";
 	var lastTarget = svTarget;
 	var lastMode = "weaken";
 
@@ -44,8 +37,6 @@ export async function main(ns) {
 		return;
 	}
 
-	outputDeployment(ns, svTarget, lastMode);
-	// outputDeploymentCountdown(ns, 0, true);
 	while (true) {
 		if (useAutoHack) {
 			serverList = probeNetwork(ns);
@@ -64,61 +55,34 @@ export async function main(ns) {
 				consoleMessage(ns, "New Target: " + lastTarget);
 			}
 		}
-		
-		outputDeployment(ns, svTarget, lastMode);
 
 		if (deployMode00) {
-			lastMode = "WHG"
+			lastMode = "HWGW"
 			serverList = probeNetwork(ns);
 			debugMessage(ns, "Beginning distribution of scripts to all servers.");
 			debugMessage(ns, "Best Target: " + svTarget);
-			await networkAttack(ns, true, svTarget);
+			await networkAttack(ns, false, svTarget);
 			debugMessage(ns, "Finished distributing scripts to all servers.");
 		}
 
 		if (deployMode01) {
+			lastMode = "HWGW"
+			let svHostCount = 0;
+			attackerList = [];
 			serverList = probeNetwork(ns);
-			for (const svTarg of attackList) {
-				for (const svHost of serverList) {
-					var neededWeakenThreads;
-					var neededHackThreads;
-					var neededGrowThreads;
-					var wMem = ns.getScriptRam(scriptWHG[0]);
-					var hMem = ns.getScriptRam(scriptWHG[1]);
-					var gMem = ns.getScriptRam(scriptWHG[2]);
-					try { neededWeakenThreads = Math.ceil((srvGetSecurityLevel(ns, svTarg) - srvGetMinSecurityLevel(ns, svTarg)) * 20); } catch (e) { }
-					try { neededHackThreads = Math.ceil(ns.hackAnalyzeThreads(svTarg, srvGetMoneyAvailable(ns, svTarg))); } catch (e) { }
-					try { neededGrowThreads = Math.ceil(ns.growthAnalyze(svTarg, srvGetMaxMoney(ns, svTarg) / srvGetMoneyAvailable(ns, svTarg))); } catch (e) { }
-					var usedWeakenThreads = await countTotalScriptThreads(ns, svTarg, scriptWHG[0]);
-					var usedHackThreads = await countTotalScriptThreads(ns, svTarg, scriptWHG[1]);
-					var usedGrowThreads = await countTotalScriptThreads(ns, svTarg, scriptWHG[2]);
-
-					let availableThreads = (svHost.maxRam - svHost.ramUsed) / wMem;
-					if ((neededWeakenThreads - usedWeakenThreads) > usedWeakenThreads && availableThreads > 0) {
-						if (lastMode != "weaken") {
-							lastMode = "weaken";
-						}
-						await deployTarget(ns, svHost, scriptWHG[0], scriptCore, svTarg, neededWeakenThreads - usedWeakenThreads);
-					}
-
-					availableThreads = (svHost.maxRam - svHost.ramUsed) / hMem;
-					if ((neededHackThreads - usedHackThreads) > usedHackThreads && availableThreads > 0) {
-						if (lastMode != "hack") {
-							lastMode = "hack";
-						}
-						await deployTarget(ns, svHost, scriptWHG[1], scriptCore, svTarg, neededHackThreads - usedHackThreads);
-					}
-
-					availableThreads = (svHost.maxRam - svHost.ramUsed) / gMem;
-					if ((neededGrowThreads - usedGrowThreads) > usedGrowThreads && availableThreads > 0) {
-						if (lastMode != "grow") {
-							lastMode = "grow";
-						}
-						await deployTarget(ns, svHost, scriptWHG[2], scriptCore, svTarg, neededGrowThreads - usedGrowThreads);
-					}
-				};
+			for (const svHost of serverList) {
+				if (svHost.hasAdminRights) {
+					attackerList.push(svHost);
+					svHostCount++;
+				}
+			}
+			if (ns.scriptRunning(scriptWHG[2], attackerList[svHostCount - 1].hostname)) {
+				// outputDeployment(ns, svTarget, curMode, ns.getRunningScript(scriptWHG[2], attackerList[svHostCount - 1].hostname, svCheckArgs).onlineRunningTime);
+			} else {
+				await batch(ns, batchLoops, svTarget);
 			}
 		}
+
 
 		outputDeployment(ns, svTarget, lastMode);
 		await ns.asleep(250);
