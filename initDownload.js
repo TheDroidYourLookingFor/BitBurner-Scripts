@@ -1,74 +1,89 @@
-/** @param {NS} ns **/
-const scriptToLaunch = 'Manager-Startup.js';
-const scriptToLaunchThreads = 1;
-const launchScript = true;
+let baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/';
+let json_filename = 'install_files_json.txt';
 const usrDirectory = "/TheDroid/";
-const scVersion = 1.00;
 
-const baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/'
-const filesToDownload = [
-  'TheDroid-Core.js',
-  'Manager-Contracts.js',
-  'Manager-CustomStats.js',
-  'Manager-Deployment.js',
-  'Manager-Hacknet.js',
-  'Manager-Home.js',
-  'Manager-ProfitGraph.js',
-  'Manager-Prep.js',
-  'Manager-Server.js',
-  'Manager-Snow.js',
-  'Manager-Startup.js',
-  'Manager-Stock.js',
-  'Manager-Windows.js',
-  'Target-Hack.js',
-  'Target-Weaken.js',
-  'Target-Grow.js',
-  'PollServer.js',
-  'RunOnAll.js'
-]
-const valuesToRemove = ['BB_SERVER_MAP'];
+/** @param {NS} ns */
+export async function main(ns) {
+	let { welcomeLabel, filesToDownload } = await fetchConfig(ns)
 
-function localeHHMMSS(ms = 0) {
-  if (!ms) {
-    ms = new Date().getTime();
-  }
+	ns.tprintf("%s", welcomeLabel)
 
-  return new Date(ms).toLocaleTimeString();
+	let hostname = ns.getHostname()
+
+	if (hostname !== 'home') {
+		throw 'Run the script from home'
+	}
+
+	await clean(ns, filesToDownload);
+
+	let count = 0;
+	for (let filename of filesToDownload) {
+		const path = baseUrl + filename
+		const save_filename = (!filename.startsWith('/') && filename.includes('/')) ? usrDirectory + filename : filename;
+
+		try {
+			ns.scriptKill(save_filename, 'home')
+			ns.rm(save_filename)
+			await ns.sleep(20)
+			await ns.wget(path + '?ts=' + new Date().getTime(), save_filename)
+
+			if (++count % 5 == 0) {
+				ns.tprintf(`Installing... [${(count + '').padStart(2)}/${filesToDownload.length}]`);
+			}
+		} catch (e) {
+			ns.tprint(`ERROR (tried to download  ${path})`)
+			throw e;
+		}
+	}
+
+	terminalCommand('alias -g Droid="run /TheDroid/Manager-Startup.js"')
+
+	ns.tprintf("Install complete! To start, type: Droid")
 }
 
-export async function main(ns) {
-  if (launchScript) ns.tprint(`[${localeHHMMSS()}] Starting ` + scriptToLaunch);
+async function clean(ns, filesToDownload) {
+	let filesRaw = filesToDownload.map(file => file.substr(file.lastIndexOf('/') + 1))
+	let allFiles = ns.ls("home");
+	let toDelete = [];
+	allFiles.forEach(_file => {
+		let file = (_file.startsWith('/')) ? _file.substr(1) : _file;
 
-  let hostname = ns.getHostname();
+		if (file.startsWith('TheDroid/')) {
+			let file_raw = file.substr(file.lastIndexOf('/') + 1);
+			if (filesRaw.includes(file_raw)) {
+				if (!filesToDownload.includes(file)) {
+					toDelete.push(_file);
+				}
+			} else {
+				console.log("Install-clean: unidentified file", file);
+			}
+		}
+	})
 
-  if (hostname !== 'home') {
-    throw new Exception('Run the script from home')
-  }
+	if (toDelete.length) {
+		if (await ns.prompt("Files have moved. Installer will clean old files. Confirm? [recommended] " + toDelete.join(", "))) {
+			toDelete.forEach(file => ns.rm(file));
+		}
+	}
+}
 
-  ns.toast("Welcome to Droid Scripts!")
-  ns.tprint("Getting started with Droid scripts. Please wait while we download."
-    + "\n Version: " + scVersion
-    + "\n Quick start information:"
-    + "\n run Manager-Startup.js"
-    + "\n Please edit Manager-Startup.js if you'd like to take full advantage."
-    + "\n The only daemon which will start by default is Manager-Deployment.js."
-    + "\n"
-  );
+async function fetchConfig(ns) {
+	try {
+		let local_filename = '/TheDroid/' + json_filename;
+		await ns.rm(local_filename)
+		await ns.wget(baseUrl + json_filename + '?ts=' + new Date().getTime(), local_filename)
+		return JSON.parse(ns.read(local_filename));
+	} catch (e) {
+		ns.tprint(`ERROR: Downloading and reading config file failed ${json_filename}`);
+		throw e;
+	}
+}
 
-  for (let i = 0; i < filesToDownload.length; i++) {
-    const filename = filesToDownload[i]
-    const path = baseUrl + filename
-    await ns.scriptKill(filename, 'home');
-    await ns.rm(filename);
-    await ns.sleep(200);
-    ns.tprint(`[${localeHHMMSS()}] Trying to download ${path}`);
-    await ns.wget(path + '?ts=' + new Date().getTime(), usrDirectory + filename);
-  }
-
-  valuesToRemove.map((value) => localStorage.removeItem(value));
-
-  if (launchScript) {
-    ns.tprint(`[${localeHHMMSS()}] Spawning ` + usrDirectory + scriptToLaunch);
-    ns.run(usrDirectory + scriptToLaunch, scriptToLaunchThreads);
-  }
+function terminalCommand(message) {
+	const docs = globalThis['document']
+	const terminalInput = /** @type {HTMLInputElement} */ (docs.getElementById("terminal-input"));
+	terminalInput.value = message;
+	const handler = Object.keys(terminalInput)[1];
+	terminalInput[handler].onChange({ target: terminalInput });
+	terminalInput[handler].onKeyDown({ keyCode: 13, preventDefault: () => null });
 }
