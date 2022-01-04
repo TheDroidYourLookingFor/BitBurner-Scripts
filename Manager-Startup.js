@@ -1,7 +1,6 @@
 /** @param {NS} ns **/
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
-	var autoWindowMinimze = false;
 	var autoCustomStats = false;
 	var autoProfitGraph = false;
 	var autoSnow = false;
@@ -36,11 +35,6 @@ export async function main(ns) {
 	if (autoManageStock && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Stock.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Stock for Auto Stock Trading.");
 		ns.run(usrDirectory + "Manager-Stock.js", 1);
-	}
-	
-	if (autoWindowMinimze && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Windows.js", ns.getHostname())) {
-		ns.toast("Starting Manager-Windows for window minimizing");
-		ns.run(usrDirectory + "Manager-Windows.js", 1);
 	}
 
 	if (autoCustomStats && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-CustomStats.js", ns.getHostname())) {

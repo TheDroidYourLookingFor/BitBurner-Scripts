@@ -12,26 +12,23 @@ import {
 /** @param {NS} ns **/
 export async function main(ns) {
 	var svTarget = ns.args[0];
+	consoleMessage(ns, "[PREP]Beginning preparation of target " + svTarget + ".");
 
 	while (true) {
+		ns.disableLog("sleep");
 		var serverList = probeNetwork(ns);
 
 		var moneyThresh = 0.90;
-		if (srvGetSecurityLevel(ns, svTarget) > srvGetMinSecurityLevel(ns, svTarget)) {
-			ns.run("/TheDroid/RunOnAll.js", 1, "weaken", svTarget, "40");
-			ns.run("/TheDroid/RunOnAll.js", 1, "grow", svTarget, "40");
-			while (ns.scriptRunning(scriptAll[0], serverList[2].hostname)) {
-				await ns.sleep(0.5 * 60 * 1000);
-			}
-		} else if (srvGetMoneyAvailable(ns, svTarget) < (srvGetMaxMoney(ns, svTarget) * moneyThresh)) {
-			ns.run("/TheDroid/RunOnAll.js", 1, "weaken", svTarget, "40");
-			ns.run("/TheDroid/RunOnAll.js", 1, "grow", svTarget, "40");
-			while (ns.scriptRunning(scriptAll[0], serverList[2].hostname)) {
-				await ns.sleep(0.5 * 60 * 1000);
+		if (srvGetSecurityLevel(ns, svTarget) > srvGetMinSecurityLevel(ns, svTarget) || srvGetMoneyAvailable(ns, svTarget) < (srvGetMaxMoney(ns, svTarget) * moneyThresh)) {
+			ns.run("/TheDroid/RunOnAll.js", 1, "weaken", svTarget, "45");
+			ns.run("/TheDroid/RunOnAll.js", 1, "grow", svTarget, "45");
+			while (ns.scriptRunning(scriptAll[0], serverList[2].hostname || ns.scriptRunning(scriptAll[2], serverList[2].hostname))) {
+				await ns.sleep(250);
 			}
 		} else {
+			consoleMessage(ns, "[PREP]Finishing preparation of target " + svTarget + ".");
 			ns.run("/TheDroid/RunOnAll.js", 1, "kill");
-			ns.spawn("/TheDroid/Manager-Deployment.js",1)
+			ns.exit();
 		}
 		await ns.sleep(250);
 	}

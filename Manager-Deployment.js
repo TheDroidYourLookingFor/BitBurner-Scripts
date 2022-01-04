@@ -20,12 +20,12 @@ export async function main(ns) {
 	// Let the system automatically  hack new servers
 	const useAutoHack = true;
 	// Let the system automatically find the best target
-	const useAutoFindBest = true;
+	const useAutoFindBest = false;
 	// Old method of scheduling
 	const deployMode00 = false;
 	// Newer method of scheduling
 	const deployMode01 = true;
-	
+
 	// Set your static target here if not using useAutoFindBest
 	var svTarget = "n00dles";
 	//var svTarget = "joesguns";
@@ -80,14 +80,17 @@ export async function main(ns) {
 			attackerList = [];
 			serverList = probeNetwork(ns);
 			serverList.push(ns.getServer("home"));
-			for (const svHost of serverList) {
-				if (svHost.hasAdminRights) {
-					attackerList.push(svHost);
-					if (svHost.hostname != "home") await ns.scp(scriptAll, "home", svHost.hostname);
-					await ns.sleep(1);
-					svHostCount++;
+			try {
+				for (const svHost of serverList) {
+					if (svHost.hasAdminRights) {
+						attackerList.push(svHost);
+						if (svHost.hostname != "home") await ns.scp(scriptAll, "home", svHost.hostname);
+						await ns.sleep(1);
+						svHostCount++;
+					}
 				}
-			}
+			} catch (e) {}
+
 			if (ns.scriptRunning(scriptWHG[2], attackerList[svHostCount - 1].hostname)) {
 				// outputDeployment(ns, svTarget, curMode, ns.getRunningScript(scriptWHG[2], attackerList[svHostCount - 1].hostname, svCheckArgs).onlineRunningTime);
 			} else {

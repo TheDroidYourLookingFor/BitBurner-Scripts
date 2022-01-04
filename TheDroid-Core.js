@@ -1108,6 +1108,17 @@ export function countTotalServers(ns) {
 	let serverList = probeNetwork(ns);
 	let totalServers = 0;
 	serverList.forEach(function (server) {
+		if (ns.scriptRunning(scriptWHG[0], server.hostname)) {
+			++totalServers;
+		}
+	})
+	return totalServers;
+}
+/** @param {NS} ns **/
+export function countTotalNetworkScripts(ns) {
+	let serverList = probeNetwork(ns);
+	let totalServers = 0;
+	serverList.forEach(function (server) {
 		scriptWHG.forEach(function (svScript) {
 			if (ns.scriptRunning(svScript, server.hostname)) {
 				++totalServers;
@@ -1253,6 +1264,7 @@ export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
 	var outputTheDruid = `TheDroid Deployment`;
 	var outputCountdown = "\r\nRun Time:"
 	var outputTotalThreads = "\r\nTotal Threads:"
+	var outputTotalNetworkScripts = "\r\nRunning Scripts:"
 	var outputTotalServers = "\r\nTotal Servers:"
 	var outputBlank = "\r\n";
 	var outputHost = "\r\nHost:"
@@ -1283,15 +1295,15 @@ export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
 		+ ' '.repeat(15) + outputTheDruid
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		+ outputMode + ' '.repeat(max_length - outputMode.length) + lastMode
-		+ outputCountdown + ' '.repeat(max_length - outputCountdown.length) + outputRunning
+		+ outputCountdown + ' '.repeat(max_length - outputCountdown.length) + outputRunning  
 		+ outputTotalServers + ' '.repeat(max_length - outputTotalServers.length) + countTotalServers(ns)
+		+ outputTotalNetworkScripts + ' '.repeat(max_length - outputTotalNetworkScripts.length) + countTotalNetworkScripts(ns)
 		+ outputTotalThreads + ' '.repeat(max_length - outputTotalThreads.length) + countTotalThreads(ns, svTarget)
 		+ outputHack + ' '.repeat(max_length - outputHack.length) + `${ns.tFormat(ns.getHackTime(svTarget))} (t=${Math.ceil(ns.hackAnalyzeThreads(svTarget, money))})`
 		+ outputGrow + ' '.repeat(max_length - outputGrow.length) + `${ns.tFormat(ns.getGrowTime(svTarget))} (t=${Math.ceil(ns.growthAnalyze(svTarget, maxMoney / money))})`
 		+ outputWeaken + ' '.repeat(max_length - outputWeaken.length) + `${ns.tFormat(ns.getWeakenTime(svTarget))} (t=${Math.ceil((sec - minSec) * 20)})`
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		+ outputHost + ' '.repeat(max_length - outputHost.length) + svTarget
-		+ outputMaxRam + ' '.repeat(max_length - outputMaxRam.length) + svRAM + "GB"
 		+ outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack
 		+ outputSec + ' '.repeat(max_length - outputSec.length) + svSec
 		+ outputSecurity + ' '.repeat(max_length - outputSecurity.length) + `+${(sec - minSec).toFixed(2)}`
