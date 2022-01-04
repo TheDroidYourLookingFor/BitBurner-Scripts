@@ -3,8 +3,6 @@
 import {
 	debugMessage,
 	userDirectory,
-	usrProbeData00,
-	usrProbeData01,
 	findAnswer,
 	findContracts
 } from "/TheDroid/TheDroid-Core.js";
@@ -20,8 +18,7 @@ export async function main(ns) {
 	}
 	contractsDb = [];
 	while (true) {
-		await findContracts(ns, userDirectory + usrProbeData00, contractsDb);
-		await findContracts(ns, userDirectory + usrProbeData01, contractsDb);
+		await findContracts(ns, contractsDb);
 		if (contractsDb.length) {
 			for (let i = 0; i < contractsDb.length; i++) {
 				const contract = contractsDb[i]
