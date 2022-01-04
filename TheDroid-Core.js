@@ -1223,12 +1223,12 @@ export function displayTotalThreads(ns) {
 /** @param {NS} ns **/
 export function checkRunningTime(ns, svTarget, curMode) {
 	if (curMode == "HWGW") return ns.getRunningScript("/TheDroid/Manager-Deployment.js", "home").onlineRunningTime;
-	let serverList = probeNetwork(ns);
+	if (curMode == "Prepping") return ns.getRunningScript("/TheDroid/Target-Weaken.js", "home").onlineRunningTime;
 	let rTime = 0;
 	scriptWHG.forEach(function (svScript) {
 		try {
-			if (ns.getRunningScript(svScript, serverList[0].hostname)) {
-				rTime = ns.getRunningScript(svScript, serverList[0].hostname, svTarget).onlineRunningTime;
+			if (ns.getRunningScript(svScript, "home")) {
+				rTime = ns.getRunningScript(svScript, "home", svTarget).onlineRunningTime;
 				if (svScript.includes("Weaken")) deploymentCountdown = ns.getWeakenTime(svTarget);
 				if (svScript.includes("Grow")) deploymentCountdown = ns.getGrowTime(svTarget);
 				if (svScript.includes("Hack")) deploymentCountdown = ns.getHackTime(svTarget);
@@ -1277,6 +1277,8 @@ export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
 	var outputRunning;
 	if (lastMode == "WHG" | lastMode == "HWGW") {
 		outputRunning = msToTime(checkRunningTime(ns, "home", "HWGW") * 1000);
+	} else if (lastMode == "Prepping") {
+		outputRunning = msToTime(checkRunningTime(ns, "home", "Prepping") * 1000);
 	} else {
 		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000) + " / " + msToTime(ns.getWeakenTime(svTarget));
 	}
@@ -1289,7 +1291,7 @@ export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
 		+ ' '.repeat(15) + outputTheDruid
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		+ outputMode + ' '.repeat(max_length - outputMode.length) + lastMode
-		+ outputCountdown + ' '.repeat(max_length - outputCountdown.length) + outputRunning  
+		+ outputCountdown + ' '.repeat(max_length - outputCountdown.length) + outputRunning
 		+ outputTotalServers + ' '.repeat(max_length - outputTotalServers.length) + countTotalServers(ns)
 		+ outputTotalNetworkScripts + ' '.repeat(max_length - outputTotalNetworkScripts.length) + countTotalNetworkScripts(ns)
 		+ outputTotalThreads + ' '.repeat(max_length - outputTotalThreads.length) + countTotalThreads(ns, svTarget)
