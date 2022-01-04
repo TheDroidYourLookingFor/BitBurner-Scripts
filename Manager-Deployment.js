@@ -27,15 +27,15 @@ export async function main(ns) {
 	const deployMode01 = true;
 
 	// Set your static target here if not using useAutoFindBest
-	var svTarget = "n00dles";
+	//var svTarget = "n00dles";
 	//var svTarget = "joesguns";
-	//var svTarget = "the-hub";
+	var svTarget = "the-hub";
 	var lastTarget = svTarget;
 
 	ns.tail();
 	ns.disableLog('ALL');
 	serverList = [];
-	var lastMode = "weaken";
+	var lastMode = "HWGW";
 
 	const args = ns.flags([['help', false]]);
 	if (args.help) {
@@ -45,6 +45,8 @@ export async function main(ns) {
 		consoleMessage(ns, `> run ${ns.getScriptName()}`);
 		return;
 	}
+	
+	outputDeployment(ns, svTarget, lastMode);
 
 	while (true) {
 		if (useAutoHack) {

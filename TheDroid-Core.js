@@ -930,13 +930,6 @@ export async function batch(ns, batchSize, svTarget) {
 	var svScripts = scriptAll;
 	var serverList = probeNetwork(ns);
 	serverList.push(ns.getServer("home"));
-	// var attackerList = [];
-	// for (const svHost of serverList) {
-	// 	if (svHost.hasAdminRights) {
-	// 		await ns.scp(svScripts, "home", svHost.hostname);
-	// 	}
-	// }
-	// await ns.sleep(1);
 
 	for (let i = 0; i < batchSize; i++) {
 		debugMessage(ns, `[SUCCESS]Started Batch ID: ${i}`);
@@ -952,6 +945,7 @@ export async function batch(ns, batchSize, svTarget) {
 			ns.run("/TheDroid/Manager-Prep.js", 1, svTarget);
 			await ns.sleep(10);
 			while (ns.scriptRunning("/TheDroid/Manager-Prep.js", "home")) {
+				outputDeployment(ns, svTarget, "HWGW");
 				await ns.sleep(250);
 			}
 		}
@@ -1228,12 +1222,12 @@ export function displayTotalThreads(ns) {
 }
 /** @param {NS} ns **/
 export function checkRunningTime(ns, svTarget, curMode) {
-	if (curMode == "HWGW") return ns.scriptRunning("/TheDroid/Manager-Deployment.js", ns.getHostname()).onlineRunningTime;
+	if (curMode == "HWGW") return ns.getRunningScript("/TheDroid/Manager-Deployment.js", "home").onlineRunningTime;
 	let serverList = probeNetwork(ns);
 	let rTime = 0;
 	scriptWHG.forEach(function (svScript) {
 		try {
-			if (ns.scriptRunning(svScript, serverList[0].hostname)) {
+			if (ns.getRunningScript(svScript, serverList[0].hostname)) {
 				rTime = ns.getRunningScript(svScript, serverList[0].hostname, svTarget).onlineRunningTime;
 				if (svScript.includes("Weaken")) deploymentCountdown = ns.getWeakenTime(svTarget);
 				if (svScript.includes("Grow")) deploymentCountdown = ns.getGrowTime(svTarget);
@@ -1282,7 +1276,7 @@ export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
 	var outputWeaken = "\r\nWeaken:"
 	var outputRunning;
 	if (lastMode == "WHG" | lastMode == "HWGW") {
-		outputRunning = msToTime(checkRunningTime(ns, "home") * 1000);
+		outputRunning = msToTime(checkRunningTime(ns, "home", "HWGW") * 1000);
 	} else {
 		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000) + " / " + msToTime(ns.getWeakenTime(svTarget));
 	}
