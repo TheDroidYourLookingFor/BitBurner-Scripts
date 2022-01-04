@@ -16,6 +16,8 @@
 		"Target-Weaken.js",
 		"Target-Grow.js",
 		"PollServer.js",
-		"RunOnAll.js"
+		"RunOnAll.js",
+		"00-StartHere.js",
+		"initDownload.js"
 	]
 }
