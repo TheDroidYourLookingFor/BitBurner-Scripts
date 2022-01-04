@@ -8,7 +8,7 @@ Scripts for Bitburner, An Epic Hacking Game
 ### Quickstart Guide
 
 * Download the installation script with the command below. The downloaded script will download all the scripts from Github into your game.
-  * wget https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/StartHere.js /TheDroid/StartHere.js
+  * wget https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/00-StartHere.js /TheDroid/StartHere.js
 * Once downloaded you can cd /TheDroid to view the files.
 * To start everything from scratch use: run Manager-Startup.js
 * You can also do the manual process. Which for Deployment would be the commands below in order.
