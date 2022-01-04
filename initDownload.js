@@ -14,6 +14,7 @@ const filesToDownload = [
   'Manager-Hacknet.js',
   'Manager-Home.js',
   'Manager-ProfitGraph.js',
+  'Manager-Prep.js',
   'Manager-Server.js',
   'Manager-Snow.js',
   'Manager-Startup.js',
