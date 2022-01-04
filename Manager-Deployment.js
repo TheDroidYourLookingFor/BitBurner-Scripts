@@ -17,25 +17,32 @@ var attackerList = [];
 /** @param {NS} ns **/
 export async function main(ns) {
 	const batchLoops = 10;
+	// Let the system automatically  hack new servers
 	const useAutoHack = true;
+	// Let the system automatically find the best target
 	const useAutoFindBest = true;
-	const useHomeServer = true;
+	// Old method of scheduling
 	const deployMode00 = false;
+	// Newer method of scheduling
 	const deployMode01 = true;
+	
+	// Set your static target here if not using useAutoFindBest
+	var svTarget = "n00dles";
+	//var svTarget = "joesguns";
+	//var svTarget = "the-hub";
+	var lastTarget = svTarget;
+
 	ns.tail();
 	ns.disableLog('ALL');
 	serverList = [];
-	var svTarget = "the-hub";
-	//var svTarget = "joesguns";
-	var lastTarget = svTarget;
 	var lastMode = "weaken";
 
 	const args = ns.flags([['help', false]]);
 	if (args.help) {
-		ns.tprint("This script will launch our servers into an weaken, grow, and hack cycle.");
-		ns.tprint(`USAGE: run ${ns.getScriptName()}`);
-		ns.tprint("Example:");
-		ns.tprint(`> run ${ns.getScriptName()}`);
+		consoleMessage(ns, "This script will launch our servers into an weaken, grow, and hack cycle.");
+		consoleMessage(ns, `USAGE: run ${ns.getScriptName()}`);
+		consoleMessage(ns, "Example:");
+		consoleMessage(ns, `> run ${ns.getScriptName()}`);
 		return;
 	}
 
@@ -84,10 +91,9 @@ export async function main(ns) {
 			if (ns.scriptRunning(scriptWHG[2], attackerList[svHostCount - 1].hostname)) {
 				// outputDeployment(ns, svTarget, curMode, ns.getRunningScript(scriptWHG[2], attackerList[svHostCount - 1].hostname, svCheckArgs).onlineRunningTime);
 			} else {
-				await batch(ns, batchLoops, svTarget);
+				try { await batch(ns, batchLoops, svTarget); } catch (e) { }
 			}
 		}
-
 
 		outputDeployment(ns, svTarget, lastMode);
 		await ns.asleep(1);
