@@ -22,7 +22,7 @@ export async function main(ns) {
 		if (srvGetSecurityLevel(ns, svTarget) > srvGetMinSecurityLevel(ns, svTarget) || srvGetMoneyAvailable(ns, svTarget) < (srvGetMaxMoney(ns, svTarget) * moneyThresh)) {
 			ns.run("/TheDroid/RunOnAll.js", 1, "weaken", svTarget, "45");
 			ns.run("/TheDroid/RunOnAll.js", 1, "grow", svTarget, "45");
-			while (ns.scriptRunning(scriptAll[0], serverList[2].hostname || ns.scriptRunning(scriptAll[2], serverList[2].hostname))) {
+			while (ns.scriptRunning(scriptAll[0], "home") || ns.scriptRunning(scriptAll[2], "home")) {
 				await ns.sleep(250);
 			}
 		} else {
