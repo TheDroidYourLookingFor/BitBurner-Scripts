@@ -945,7 +945,7 @@ export async function batch(ns, batchSize, svTarget) {
 			ns.run("/TheDroid/Manager-Prep.js", 1, svTarget);
 			await ns.sleep(10);
 			while (ns.scriptRunning("/TheDroid/Manager-Prep.js", "home")) {
-				outputDeployment(ns, svTarget, "HWGW");
+				outputDeployment(ns, svTarget, "Prepping");
 				await ns.sleep(250);
 			}
 		}
@@ -1253,7 +1253,7 @@ export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
 	var svGrowth = ns.getServerGrowth(svTarget);
 	var svCurMoney = ns.getServerMoneyAvailable(svTarget);
 	var svMaxMoney = ns.getServerMaxMoney(svTarget);
-	var max_length = 18;
+	var max_length = 19;
 	var border_max_length = 53;
 	var outputTheDruid = `TheDroid Deployment`;
 	var outputCountdown = "\r\nRun Time:"
