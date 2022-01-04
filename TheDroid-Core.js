@@ -1222,24 +1222,26 @@ export function displayTotalThreads(ns) {
 }
 /** @param {NS} ns **/
 export function checkRunningTime(ns, svTarget, curMode) {
-	if (curMode == "HWGW") return ns.getRunningScript("/TheDroid/Manager-Deployment.js", "home").onlineRunningTime;
-	if (curMode == "Prepping") return ns.getRunningScript("/TheDroid/Target-Weaken.js", "home").onlineRunningTime;
 	let rTime = 0;
-	scriptWHG.forEach(function (svScript) {
-		try {
-			if (ns.getRunningScript(svScript, "home")) {
-				rTime = ns.getRunningScript(svScript, "home", svTarget).onlineRunningTime;
-				if (svScript.includes("Weaken")) deploymentCountdown = ns.getWeakenTime(svTarget);
-				if (svScript.includes("Grow")) deploymentCountdown = ns.getGrowTime(svTarget);
-				if (svScript.includes("Hack")) deploymentCountdown = ns.getHackTime(svTarget);
-				return rTime;
-			}
-		} catch (e) { }
-	})
+	try {
+		if (curMode == "HWGW") return ns.getRunningScript("/TheDroid/Manager-Deployment.js", "home").onlineRunningTime;
+		if (curMode == "Prepping") return ns.getRunningScript("/TheDroid/Target-Weaken.js", "home").onlineRunningTime;
+		scriptWHG.forEach(function (svScript) {
+			try {
+				if (ns.getRunningScript(svScript, "home")) {
+					rTime = ns.getRunningScript(svScript, "home", svTarget).onlineRunningTime;
+					if (svScript.includes("Weaken")) deploymentCountdown = ns.getWeakenTime(svTarget);
+					if (svScript.includes("Grow")) deploymentCountdown = ns.getGrowTime(svTarget);
+					if (svScript.includes("Hack")) deploymentCountdown = ns.getHackTime(svTarget);
+					return rTime;
+				}
+			} catch (e) { }
+		})
+	} catch (e) { }
 	return rTime;
 }
 /** @param {NS} ns **/
-export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
+export function outputDeployment(ns, svTarget, lastMode) {
 	let money = srvGetMoneyAvailable(ns, svTarget);
 	if (money === 0) money = 1;
 	const maxMoney = srvGetMaxMoney(ns, svTarget);
@@ -1281,9 +1283,6 @@ export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
 		outputRunning = msToTime(checkRunningTime(ns, "home", "Prepping") * 1000);
 	} else {
 		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000) + " / " + msToTime(ns.getWeakenTime(svTarget));
-	}
-	if (svRunTime != null) {
-		outputRunning = msToTime(svRunTime * 1000);
 	}
 	ns.print(""
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)

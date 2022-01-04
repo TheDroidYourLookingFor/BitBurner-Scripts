@@ -93,7 +93,7 @@ export async function main(ns) {
 				}
 			} catch (e) {}
 
-			if (ns.scriptRunning(scriptWHG[2], "home")) {
+			if (ns.scriptRunning(scriptWHG[1], "home")) {
 				// outputDeployment(ns, svTarget, curMode, ns.getRunningScript(scriptWHG[2], attackerList[svHostCount - 1].hostname, svCheckArgs).onlineRunningTime);
 			} else {
 				try { await batch(ns, batchLoops, svTarget); } catch (e) { }
