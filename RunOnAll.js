@@ -11,6 +11,7 @@ import {
 export async function main(ns) {
 	ns.disableLog("ALL");
 	var serverList = probeNetwork(ns);
+	serverList.push(ns.getServer("home"));
 	
 	var svType = ns.args[0];
 	var tName = ns.args[1];
@@ -38,7 +39,7 @@ export async function main(ns) {
 		case "kill":
 			debugMessage(ns, "Killing all Scripts on all servers.");
 			for (const svHost of serverList) {
-				ns.killall(svHost.hostname);
+				if (svHost.hostname != "home") ns.killall(svHost.hostname);
 			}
 			ns.exit();
 			break;
@@ -46,7 +47,7 @@ export async function main(ns) {
 			consoleMessage(ns, "Options are: grow, hack, weaken, or kill")
 	}
 
-	if (svType != "kill") ns.tail();
+	//if (svType != "kill") ns.tail();
 	var weakTime = ns.getWeakenTime(tName);
 	var hackTime = weakTime * 0.25;
 	var growTime = weakTime * 0.8;
@@ -59,9 +60,9 @@ export async function main(ns) {
 	for (const svHost of serverList) {
 		let availableThreads = (svHost.maxRam * hostPct) / svScriptMem;
 		if (availableThreads > 0) {
-			await ns.scp(svScript, "home", svHost.hostname);
+			//ns.killall(svHost.hostname);
 			await ns.sleep(1);
-			ns.killall(svHost.hostname);
+			if (svHost.hostname != "home") await ns.scp(scriptAll, "home", svHost.hostname);
 			await ns.sleep(1);
 			debugMessage(ns, "Executing " + svScript + " with " + availableThreads + " threads on " + tName + " from " + svHost.hostname);
 			ns.exec(svScript, svHost.hostname, availableThreads, tName, 0);
@@ -94,6 +95,6 @@ export async function main(ns) {
 			await ns.sleep(250);
 		}
 	} catch (e) { }
-	await ns.sleep(addWaitTime);
+	await ns.sleep(250);
 	consoleMessage(ns, "Finished execution with " + totalThreads + " total threads on " + tName + " from " + totalServers + " total servers.");
 }

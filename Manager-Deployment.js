@@ -23,8 +23,35 @@ export async function main(ns) {
 	const deployMode01 = true;
 	ns.tail();
 	ns.disableLog('ALL');
+	serverList = [];/** @param {NS} ns **/
+import {
+	scriptWHG,
+	scriptAll,
+	consoleMessage,
+	debugMessage,
+	lookForHackableTargs,
+	lookForBestTarget,
+	outputDeployment,
+	networkAttack,
+	probeNetwork,
+	batch
+} from "/TheDroid/TheDroid-Core.js";
+
+var serverList = [];
+var attackerList = [];
+/** @param {NS} ns **/
+export async function main(ns) {
+	const batchLoops = 10;
+	const useAutoHack = true;
+	const useAutoFindBest = true;
+	const useHomeServer = true;
+	const deployMode00 = false;
+	const deployMode01 = true;
+	ns.tail();
+	ns.disableLog('ALL');
 	serverList = [];
-	var svTarget = "the-hub";
+	//var svTarget = "the-hub";
+	var svTarget = "n00dles";
 	var lastTarget = svTarget;
 	var lastMode = "weaken";
 
@@ -70,9 +97,12 @@ export async function main(ns) {
 			let svHostCount = 0;
 			attackerList = [];
 			serverList = probeNetwork(ns);
+			serverList.push(ns.getServer("home"));
 			for (const svHost of serverList) {
 				if (svHost.hasAdminRights) {
 					attackerList.push(svHost);
+					if (svHost.hostname != "home") await ns.scp(scriptAll,"home",svHost.hostname);
+					await ns.sleep(1);
 					svHostCount++;
 				}
 			}
@@ -85,6 +115,6 @@ export async function main(ns) {
 
 
 		outputDeployment(ns, svTarget, lastMode);
-		await ns.asleep(250);
+		await ns.asleep(1);
 	}
 }

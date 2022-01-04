@@ -1,7 +1,4 @@
 export var userDirectory = new String("/TheDroid/");
-export var usrProbeData00 = new String("networkProbeData.txt");
-export var usrProbeData01 = new String("broke_Targets.txt");
-export var usrProbeData02 = new String("best_target.txt");
 export var userDebug = false;
 
 export const scriptAll = [userDirectory + "Target-Weaken.js", userDirectory + "Target-Hack.js", userDirectory + "Target-Grow.js", userDirectory + "Target-AIO.js", userDirectory + "TheDroid-Core.js"];
@@ -71,29 +68,26 @@ export function srvCheckRootAccess(ns, svName) {
 export async function attackSrvHack(ns, svName) {
 	debugMessage(ns, "Hacking " + svName + " from " + ns.getHostname());
 	await ns.hack(svName);
-	await ns.sleep(250);
 }
 /** @param {NS} ns **/
 export async function attackSrvGrow(ns, svName) {
 	debugMessage(ns, "Growing " + svName + " from " + ns.getHostname());
 	await ns.grow(svName);
-	await ns.sleep(250);
 }
 /** @param {NS} ns **/
 export async function attackSrvWeaken(ns, svName) {
 	debugMessage(ns, "Weakening " + svName + " from " + ns.getHostname());
 	await ns.weaken(svName);
-	await ns.sleep(250);
 }
 /** @param {NS} ns **/
 export async function srvKillAll(ns, svName) {
 	ns.killall(svName);
-	await ns.asleep(250);
+	await ns.asleep(1);
 }
 /** @param {NS} ns **/
 export async function srvSCPFiles(ns, svName, svScriptName) {
 	await ns.scp(svScriptName, "home", svName);
-	await ns.asleep(250);
+	await ns.asleep(1);
 }
 /** @param {NS} ns **/
 export async function uploadToHost(ns, svHost, hackScripts) {
@@ -383,11 +377,11 @@ export async function beginNetworkAttack(ns, checkRunning, fileName, tName) {
 					debugMessage(ns, "Beginning multithreaded attack on " + tName + " from " + svName + ".");
 					await uploadToHost(ns, svName, hackScripts);
 					debugMessage(ns, "Executing " + hackScripts[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
-					ns.exec(hackScripts[1], svName, hack_threads, tName);
+					ns.exec(hackScripts[1], svName, hack_threads, tName, 0);
 					debugMessage(ns, "Executing " + hackScripts[0] + " with " + weaken_threads + " threads on " + tName + " from " + svName);
-					ns.exec(hackScripts[0], svName, weaken_threads, tName);
+					ns.exec(hackScripts[0], svName, weaken_threads, tName, 0);
 					debugMessage(ns, "Executing " + hackScripts[2] + " with " + grow_threads + " threads on " + tName + " from " + svName);
-					ns.exec(hackScripts[2], svName, grow_threads, tName);
+					ns.exec(hackScripts[2], svName, grow_threads, tName, 0);
 					await ns.sleep(250);
 				}
 			} else {
@@ -799,13 +793,11 @@ export function findAnswer(contract) {
 	return answer
 }
 /** @param {NS} ns **/
-export async function findContracts(ns, fileName, contractsDb) {
+export async function findContracts(ns, contractsDb) {
+	let serverList = probeNetwork(ns);
 	debugMessage(ns, `Finding contracts`)
-	var rows = await ns.read(fileName).split("\r\n");
-	for (var i = 0; i < rows.length; ++i) {
-		var serverData = rows[i].split(',');
-		if (serverData.length < 9) break;
-		var svName = serverData[0];
+	for (const svServ of serverList) {
+		var svName = svServ.hostname;
 		if (svName == "home" | svName.includes("pServ")) continue;
 
 		const files = ns.ls(svName)
@@ -902,16 +894,16 @@ export async function networkAttack(ns, checkRunning, tName) {
 					debugMessage(ns, "Beginning multithreaded attack on " + tName + " from " + svName + ".");
 					await uploadToHost(ns, svName, scriptAll);
 					debugMessage(ns, "Executing " + scriptAll[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[1], svName, hack_threads, tName,);
+					ns.exec(scriptWHG[1], svName, hack_threads, tName, 0);
 					debugMessage(ns, "Executing " + scriptWHG[0] + " with " + weaken_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[0], svName, weaken_threads, tName, "0");
+					ns.exec(scriptWHG[0], svName, weaken_threads, tName, 0);
 					debugMessage(ns, "Executing " + scriptWHG[2] + " with " + grow_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[2], svName, grow_threads, tName,);
+					ns.exec(scriptWHG[2], svName, grow_threads, tName, 0);
 					await ns.sleep(250);
 
 					num_threads = Math.floor((ns.getServerMaxRam(svName) - ns.getServerUsedRam(svName)) / ns.getScriptRam(scriptWHG[0]));
 					debugMessage(ns, "Executing " + scriptWHG[0] + " with " + weaken_threads + " threads on " + tName + " from " + svName);
-					ns.exec(scriptWHG[0], svName, num_threads, tName, "1");
+					ns.exec(scriptWHG[0], svName, num_threads, tName, 1);
 				}
 			} else {
 				if (svRamAvail > aio_mem) {
@@ -935,33 +927,33 @@ export async function networkAttack(ns, checkRunning, tName) {
 }
 /** @param {NS} ns **/
 export async function batch(ns, batchSize, svTarget) {
-	var svScripts = scriptWHG;
+	var svScripts = scriptAll;
 	var serverList = probeNetwork(ns);
-	var attackerList = [];
-	let svHostCount = 0;
-	for (const svHost of serverList) {
-		if (svHost.hasAdminRights) {
-			attackerList.push(svHost);
-			await ns.scp(svScripts, "home", svHost.hostname);
-			svHostCount++;
-		}
-	}
-	await ns.sleep(1);
+	serverList.push(ns.getServer("home"));
+	// var attackerList = [];
+	// for (const svHost of serverList) {
+	// 	if (svHost.hasAdminRights) {
+	// 		await ns.scp(svScripts, "home", svHost.hostname);
+	// 	}
+	// }
+	// await ns.sleep(1);
 
 	for (let i = 0; i < batchSize; i++) {
 		debugMessage(ns, `[SUCCESS]Started Batch ID: ${i}`);
 		var minSecLvl = ns.getServerMinSecurityLevel(svTarget);
 		var maxMoney = ns.getServerMaxMoney(svTarget);
-		var targetMoneyPercentage = 0.85;
+		var targetMoneyPercentage = 0.75;
 		var securityThresh = minSecLvl;
 		var hackValue;
 		var hackThreads;
 
-		if (ns.getServerMoneyAvailable(svTarget) < (maxMoney * 0.9)) {
+		while (ns.getServerMoneyAvailable(svTarget) < (maxMoney * targetMoneyPercentage)) {
 			consoleMessage(ns, `[ERROR]Target too low current money to begin.`);
-			ns.run("/TheDroid/RunOnAll.js", 1, "weaken", svTarget, "25");
-			ns.run("/TheDroid/RunOnAll.js", 1, "grow", svTarget, "25");
-			await ns.sleep(5*60*1000);
+			ns.run("/TheDroid/Manager-Prep.js", 1, svTarget);
+			await ns.sleep(10);
+			while (ns.scriptRunning("/TheDroid/Manager-Prep.js", "home")) {
+				await ns.sleep(250);
+			}
 		}
 
 		hackValue = maxMoney * targetMoneyPercentage
@@ -979,14 +971,18 @@ export async function batch(ns, batchSize, svTarget) {
 		var growDelay = weakTime - growTime - timeDelay;
 		var weak2Delay = timeDelay * 2;
 		var randomArg = Math.random();
-		var delay = i * (4 * svHostCount * timeDelay);
+		var delay = i * (4 * serverList.length * timeDelay);
 		debugMessage(ns, "weak1Delay: " + weak1Delay + " weak2Delay: " + weak2Delay + " hackDelay: " + hackDelay + " growDelay: " + growDelay + " delay:" + delay)
 
-		for (let server of attackerList) {
+		serverList = probeNetwork(ns);
+		serverList.push(ns.getServer("home"));
+		for (let server of serverList) {
 			debugMessage(ns, "Server: " + server.hostname + " Weak: " + weakThreads + " Hack: " + hackThreads + " Grow: " + growThreads)
 			let wMem = ns.getScriptRam(svScripts[0]);
 			let availableThreads = Math.floor(server.maxRam / wMem) / 4;
 			if (availableThreads > 0) {
+				await ns.scp(svScripts, "home", server.hostname);
+				await ns.sleep(1);
 				ns.exec(svScripts[1], server.hostname, availableThreads, svTarget, hackDelay + delay, randomArg);
 				ns.exec(svScripts[0], server.hostname, availableThreads, svTarget, weak1Delay + delay, randomArg);
 				ns.exec(svScripts[2], server.hostname, availableThreads, svTarget, growDelay + delay, randomArg);
@@ -1221,7 +1217,7 @@ export function displayTotalThreads(ns) {
 }
 /** @param {NS} ns **/
 export function checkRunningTime(ns, svTarget, curMode) {
-	if (curMode == "WHG") return ns.scriptRunning("/TheDroid/Manager-Deployment.js", "home").onlineRunningTime;
+	if (curMode == "HWGW") return ns.scriptRunning("/TheDroid/Manager-Deployment.js", ns.getHostname()).onlineRunningTime;
 	let serverList = probeNetwork(ns);
 	let rTime = 0;
 	scriptWHG.forEach(function (svScript) {
@@ -1273,7 +1269,7 @@ export function outputDeployment(ns, svTarget, lastMode, svRunTime) {
 	var outputGrow = "\r\nGrow:"
 	var outputWeaken = "\r\nWeaken:"
 	var outputRunning;
-	if (lastMode == "WHG" | lastMode == "WWHG") {
+	if (lastMode == "WHG" | lastMode == "HWGW") {
 		outputRunning = msToTime(checkRunningTime(ns, "home") * 1000);
 	} else {
 		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000) + " / " + msToTime(ns.getWeakenTime(svTarget));
