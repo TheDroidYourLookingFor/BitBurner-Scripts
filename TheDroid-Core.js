@@ -1,9 +1,15 @@
 export var userDirectory = new String("/TheDroid/");
 export var userDebug = false;
 
-export const scriptAll = [userDirectory + "Target-Weaken.js", userDirectory + "Target-Hack.js", userDirectory + "Target-Grow.js", userDirectory + "Target-AIO.js", userDirectory + "TheDroid-Core.js"];
-export const scriptWHG = [userDirectory + "Target-Weaken.js", userDirectory + "Target-Hack.js", userDirectory + "Target-Grow.js"];
-export const scriptCore = userDirectory + "TheDroid-Core.js";
+export const scriptCore = [
+userDirectory + "TheDroid-Core.js"
+];
+export const scriptWHG = [
+userDirectory + "Target-Weaken.js",
+userDirectory + "Target-Hack.js",
+userDirectory + "Target-Grow.js"
+];
+export const scriptAll = scriptWHG.concat(scriptCore);
 
 /** @param {NS} ns **/
 export function debugMessage(ns, message) {
@@ -13,6 +19,10 @@ export function debugMessage(ns, message) {
 /** @param {NS} ns **/
 export function consoleMessage(ns, message) {
 	ns.tprintf(`[${localeHHMMSS()}]` + message)
+}
+/** @param {NS} ns **/
+export function logMessage(ns, message) {
+	ns.print(`[${localeHHMMSS()}]` + message)
 }
 /** @param {NS} ns **/
 export function localeHHMMSS(ms = 0) {
@@ -97,60 +107,6 @@ export async function uploadToHost(ns, svHost, hackScripts) {
 	await srvSCPFiles(ns, svHost, hackScripts)
 }
 /** @param {NS} ns **/
-export async function bestTarget(ns) {
-	const usrDirectory = userDirectory;
-	const bestTarget = await ns.read(usrDirectory + usrProbeData02).split(",");
-	const targName = bestTarget[0];
-	return targName;
-}
-/** @param {NS} ns **/
-export async function outputStats(ns, svName, svBest) {
-	var svRAM = srvGetMaxRam(ns, svName);
-	var svPorts = srvGetNumPortsReq(ns, svName);
-	var svReqHack = srvGetReqHackingLevel(ns, svName);
-	var svMinSec = srvGetMinSecurityLevel(ns, svName);
-	var svGrowth = srvGetGrowth(ns, svName);
-	var svCurMoney = srvGetMoneyAvailable(ns, svName);
-	var svMaxMoney = srvGetMaxMoney(ns, svName);
-	var svExecTime = srvGetHackTime(ns, svName);
-	var svScore = nFormatter(((svMaxMoney * 100 / svGrowth) / svExecTime), 4);
-	var svScore00 = nFormatter(Math.round((100 - svMinSec) * svMaxMoney * svGrowth / svExecTime), 2);
-	var svScore01 = ns.nFormat(((svMaxMoney / svGrowth) / svExecTime), '0.0000');
-	var max_length = 30;
-	var border_max_length = 45;
-	var outputBlank = "\r\n";
-	var outputScore = "\r\nScore:"
-	var outputScore00 = "\r\nScore00:"
-	var outputScore01 = "\r\nScore01:"
-	var outputHost = "\r\nHost:"
-	var outputMaxRam = "\r\nMax Ram:"
-	var outputPorts = "\r\nPorts:"
-	var outputHackTime = "\r\nHack Time:"
-	var outputReqHacking = "\r\nRequired Hacking:"
-	var outputMinSec = "\r\nMin Security:"
-	var outputSrvGrowth = "\r\nServer Growth:"
-	var outputSrvMoney = "\r\nServer Money:"
-	var outputSrvMaxMoney = "\r\nServer Max Money:"
-	var outputSrvBest = "\r\nBest Target:"
-	ns.tprint(""
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
-		+ outputScore + ' '.repeat(max_length - outputScore.length) + svScore
-		+ outputScore00 + ' '.repeat(max_length - outputScore00.length) + svScore00
-		+ outputScore01 + ' '.repeat(max_length - outputScore01.length) + svScore01
-		+ outputHost + ' '.repeat(max_length - outputHost.length) + svName
-		+ outputMaxRam + ' '.repeat(max_length - outputMaxRam.length) + svRAM + "GB"
-		+ outputPorts + ' '.repeat(max_length - outputPorts.length) + svPorts
-		+ outputHackTime + ' '.repeat(max_length - outputHackTime.length) + ns.nFormat(svExecTime, '0.00')
-		+ outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack
-		+ outputMinSec + ' '.repeat(max_length - outputMinSec.length) + svMinSec
-		+ outputSrvGrowth + ' '.repeat(max_length - outputSrvGrowth.length) + svGrowth
-		+ outputSrvMoney + ' '.repeat(max_length - outputSrvMoney.length) + ns.nFormat(svCurMoney, '$0,0.00')
-		+ outputSrvMaxMoney + ' '.repeat(max_length - outputSrvMaxMoney.length) + ns.nFormat(svMaxMoney, '$0,0.00')
-		+ outputSrvBest + ' '.repeat(max_length - outputSrvBest.length) + svBest
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length));
-}
-
-/** @param {NS} ns **/
 export async function pollServer(ns, svName) {
 	var svRAM = srvGetMaxRam(ns, svName);
 	var svPorts = srvGetNumPortsReq(ns, svName);
@@ -195,7 +151,6 @@ export async function pollServer(ns, svName) {
 		+ outputSrvMaxMoney + ' '.repeat(max_length - outputSrvMaxMoney.length) + ns.nFormat(svMaxMoney, '$0,0.00')
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length));
 }
-
 /** @param {NS} ns **/
 export function nFormatter(num, digits) {
 	const lookup = [
@@ -212,10 +167,6 @@ export function nFormatter(num, digits) {
 		return num >= item.value;
 	});
 	return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
-}
-/** @param {NS} ns **/
-export function autocomplete(data, args) {
-	return [...data.servers];
 }
 /** @param {NS} ns **/
 export function lookForHackableTargs(ns, serverList) {
@@ -254,59 +205,6 @@ export async function lookForBestTarget(ns, serverList) {
 	});
 	return bestTarget;
 }
-
-/** @param {NS} ns **/
-export async function userConfig(ns) {
-	const usrDirectory = userDirectory;
-	if (userDebug) ns.tail(usrDirectory + "Configstuff.js", "home");
-	/** @param {NS} ns **/
-	async function loadConfig(ns) {
-		if (!ns.fileExists(usrDirectory + "userConfig.txt")) {
-			await ns.write(usrDirectory + "userConfig.txt",
-				+ "," + "Version"
-				+ "," + "1.00"
-				+ "," + "outputDir"
-				+ "," + usrDirectory
-				+ "," + "autoManageHacking"
-				+ "," + "true"
-				+ "," + "autoManageHackNet"
-				+ "," + "false"
-				+ "," + "autoManageHackNetNodes"
-				+ "," + "8"
-				+ "," + "autoManageStock"
-				+ "," + "true"
-				+ "," + "autoManageServers"
-				+ "," + "false"
-				+ "," + "autoManageServersRam"
-				+ "," + "8"
-				+ "," + "autoManageHomeSrv"
-				+ "," + "true"
-				+ "," + "useDebug"
-				+ "," + "false"
-				+ "\r\n");
-		} else {
-			var userConfig = await ns.read(usrDirectory + "userConfig.txt").split("\r\n");
-			for (var i = 0; i < userConfig.length; ++i) {
-				var userData = userConfig[i].split(',');
-				if (userData.length < 19) break;
-				var curVersion = userData[1];
-				var outputDir = userData[3];
-				var autoManageHacking = userData[5];
-				var autoManageHackNet = userData[7];
-				var autoManageHackNetNodes = userData[9];
-				var autoManageStock = userData[11];
-				var autoManageServers = userData[13];
-				var autoManageServersRam = userData[15];
-				var autoManageHomeSrv = userData[17];
-				var usrUseDebug = userData[19];
-
-				usrDirectory = outputDir;
-			}
-		}
-	}
-	loadConfig(ns);
-}
-
 /** @param {NS} ns **/
 export function srvFullHack(ns, svName, svPortsNeeded, svReqHack) {
 	debugMessage(ns, "Attempting to hack target: " + svName);
@@ -338,7 +236,6 @@ export function srvFullHack(ns, svName, svPortsNeeded, svReqHack) {
 			);
 	}
 }
-
 /** @param {NS} ns **/
 export async function beginNetworkAttack(ns, checkRunning, fileName, tName) {
 	const usrDirectory = userDirectory;
@@ -818,16 +715,6 @@ export async function findContracts(ns, contractsDb) {
 		}
 	}
 }
-export var totalThreads = 0;
-export var lastTotalThreads = 0;
-export function setTotalThreads(curValue) {
-	totalThreads = curValue;
-}
-export var totalServers = 0;
-export var lastTotalServers = 0;
-export function setTotalServers(curValue) {
-	totalServers = curValue;
-}
 /** @param {NS} ns **/
 export async function deployTarget(ns, svHost, svScript, svScriptCore, tName, maxThreads) {
 	var script_mem = ns.getScriptRam(svScript, "home");
@@ -891,7 +778,7 @@ export async function networkAttack(ns, checkRunning, tName) {
 						+ "\r\nGrow Threads: " + grow_threads
 						+ "\r\nWeaken Threads: " + weaken_threads
 					);
-					debugMessage(ns, "Beginning multithreaded attack on " + tName + " from " + svName + ".");
+					debugMessage(ns, "Starting multithreaded attack on " + tName + " from " + svName + ".");
 					await uploadToHost(ns, svName, scriptAll);
 					debugMessage(ns, "Executing " + scriptAll[1] + " with " + hack_threads + " threads on " + tName + " from " + svName);
 					ns.exec(scriptWHG[1], svName, hack_threads, tName, 0);
@@ -911,7 +798,7 @@ export async function networkAttack(ns, checkRunning, tName) {
 					if (ns.isRunning(scriptAll[3], svName, tName)) {
 						debugMessage(ns, "Hack already running on " + svName);
 					} else {
-						debugMessage(ns, "Beginning low memory attack script on " + tName + " from " + svName);
+						debugMessage(ns, "Starting low memory attack script on " + tName + " from " + svName);
 						await uploadToHost(ns, svName, scriptAll);
 						if (num_threads > 0) {
 							debugMessage(ns, "Executing " + scriptAll[3] + " with " + num_threads + " threads on " + tName + " from " + svName);
@@ -927,10 +814,12 @@ export async function networkAttack(ns, checkRunning, tName) {
 }
 /** @param {NS} ns **/
 export async function batch(ns, batchSize, svTarget) {
+	let curMode = "HWGW";
 	var svScripts = scriptAll;
 	var serverList = probeNetwork(ns);
 	serverList.push(ns.getServer("home"));
 
+	consoleMessage(ns, `[INFO]Starting HWGW Deployment against ${svTarget}.`);
 	for (let i = 0; i < batchSize; i++) {
 		debugMessage(ns, `[SUCCESS]Started Batch ID: ${i}`);
 		var minSecLvl = ns.getServerMinSecurityLevel(svTarget);
@@ -940,14 +829,20 @@ export async function batch(ns, batchSize, svTarget) {
 		var hackValue;
 		var hackThreads;
 
+		
+		
 		while (ns.getServerMoneyAvailable(svTarget) < (maxMoney * targetMoneyPercentage)) {
 			consoleMessage(ns, `[ERROR]Target too low current money to begin.`);
+			await ns.sleep(1);
+			consoleMessage(ns, `[INFO]Starting ${curMode} preparation on ${svTarget}.`);
 			ns.run("/TheDroid/Manager-Prep.js", 1, svTarget);
-			await ns.sleep(10);
+			await ns.sleep(1);
 			while (ns.scriptRunning("/TheDroid/Manager-Prep.js", "home")) {
 				outputDeployment(ns, svTarget, "Prepping");
 				await ns.sleep(250);
 			}
+			await ns.sleep(1);
+			consoleMessage(ns, `[INFO]Completed ${curMode} preparation on ${svTarget}.`);
 		}
 
 		hackValue = maxMoney * targetMoneyPercentage
@@ -975,6 +870,7 @@ export async function batch(ns, batchSize, svTarget) {
 			let wMem = ns.getScriptRam(svScripts[0]);
 			let availableThreads = Math.floor(server.maxRam / wMem) / 4;
 			if (availableThreads > 0) {
+				debugMessage(ns, `[INFO]${server.hostname} has started HWGW cycle on ${svTarget}.`);
 				await ns.scp(svScripts, "home", server.hostname);
 				await ns.sleep(1);
 				ns.exec(svScripts[1], server.hostname, availableThreads, svTarget, hackDelay + delay, randomArg);
@@ -986,6 +882,7 @@ export async function batch(ns, batchSize, svTarget) {
 		}
 		await ns.sleep(1);
 	}
+	consoleMessage(ns, `[INFO]Completed HWGW Deployment against ${svTarget}.`);
 }
 /** @param {NS} ns **/
 export async function prepareTarget(ns, svHost, svScript, svScriptCore, tName) {
@@ -1041,18 +938,6 @@ export async function prepareTargets(ns, svList, svScript, svScriptCore, tName) 
 				}
 			}
 		}
-	}
-}
-/** @param {NS} ns **/
-export function prepareHome(ns, svScript, tName, bufferRAM, svScript01, svScript02) {
-	if (ns.scriptRunning(svScript, ns.getHostname()) && !ns.isRunning(svScript, ns.getHostname(), tName)) ns.scriptKill(svScript, ns.getHostname());
-	if (ns.scriptRunning(svScript01, ns.getHostname())) ns.scriptKill(svScript01, ns.getHostname());
-	if (ns.scriptRunning(svScript02, ns.getHostname())) ns.scriptKill(svScript02, ns.getHostname());
-
-	var svRamAvail = ((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) - bufferRAM);
-	var num_threads = svRamAvail / ns.getScriptRam(svScript, "home");
-	if (num_threads > 0 && !ns.isRunning(svScript, ns.getHostname(), tName)) {
-		ns.exec(svScript, "home", num_threads, tName);
 	}
 }
 /** @param {NS} ns **/
@@ -1148,17 +1033,6 @@ export async function countTotalScriptThreads(ns, svTarget, svScript) {
 	return totalThreads;
 }
 /** @param {NS} ns **/
-// export function countTotalScriptThreads(ns, svTarget, svScript) {
-// 	let serverList = probeNetwork(ns);
-// 	let totalThreads = 0;
-// 	serverList.forEach(function (server) {
-// 		if (ns.scriptRunning(svScript, server.hostname).threads > 0) {
-// 			try { if (ns.getRunningScript(svScript, server.hostname, svTarget).threads != null) totalThreads += ns.getRunningScript(svScript, server.hostname, svTarget).threads; } catch (e) { }
-// 		}
-// 	})
-// 	return totalThreads;
-// }
-/** @param {NS} ns **/
 export function countTotalThreads(ns, svTarget) {
 	let serverList = probeNetwork(ns);
 	let totalThreads = 0;
@@ -1225,7 +1099,7 @@ export function checkRunningTime(ns, svTarget, curMode) {
 	let rTime = 0;
 	try {
 		if (curMode == "HWGW") return ns.getRunningScript("/TheDroid/Manager-Deployment.js", "home").onlineRunningTime;
-		if (curMode == "Prepping") return ns.getRunningScript("/TheDroid/Target-Weaken.js", "home").onlineRunningTime;
+		if (curMode == "Prepping") return ns.getRunningScript("/TheDroid/Manager-Prep.js", "home", svTarget).onlineRunningTime;
 		scriptWHG.forEach(function (svScript) {
 			try {
 				if (ns.getRunningScript(svScript, "home")) {
@@ -1248,7 +1122,6 @@ export function outputDeployment(ns, svTarget, lastMode) {
 	const minSec = srvGetMinSecurityLevel(ns, svTarget);
 	const sec = ns.getServerSecurityLevel(svTarget);
 	ns.clearLog(svTarget);
-	var svRAM = ns.getServerMaxRam(svTarget);
 	var svReqHack = ns.getServerRequiredHackingLevel(svTarget);
 	var svSec = ns.getServerSecurityLevel(svTarget);
 	var svMinSec = ns.getServerMinSecurityLevel(svTarget);
@@ -1264,7 +1137,6 @@ export function outputDeployment(ns, svTarget, lastMode) {
 	var outputTotalServers = "\r\nTotal Servers:"
 	var outputBlank = "\r\n";
 	var outputHost = "\r\nHost:"
-	var outputMaxRam = "\r\nMax Ram:"
 	var outputMode = "\r\nMode:"
 	var outputReqHacking = "\r\nReq Hacking:"
 	var outputSec = "\r\nSecurity:"
@@ -1284,6 +1156,15 @@ export function outputDeployment(ns, svTarget, lastMode) {
 	} else {
 		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000) + " / " + msToTime(ns.getWeakenTime(svTarget));
 	}
+
+	var outputBlank = "\r\n";
+	var outputIvmaRocks = `Ivma's Awesome Sauce`;
+	ns.print(""
+		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
+		+ outputBlank
+		+ ' '.repeat(15) + outputIvmaRocks
+		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length));
+
 	ns.print(""
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		+ outputBlank

@@ -1,11 +1,13 @@
 /** @param {NS} ns **/
 import {
-  attackSrvGrow,
-  debugMessage
+  consoleMessage,
+  logMessage,
+  debugMessage,
+  attackSrvGrow
 } from "/TheDroid/TheDroid-Core.js";
-
 /** @param {NS} ns **/
 export async function main(ns) {
+  ns.disableLog("all");
   const args = ns.flags([['help', false]]);
   if (args.help) {
     ns.tprint("This script will grow our target automatically.");
@@ -15,7 +17,8 @@ export async function main(ns) {
     return;
   }
   const target = ns.args[0];
-  debugMessage(ns, "Growing " + target + " from " + ns.getHostname());
   await ns.sleep(ns.args[1]);
+  logMessage(ns, `[INFO]Grow operations started against ${target} from ${ns.getHostname()}.`);
   await attackSrvGrow(ns, target);
+  logMessage(ns, `[INFO]Grow operations completed against ${target} from ${ns.getHostname()}.`);
 }

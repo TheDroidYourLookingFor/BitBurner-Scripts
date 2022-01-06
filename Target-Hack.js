@@ -1,11 +1,13 @@
 /** @param {NS} ns **/
 import {
+  consoleMessage,
+  logMessage,
   debugMessage,
   attackSrvHack
 } from "/TheDroid/TheDroid-Core.js";
-
 /** @param {NS} ns **/
 export async function main(ns) {
+  ns.disableLog("all");
   const args = ns.flags([['help', false]]);
   if (args.help) {
     ns.tprint("This script will hack our target automatically.");
@@ -15,7 +17,8 @@ export async function main(ns) {
     return;
   }
   const target = ns.args[0];
-  debugMessage(ns, "Hacking " + target + " from " + ns.getHostname());
   await ns.sleep(ns.args[1]);
+  logMessage(ns, `[INFO]Hack operations started against ${target} from ${ns.getHostname()}.`);
   await attackSrvHack(ns, target);
+  logMessage(ns, `[INFO]Hack operations completed against ${target} from ${ns.getHostname()}.`);
 }

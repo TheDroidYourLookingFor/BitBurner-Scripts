@@ -62,10 +62,10 @@ export async function main(ns) {
 		if (availableThreads > 0) {
 			//ns.killall(svHost.hostname);
 			await ns.sleep(1);
-			if (svHost.hostname != "home") await ns.scp(scriptAll, "home", svHost.hostname);
+			if (svHost.hostname != "home") try { await ns.scp(scriptAll, "home", svHost.hostname); } catch(e){}
 			await ns.sleep(1);
 			debugMessage(ns, "Executing " + svScript + " with " + availableThreads + " threads on " + tName + " from " + svHost.hostname);
-			ns.exec(svScript, svHost.hostname, availableThreads, tName, 0);
+			try { ns.exec(svScript, svHost.hostname, availableThreads, tName, 0); } catch(e) {}
 			totalThreads += availableThreads;
 			totalServers++;
 			await ns.sleep(1);
@@ -90,8 +90,8 @@ export async function main(ns) {
 	await ns.sleep(1);
 
 	try {
-		while (ns.getRunningScript(svScript, serverList[0].hostname, tName).onlineRunningTime > 0) {
-			outputDeployment(ns, tName, curMode, ns.getRunningScript(svScript, serverList[0].hostname, tName).onlineRunningTime);
+		while (ns.getRunningScript(svScript, "home", tName).onlineRunningTime > 0) {
+			outputDeployment(ns, tName, curMode, ns.getRunningScript(svScript, "home", tName).onlineRunningTime);
 			await ns.sleep(250);
 		}
 	} catch (e) { }
