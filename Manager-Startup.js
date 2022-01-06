@@ -9,6 +9,7 @@ export async function main(ns) {
 	var autoManageStock = false;
 	var autoManageServers = true;
 	var autoBootOS = false;
+	var autoContracts = true;
 
 	ns.toast("Droid Scripts Startup beginning");
 
@@ -50,5 +51,10 @@ export async function main(ns) {
 	if (autoSnow && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Snow.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Snow to make it snow.");
 		ns.run(usrDirectory + "Manager-Snow.js", 1);
+	}
+	
+	if (autoContracts && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Contracts.js", ns.getHostname())) {
+		ns.toast("Starting Manager-Contracts to complete contracts.");
+		ns.run(usrDirectory + "Manager-Contracts.js", 1);
 	}
 }
