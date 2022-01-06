@@ -7,7 +7,7 @@ import {
 } from "/TheDroid/TheDroid-Core.js";
 /** @param {NS} ns **/
 export async function main(ns) {
-  ns.disableLog("all");
+  ns.disableLog("ALL");
   const args = ns.flags([['help', false]]);
   if (args.help) {
     ns.tprint("This script will weaken our target automatically.");
