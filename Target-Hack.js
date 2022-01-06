@@ -3,11 +3,13 @@ import {
   consoleMessage,
   logMessage,
   debugMessage,
+  currentHHMMSS,
   attackSrvHack
 } from "/TheDroid/TheDroid-Core.js";
 /** @param {NS} ns **/
 export async function main(ns) {
   ns.disableLog("ALL");
+  ns.enableLog("hack");
   const args = ns.flags([['help', false]]);
   if (args.help) {
     ns.tprint("This script will hack our target automatically.");
@@ -17,6 +19,7 @@ export async function main(ns) {
     return;
   }
   const target = ns.args[0];
+  logMessage(ns, `[INFO]Hack operations sleeping until ${currentHHMMSS(ns.args[1])} on ${ns.getHostname()}.`);
   await ns.sleep(ns.args[1]);
   logMessage(ns, `[INFO]Hack operations started against ${target} from ${ns.getHostname()}.`);
   await attackSrvHack(ns, target);

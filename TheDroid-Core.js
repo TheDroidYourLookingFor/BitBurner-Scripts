@@ -2,12 +2,12 @@ export var userDirectory = new String("/TheDroid/");
 export var userDebug = false;
 
 export const scriptCore = [
-userDirectory + "TheDroid-Core.js"
+	userDirectory + "TheDroid-Core.js"
 ];
 export const scriptWHG = [
-userDirectory + "Target-Weaken.js",
-userDirectory + "Target-Hack.js",
-userDirectory + "Target-Grow.js"
+	userDirectory + "Target-Weaken.js",
+	userDirectory + "Target-Hack.js",
+	userDirectory + "Target-Grow.js"
 ];
 export const scriptAll = scriptWHG.concat(scriptCore);
 
@@ -27,9 +27,14 @@ export function logMessage(ns, message) {
 /** @param {NS} ns **/
 export function localeHHMMSS(ms = 0) {
 	if (!ms) {
-		ms = new Date().getTime()
+		ms = new Date().getTime(ms = 0)
 	}
 	return new Date(ms).toLocaleTimeString()
+}
+export function currentHHMMSS(ms) {
+	const addMs = new Date();
+	addMs.setMilliseconds(ms);
+	return new Date(addMs).toLocaleTimeString()
 }
 /** @param {NS} ns **/
 export function userHackingLevel(ns) {
@@ -815,13 +820,14 @@ export async function networkAttack(ns, checkRunning, tName) {
 /** @param {NS} ns **/
 export async function batch(ns, batchSize, svTarget) {
 	let curMode = "HWGW";
+	let waitTime = 0;
 	var svScripts = scriptAll;
 	var serverList = probeNetwork(ns);
 	serverList.push(ns.getServer("home"));
 
-	consoleMessage(ns, `[INFO]Starting HWGW Deployment against ${svTarget}.`);
+	consoleMessage(ns, `[INFO]Starting ${curMode} deployment against ${svTarget}.`);
 	for (let i = 0; i < batchSize; i++) {
-		debugMessage(ns, `[SUCCESS]Started Batch ID: ${i}`);
+		debugMessage(ns, `[INFO]Started Batch ID: ${i}`);
 		var minSecLvl = ns.getServerMinSecurityLevel(svTarget);
 		var maxMoney = ns.getServerMaxMoney(svTarget);
 		var targetMoneyPercentage = 0.75;
@@ -829,12 +835,11 @@ export async function batch(ns, batchSize, svTarget) {
 		var hackValue;
 		var hackThreads;
 
-		
-		
-		while (ns.getServerMoneyAvailable(svTarget) < (maxMoney * targetMoneyPercentage)) {
-			consoleMessage(ns, `[ERROR]Target too low current money to begin.`);
-			await ns.sleep(1);
+		while (ns.getServerMoneyAvailable(svTarget) < (maxMoney * targetMoneyPercentage) || srvGetSecurityLevel(ns, svTarget) > securityThresh) {
 			consoleMessage(ns, `[INFO]Starting ${curMode} preparation on ${svTarget}.`);
+			if (ns.getServerMoneyAvailable(svTarget) < (maxMoney * targetMoneyPercentage)) consoleMessage(ns, `[WARN]${svTarget} doesn't have enough money to begin.`);
+			if (srvGetSecurityLevel(ns, svTarget) > securityThresh) consoleMessage(ns, `[WARN]${svTarget}'s security is too high to begin.`);
+			await ns.sleep(1);
 			ns.run("/TheDroid/Manager-Prep.js", 1, svTarget);
 			await ns.sleep(1);
 			while (ns.scriptRunning("/TheDroid/Manager-Prep.js", "home")) {
@@ -880,9 +885,11 @@ export async function batch(ns, batchSize, svTarget) {
 				delay += timeDelay * 4
 			}
 		}
+		waitTime = weak1Delay + delay;
 		await ns.sleep(1);
 	}
-	consoleMessage(ns, `[INFO]Completed HWGW Deployment against ${svTarget}.`);
+	consoleMessage(ns, `[INFO]Completed ${curMode} deployment against ${svTarget}.`);
+	consoleMessage(ns, `[INFO]${curMode} completes against ${svTarget} at ${currentHHMMSS(waitTime)}.`);
 }
 /** @param {NS} ns **/
 export async function prepareTarget(ns, svHost, svScript, svScriptCore, tName) {
