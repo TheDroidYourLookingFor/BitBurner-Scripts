@@ -2,7 +2,6 @@ let baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurne
 const usrDirectory = "/TheDroid/";
 let json_filename =  usrDirectory + 'install_files_json.txt';
 
-
 /** @param {NS} ns */
 export async function main(ns) {
 	let {
