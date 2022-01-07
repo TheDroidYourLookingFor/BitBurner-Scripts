@@ -17,7 +17,6 @@
 		"/TheDroid/Target-Grow.js",
 		"/TheDroid/PollServer.js",
 		"/TheDroid/RunOnAll.js",
-		"00-StartHere.js",
-		"initDownload.js"
+		"InstallDroidScripts.js"
 	]
 }
