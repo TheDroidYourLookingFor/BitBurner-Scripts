@@ -19,7 +19,7 @@ export async function main(ns) {
 	let count = 0;
 	for (let filename of filesToDownload) {
 		const path = baseUrl + filename
-		const save_filename = (!filename.startsWith('/') && filename.includes('/')) ? usrDirectory + filename : filename;
+		const save_filename = (!filename.startsWith('/') && filename.includes('/')) ? usrDirectory + filename : usrDirectory + filename;
 
 		try {
 			ns.scriptKill(save_filename, 'home')
