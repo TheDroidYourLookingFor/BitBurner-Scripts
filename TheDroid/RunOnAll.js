@@ -1,4 +1,4 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 import {
 	consoleMessage,
 	debugMessage,
@@ -7,12 +7,12 @@ import {
 	probeNetwork,
 	outputDeployment
 } from "/TheDroid/TheDroid-Core.js";
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
 	ns.disableLog("ALL");
 	var serverList = probeNetwork(ns);
 	serverList.push(ns.getServer("home"));
-	
+
 	var svType = ns.args[0];
 	var tName = ns.args[1];
 	var hostPct = (ns.args[2] / 100);
@@ -62,10 +62,14 @@ export async function main(ns) {
 		if (availableThreads > 0) {
 			//ns.killall(svHost.hostname);
 			await ns.sleep(1);
-			if (svHost.hostname != "home") try { await ns.scp(scriptAll, "home", svHost.hostname); } catch(e){}
+			if (svHost.hostname != "home") try {
+				await ns.scp(scriptAll, "home", svHost.hostname);
+			} catch (e) {}
 			await ns.sleep(1);
 			debugMessage(ns, "Executing " + svScript + " with " + availableThreads + " threads on " + tName + " from " + svHost.hostname);
-			try { ns.exec(svScript, svHost.hostname, availableThreads, tName, 0); } catch(e) {}
+			try {
+				ns.exec(svScript, svHost.hostname, availableThreads, tName, 0);
+			} catch (e) {}
 			totalThreads += availableThreads;
 			totalServers++;
 			await ns.sleep(1);
@@ -94,7 +98,7 @@ export async function main(ns) {
 			outputDeployment(ns, tName, curMode, ns.getRunningScript(svScript, "home", tName).onlineRunningTime);
 			await ns.sleep(250);
 		}
-	} catch (e) { }
+	} catch (e) {}
 	await ns.sleep(250);
 	consoleMessage(ns, "Finished execution with " + totalThreads + " total threads on " + tName + " from " + totalServers + " total servers.");
 }

@@ -1,5 +1,5 @@
 // Based on https://github.com/danielyxie/bitburner/blob/master/src/data/codingcontracttypes.ts
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 import {
 	debugMessage,
 	userDirectory,
@@ -8,7 +8,7 @@ import {
 } from "/TheDroid/TheDroid-Core.js";
 
 export var contractsDb;
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
 	ns.disableLog("sleep")
 	debugMessage(ns, `Starting ` + ns.getScriptName())
@@ -24,7 +24,9 @@ export async function main(ns) {
 				const contract = contractsDb[i]
 				const answer = findAnswer(contract)
 				if (answer != null) {
-					const solvingResult = ns.codingcontract.attempt(answer, contract.contract, contract.svName, { returnReward: true })
+					const solvingResult = ns.codingcontract.attempt(answer, contract.contract, contract.svName, {
+						returnReward: true
+					})
 					if (solvingResult) {
 						debugMessage(ns, `Solved ${contract.contract} on ${contract.svName}. ${solvingResult}`)
 					} else {
@@ -35,6 +37,6 @@ export async function main(ns) {
 				}
 			}
 		}
-		await ns.sleep(10*60*1000)
+		await ns.sleep(10 * 60 * 1000)
 	}
 }

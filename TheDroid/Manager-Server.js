@@ -1,4 +1,4 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 /** @param {import(".").NS } ns */
 //  
 //  I didn't write this script. Someone was kind enough
@@ -11,11 +11,11 @@ if (useDebug) ns.tail(ns.getScriptName())
 const usrDirectory = "/TheDroid/";
 
 const argsSchema = [
-    ['useMoneyPercentage', 100],// ( --useMoney n ) how much n% money from players will be used to upgrade/buy a new server.
-    ['vpsMaxAmount', 25],   // ( --maxAmount n ) buy up to n Servers
-    ['vpsPrefix', 'pServ'],    // ( --vpsPrefix *any* ) prefix of the servers name
-    ['vpsInitialRam', 32],         // ( --startAt n ) starting with n GB RAM of purchasing servers
-    ['vpsMaxRam', 1048576]       // ( -- maxToRam n ) will buy to n GB of ram (i advice about 32TB, because 25 Servers with 4096GB sure cost alot 😂)
+    ['useMoneyPercentage', 100], // ( --useMoney n ) how much n% money from players will be used to upgrade/buy a new server.
+    ['vpsMaxAmount', 25], // ( --maxAmount n ) buy up to n Servers
+    ['vpsPrefix', 'pServ'], // ( --vpsPrefix *any* ) prefix of the servers name
+    ['vpsInitialRam', 32], // ( --startAt n ) starting with n GB RAM of purchasing servers
+    ['vpsMaxRam', 1048576] // ( -- maxToRam n ) will buy to n GB of ram (i advice about 32TB, because 25 Servers with 4096GB sure cost alot 😂)
 ]
 
 export function autocomplete(data, args) {
@@ -28,15 +28,19 @@ const byteFormat = ["GB", "TiB", "PiB"]
 function logBaseValue(base, value) {
     return Math.floor(Math.log(value) / Math.log(base))
 }
+
 function formatNumber(base, value) {
     return value / Math.pow(base, logBaseValue(base, value))
 }
+
 function isZero(index) {
     if (index == 0) {
         return 1
+    } else {
+        return index
     }
-    else { return index }
 }
+
 function allAtMaxRam(servers, maxRam, ns) {
     let trutharray = []
     if (servers.length == 0) {
@@ -44,8 +48,11 @@ function allAtMaxRam(servers, maxRam, ns) {
     }
     for (var srvr of servers) {
         let truth = false
-        try { truth = (ns.getServerMaxRam(srvr) >= maxRam) }
-        catch { truth = false }
+        try {
+            truth = (ns.getServerMaxRam(srvr) >= maxRam)
+        } catch {
+            truth = false
+        }
         trutharray.push(truth)
     }
     return trutharray.some(a => a == false)
@@ -58,7 +65,7 @@ function infDivideByValue(num, value) {
     }
     return numc
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
     ns.disableLog("ALL")
     ns.enableLog("purchaseServer")
@@ -104,10 +111,8 @@ export async function main(ns) {
                         ns.print("WARNING: Failed to buy a new Server, you may not have enough money")
                     }
                 }
-            }
-            else {
-                if (server == undefined) { }
-                else {
+            } else {
+                if (server == undefined) {} else {
                     let nextRam = currentRam * 2
                     let ramSuffix = byteFormat[0]
                     if (nextRam >= 1024) {

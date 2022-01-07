@@ -1,4 +1,4 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 import {
 	scriptWHG,
 	scriptAll,
@@ -18,7 +18,7 @@ let serverList = [];
 let attackerList = [];
 let svTarget;
 let lastTarget;
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
 	const batchLoops = 10;
 	// Disable the welcome settings message
@@ -26,7 +26,7 @@ export async function main(ns) {
 	// Let the system automatically  hack new servers
 	const useAutoHack = true;
 	// Let the system automatically find the best target
-	const useAutoFindBest = false;
+	const useAutoFindBest = true;
 	// Old method of scheduling
 	const deployMode00 = false;
 	// Newer method of scheduling
@@ -43,7 +43,9 @@ export async function main(ns) {
 	serverList = [];
 	var lastMode = "HWGW";
 
-	const args = ns.flags([['help', false]]);
+	const args = ns.flags([
+		['help', false]
+	]);
 	if (args.help) {
 		consoleMessage(ns, "This script will launch our servers into an weaken, grow, and hack cycle.");
 		consoleMessage(ns, `USAGE: run ${ns.getScriptName()}`);
@@ -52,13 +54,13 @@ export async function main(ns) {
 		return;
 	}
 	if (!disableWelcomeMessage) consoleMessage(ns,
-		`[INFO]For additional settings please nano ${ns.getScriptName()}.`
-		+ `\r\n` + `	You can disable this message in the settings at the top`
-		+ `\r\n` + `	via disableWelcomeMessage = true;`
-		+ `\r\n` + `	You can enable automatically finding the best start`
-		+ `\r\n` + `	via useAutoFindBest = true;`
-		+ `\r\n` + `	You can enable automatically gaining root access on new servers`
-		+ `\r\n` + `	via useAutoHack = true;`
+		`[INFO]For additional settings please nano ${ns.getScriptName()}.` +
+		`\r\n` + `	You can disable this message in the settings at the top` +
+		`\r\n` + `	via disableWelcomeMessage = true;` +
+		`\r\n` + `	You can enable automatically finding the best start` +
+		`\r\n` + `	via useAutoFindBest = true;` +
+		`\r\n` + `	You can enable automatically gaining root access on new servers` +
+		`\r\n` + `	via useAutoHack = true;`
 	);
 
 	consoleMessage(ns, `[INFO]${ns.getScriptName()} starting up in ${lastMode} mode.`);
@@ -126,12 +128,14 @@ export async function main(ns) {
 						svHostCount++;
 					}
 				}
-			} catch (e) { }
+			} catch (e) {}
 
 			if (ns.scriptRunning(scriptWHG[1], "home")) {
 				//outputDeployment(ns, svTarget, curMode, ns.getRunningScript(scriptWHG[1], "home", svTarget).onlineRunningTime);
 			} else {
-				try { await batch(ns, batchLoops, svTarget); } catch (e) { }
+				try {
+					await batch(ns, batchLoops, svTarget);
+				} catch (e) {}
 			}
 		}
 

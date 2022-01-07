@@ -1,6 +1,6 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 import {
-	userDebug,
+    userDebug,
     srvGetMinSecurityLevel,
     srvGetSecurityLevel,
     srvGetMaxMoney,
@@ -10,7 +10,7 @@ import {
     attackSrvWeaken
 } from "/TheDroid/TheDroid-Core.js";
 
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
     var target = ns.args[0];
     const useDebug = userDebug;

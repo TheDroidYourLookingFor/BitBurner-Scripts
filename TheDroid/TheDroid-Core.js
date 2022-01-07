@@ -11,20 +11,20 @@ export const scriptWHG = [
 ];
 export const scriptAll = scriptWHG.concat(scriptCore);
 
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function debugMessage(ns, message) {
 	const usrDebug = false;
 	if (usrDebug) consoleMessage(ns, `[DEBUG] ` + message)
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function consoleMessage(ns, message) {
 	ns.tprintf(`[${localeHHMMSS()}]` + message)
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function logMessage(ns, message) {
 	ns.print(`[${localeHHMMSS()}]` + message)
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function localeHHMMSS(ms = 0) {
 	if (!ms) {
 		ms = new Date().getTime(ms = 0)
@@ -36,82 +36,82 @@ export function currentHHMMSS(ms) {
 	addMs.setMilliseconds(ms);
 	return new Date(addMs).toLocaleTimeString()
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function userHackingLevel(ns) {
 	return ns.getHackingLevel();
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvGetMaxRam(ns, svName) {
 	return ns.getServerMaxRam(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvGetNumPortsReq(ns, svName) {
 	return ns.getServerNumPortsRequired(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvGetReqHackingLevel(ns, svName) {
 	return ns.getServerRequiredHackingLevel(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvGetMinSecurityLevel(ns, svName) {
 	return ns.getServerMinSecurityLevel(svName);
 }
 export function srvGetSecurityLevel(ns, svName) {
 	return ns.getServerSecurityLevel(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvGetGrowth(ns, svName) {
 	return ns.getServerGrowth(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvGetMoneyAvailable(ns, svName) {
 	return ns.getServerMoneyAvailable(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvGetMaxMoney(ns, svName) {
 	return ns.getServerMaxMoney(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvGetHackTime(ns, svName) {
 	return ns.getHackTime(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvCheckRootAccess(ns, svName) {
 	return ns.hasRootAccess(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function attackSrvHack(ns, svName) {
 	debugMessage(ns, "Hacking " + svName + " from " + ns.getHostname());
 	await ns.hack(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function attackSrvGrow(ns, svName) {
 	debugMessage(ns, "Growing " + svName + " from " + ns.getHostname());
 	await ns.grow(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function attackSrvWeaken(ns, svName) {
 	debugMessage(ns, "Weakening " + svName + " from " + ns.getHostname());
 	await ns.weaken(svName);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function srvKillAll(ns, svName) {
 	ns.killall(svName);
 	await ns.asleep(1);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function srvSCPFiles(ns, svName, svScriptName) {
 	await ns.scp(svScriptName, "home", svName);
 	await ns.asleep(1);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function uploadToHost(ns, svHost, hackScripts) {
 	debugMessage(ns, "Killing all processes on " + svHost);
 	await srvKillAll(ns, svHost);
 	debugMessage(ns, "Copying hackscripts to " + svHost);
 	await srvSCPFiles(ns, svHost, hackScripts)
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function pollServer(ns, svName) {
 	var svRAM = srvGetMaxRam(ns, svName);
 	var svPorts = srvGetNumPortsReq(ns, svName);
@@ -156,7 +156,7 @@ export async function pollServer(ns, svName) {
 		+ outputSrvMaxMoney + ' '.repeat(max_length - outputSrvMaxMoney.length) + ns.nFormat(svMaxMoney, '$0,0.00')
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length));
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function nFormatter(num, digits) {
 	const lookup = [
 		{ value: 1, symbol: "" },
@@ -173,13 +173,13 @@ export function nFormatter(num, digits) {
 	});
 	return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function lookForHackableTargs(ns, serverList) {
 	serverList.forEach(function (server) {
 		if (!srvCheckRootAccess(ns, server.hostname)) srvFullHack(ns, server.hostname, server.numOpenPortsRequired, server.requiredHackingSkill);
 	});
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function lookForBestTarget(ns, serverList) {
 	var bestTarget;
 	var bestTargetScore = 0;
@@ -210,7 +210,7 @@ export async function lookForBestTarget(ns, serverList) {
 	});
 	return bestTarget;
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function srvFullHack(ns, svName, svPortsNeeded, svReqHack) {
 	debugMessage(ns, "Attempting to hack target: " + svName);
 	var numBusters = 0;
@@ -241,7 +241,7 @@ export function srvFullHack(ns, svName, svPortsNeeded, svReqHack) {
 			);
 	}
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function beginNetworkAttack(ns, checkRunning, fileName, tName) {
 	const usrDirectory = userDirectory;
 	const hackScripts = [usrDirectory + "weaken.js", usrDirectory + "hack.js", usrDirectory + "grow.js", usrDirectory + "aio.js", usrDirectory + "TheDroid-Core.js"];
@@ -306,13 +306,13 @@ export async function beginNetworkAttack(ns, checkRunning, fileName, tName) {
 		ns.asleep(25);
 	}
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function getItem(key) {
 	let item = localStorage.getItem(key)
 
 	return item ? JSON.parse(item) : undefined
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function convert2DArrayToString(arr) {
 	var components = []
 	arr.forEach(function (e) {
@@ -322,7 +322,7 @@ export function convert2DArrayToString(arr) {
 	})
 	return components.join(',').replace(/\s/g, '')
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export const codingContractTypesMetadata = [
 	{
 		name: 'Find Largest Prime Factor',
@@ -680,7 +680,7 @@ export const codingContractTypesMetadata = [
 		},
 	},
 ]
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function findAnswer(contract) {
 	let answer
 
@@ -694,7 +694,7 @@ export function findAnswer(contract) {
 
 	return answer
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function findContracts(ns, contractsDb) {
 	let serverList = probeNetwork(ns);
 	debugMessage(ns, `Finding contracts`)
@@ -720,7 +720,7 @@ export async function findContracts(ns, contractsDb) {
 		}
 	}
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function deployTarget(ns, svHost, svScript, svScriptCore, tName, maxThreads) {
 	var script_mem = ns.getScriptRam(svScript, "home");
 	if (svHost.hasAdminRights && svHost.maxRam > script_mem && !ns.isRunning(svScript, svHost.hostname, tName)) {
@@ -745,7 +745,7 @@ export async function deployTarget(ns, svHost, svScript, svScriptCore, tName, ma
 	}
 	return 0;
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function networkAttack(ns, checkRunning, tName) {
 	let serverList = probeNetwork(ns);
 	var hack_mem = ns.getScriptRam(scriptWHG[0]);
@@ -817,7 +817,7 @@ export async function networkAttack(ns, checkRunning, tName) {
 		await ns.asleep(1);
 	}
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function batch(ns, batchSize, svTarget) {
 	let curMode = "HWGW";
 	let waitTime = 0;
@@ -891,7 +891,7 @@ export async function batch(ns, batchSize, svTarget) {
 	consoleMessage(ns, `[INFO]Completed ${curMode} deployment against ${svTarget}.`);
 	consoleMessage(ns, `[INFO]${curMode} completes against ${svTarget} at ${currentHHMMSS(waitTime)}.`);
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function prepareTarget(ns, svHost, svScript, svScriptCore, tName) {
 	var script_mem = ns.getScriptRam(svScript, "home");
 	if (svHost.hasAdminRights && svHost.maxRam > script_mem && !ns.isRunning(svScript, svHost.hostname, tName)) {
@@ -919,7 +919,7 @@ export async function prepareTarget(ns, svHost, svScript, svScriptCore, tName) {
 	}
 	return 0;
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function prepareTargets(ns, svList, svScript, svScriptCore, tName) {
 	var script_mem = ns.getScriptRam(svScript, "home");
 	for (const svHost of svList) {
@@ -947,7 +947,7 @@ export async function prepareTargets(ns, svList, svScript, svScriptCore, tName) 
 		}
 	}
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function msToTime(duration) {
 	var milliseconds = Math.floor((duration % 1000) / 100),
 		seconds = Math.floor((duration / 1000) % 60),
@@ -960,7 +960,7 @@ export function msToTime(duration) {
 
 	return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function probeNetwork(ns) {
 	var serverList = [];
 	var servers = ["home"];
@@ -989,7 +989,7 @@ export function outputDeploymentCountdown(ns, curValue, setValue) {
 	}
 }
 export var deploymentCountdown;
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function countTotalServers(ns) {
 	let serverList = probeNetwork(ns);
 	let totalServers = 0;
@@ -1000,7 +1000,7 @@ export function countTotalServers(ns) {
 	})
 	return totalServers;
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function countTotalNetworkScripts(ns) {
 	let serverList = probeNetwork(ns);
 	let totalServers = 0;
@@ -1013,7 +1013,7 @@ export function countTotalNetworkScripts(ns) {
 	})
 	return totalServers;
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function countNetworkThreads(serverList, script_mem) {
 	var networkThreads = 0;
 	serverList.forEach(function (server) {
@@ -1026,7 +1026,7 @@ export function countNetworkThreads(serverList, script_mem) {
 	})
 	return networkThreads;
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function countTotalScriptThreads(ns, svTarget, svScript) {
 	let serverList = probeNetwork(ns);
 	let totalThreads = 0;
@@ -1039,7 +1039,7 @@ export async function countTotalScriptThreads(ns, svTarget, svScript) {
 	})
 	return totalThreads;
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function countTotalThreads(ns, svTarget) {
 	let serverList = probeNetwork(ns);
 	let totalThreads = 0;
@@ -1058,7 +1058,7 @@ export function countTotalThreads(ns, svTarget) {
 var lastTotalThreadsWeaken = 0;
 var lastTotalThreadsGrow = 0;
 var lastTotalThreadsHack = 0;
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function displayTotalThreads(ns) {
 	var serverList = probeNetwork(ns);
 	var totalThreadsWeaken = 0;
@@ -1101,7 +1101,7 @@ export function displayTotalThreads(ns) {
 		consoleMessage(ns, "[HACK]" + "Attacking with " + totalThreadsHack + " total threads from " + totalServersHack + " servers.");
 	}
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function checkRunningTime(ns, svTarget, curMode) {
 	let rTime = 0;
 	try {
@@ -1121,7 +1121,7 @@ export function checkRunningTime(ns, svTarget, curMode) {
 	} catch (e) { }
 	return rTime;
 }
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export function outputDeployment(ns, svTarget, lastMode) {
 	let money = srvGetMoneyAvailable(ns, svTarget);
 	if (money === 0) money = 1;
@@ -1163,15 +1163,6 @@ export function outputDeployment(ns, svTarget, lastMode) {
 	} else {
 		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000) + " / " + msToTime(ns.getWeakenTime(svTarget));
 	}
-
-	var outputBlank = "\r\n";
-	var outputIvmaRocks = `Ivma's Awesome Sauce`;
-	ns.print(""
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
-		+ outputBlank
-		+ ' '.repeat(15) + outputIvmaRocks
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length));
-
 	ns.print(""
 		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		+ outputBlank

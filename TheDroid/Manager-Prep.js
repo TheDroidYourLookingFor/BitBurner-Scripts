@@ -1,4 +1,4 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 import {
 	scriptAll,
 	consoleMessage,
@@ -9,7 +9,7 @@ import {
 	outputDeployment,
 	srvGetMaxMoney
 } from "/TheDroid/TheDroid-Core.js";
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
 	ns.disableLog("scan");
 	ns.disableLog("sleep");

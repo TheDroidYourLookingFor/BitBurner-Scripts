@@ -1,4 +1,4 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
 	let svName = ns.args[0];
 	var svRAM = ns.getServerMaxRam(svName);
@@ -36,36 +36,56 @@ export async function main(ns) {
 	var outputSrvMoney = "\r\nServer Money:"
 	var outputSrvMaxMoney = "\r\nServer Max Money:"
 	ns.tprint("Polling server " + svName);
-	ns.tprint(""
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
-		+ outputScore + ' '.repeat(max_length - outputScore.length) + svScore
-		+ outputScore00 + ' '.repeat(max_length - outputScore00.length) + svScore00
-		+ outputScore01 + ' '.repeat(max_length - outputScore01.length) + svScore01
-		+ outputHost + ' '.repeat(max_length - outputHost.length) + svName
-		+ outputMaxRam + ' '.repeat(max_length - outputMaxRam.length) + svRAM + "GB"
-		+ outputPorts + ' '.repeat(max_length - outputPorts.length) + svPorts
-		+ outputHackTime + ' '.repeat(max_length - outputHackTime.length) + ns.nFormat(svExecTime, '0.00')
-		+ outputHackThreads + ' '.repeat(max_length - outputHackThreads.length) + ns.nFormat(hackThreads, '0.00')
-		+ outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack
-		+ outputHackAnalyze + ' '.repeat(max_length - outputHackAnalyze.length) + ha
-		+ outputWeakenAnalyze + ' '.repeat(max_length - outputWeakenAnalyze.length) + ga
-		+ outputGrowAnalyze + ' '.repeat(max_length - outputGrowAnalyze.length) + wa
-		+ outputMinSec + ' '.repeat(max_length - outputMinSec.length) + svMinSec
-		+ outputSrvGrowth + ' '.repeat(max_length - outputSrvGrowth.length) + svGrowth
-		+ outputSrvMoney + ' '.repeat(max_length - outputSrvMoney.length) + ns.nFormat(svCurMoney, '$0,0.00')
-		+ outputSrvMaxMoney + ' '.repeat(max_length - outputSrvMaxMoney.length) + ns.nFormat(svMaxMoney, '$0,0.00')
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length));
+	ns.tprint("" +
+		outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
+		outputScore + ' '.repeat(max_length - outputScore.length) + svScore +
+		outputScore00 + ' '.repeat(max_length - outputScore00.length) + svScore00 +
+		outputScore01 + ' '.repeat(max_length - outputScore01.length) + svScore01 +
+		outputHost + ' '.repeat(max_length - outputHost.length) + svName +
+		outputMaxRam + ' '.repeat(max_length - outputMaxRam.length) + svRAM + "GB" +
+		outputPorts + ' '.repeat(max_length - outputPorts.length) + svPorts +
+		outputHackTime + ' '.repeat(max_length - outputHackTime.length) + ns.nFormat(svExecTime, '0.00') +
+		outputHackThreads + ' '.repeat(max_length - outputHackThreads.length) + ns.nFormat(hackThreads, '0.00') +
+		outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack +
+		outputHackAnalyze + ' '.repeat(max_length - outputHackAnalyze.length) + ha +
+		outputWeakenAnalyze + ' '.repeat(max_length - outputWeakenAnalyze.length) + ga +
+		outputGrowAnalyze + ' '.repeat(max_length - outputGrowAnalyze.length) + wa +
+		outputMinSec + ' '.repeat(max_length - outputMinSec.length) + svMinSec +
+		outputSrvGrowth + ' '.repeat(max_length - outputSrvGrowth.length) + svGrowth +
+		outputSrvMoney + ' '.repeat(max_length - outputSrvMoney.length) + ns.nFormat(svCurMoney, '$0,0.00') +
+		outputSrvMaxMoney + ' '.repeat(max_length - outputSrvMaxMoney.length) + ns.nFormat(svMaxMoney, '$0,0.00') +
+		outputBlank + '-'.repeat(border_max_length - outputBlank.length));
 }
 
 export function nFormatter(num, digits) {
-	const lookup = [
-		{ value: 1, symbol: "" },
-		{ value: 1e3, symbol: "k" },
-		{ value: 1e6, symbol: "m" },
-		{ value: 1e9, symbol: "b" },
-		{ value: 1e12, symbol: "t" },
-		{ value: 1e15, symbol: "p" },
-		{ value: 1e18, symbol: "e" }
+	const lookup = [{
+			value: 1,
+			symbol: ""
+		},
+		{
+			value: 1e3,
+			symbol: "k"
+		},
+		{
+			value: 1e6,
+			symbol: "m"
+		},
+		{
+			value: 1e9,
+			symbol: "b"
+		},
+		{
+			value: 1e12,
+			symbol: "t"
+		},
+		{
+			value: 1e15,
+			symbol: "p"
+		},
+		{
+			value: 1e18,
+			symbol: "e"
+		}
 	];
 	const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
 	var item = lookup.slice().reverse().find(function (item) {

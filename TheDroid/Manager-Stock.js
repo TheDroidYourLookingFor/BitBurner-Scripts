@@ -1,4 +1,4 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
     ns.disableLog("sleep");
     ns.disableLog("stock.buy");
@@ -6,7 +6,7 @@ export async function main(ns) {
     ns.tail("/TheDroid/Manager-Stock.js", "home")
     while (true) {
         tendStocks(ns);
-        await ns.sleep(1*60*1000);
+        await ns.sleep(1 * 60 * 1000);
     }
 }
 
@@ -52,7 +52,7 @@ function getAllStocks(ns) {
         stock.summary = `${stock.symbol}: ${stock.forecast.toFixed(3)} ± ${stock.volatility.toFixed(3)}`;
         stocks[symbol] = stock;
     }
-    return stocks;    
+    return stocks;
 }
 
 function getPortfolioValue(stocks) {
@@ -63,7 +63,7 @@ function getPortfolioValue(stocks) {
     return value;
 }
 
-function getBullStocks(stocks, threshold=0.55) {
+function getBullStocks(stocks, threshold = 0.55) {
     // select stocks with at least threshold % chance to increase each cycle
     const bullStocks = [];
     for (const stock of Object.values(stocks)) {
@@ -74,7 +74,7 @@ function getBullStocks(stocks, threshold=0.55) {
     return bullStocks;
 }
 
-function getBearStocks(stocks, threshold=0.48) {
+function getBearStocks(stocks, threshold = 0.48) {
     // select stocks with at most threshold % chance to increase each cycle
     const bearStocks = [];
     for (const stock of Object.values(stocks)) {
@@ -100,9 +100,9 @@ function sellStocks(ns, stocksToSell) {
     }
 }
 
-function buyStocks(ns, stocksToBuy, maxTransactions=4) {
+function buyStocks(ns, stocksToBuy, maxTransactions = 4) {
     // buy stocks, spending more money on higher rated stocks
-    const bestStocks = stocksToBuy.sort((a,b)=>{
+    const bestStocks = stocksToBuy.sort((a, b) => {
         return b.forecast - a.forecast; // descending
     });
 
@@ -115,7 +115,7 @@ function buyStocks(ns, stocksToBuy, maxTransactions=4) {
         }
         // spend up to half the money available on the highest rated stock
         // (the following stock will buy half as much)
-        const moneyThisStock = moneyRemaining/2 - 100000;
+        const moneyThisStock = moneyRemaining / 2 - 100000;
         let numShares = moneyThisStock / stock.askPrice;
 
         numShares = Math.min(numShares, stock.maxShares - stock.shares - stock.sharesShort);

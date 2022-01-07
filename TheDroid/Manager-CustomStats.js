@@ -1,6 +1,8 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-    const args = ns.flags([["help", false]]);
+    const args = ns.flags([
+        ["help", false]
+    ]);
     if (args.help) {
         ns.tprint("This script will enhance your HUD (Heads up Display) with custom statistics.");
         ns.tprint(`Usage: run ${ns.getScriptName()}`);

@@ -1,4 +1,4 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 import {
   consoleMessage,
   logMessage,
@@ -6,11 +6,13 @@ import {
   currentHHMMSS,
   attackSrvWeaken
 } from "/TheDroid/TheDroid-Core.js";
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
   ns.disableLog("ALL");
   ns.enableLog("weaken");
-  const args = ns.flags([['help', false]]);
+  const args = ns.flags([
+    ['help', false]
+  ]);
   if (args.help) {
     ns.tprint("This script will weaken our target automatically.");
     ns.tprint(`USAGE: run ${ns.getScriptName()} TARGET_NAME`);

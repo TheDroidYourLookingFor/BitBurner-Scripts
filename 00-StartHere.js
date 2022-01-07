@@ -1,10 +1,14 @@
 let baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/';
-let json_filename = 'install_files_json.txt';
 const usrDirectory = "/TheDroid/";
+let json_filename =  usrDirectory + 'install_files_json.txt';
+
 
 /** @param {NS} ns */
 export async function main(ns) {
-	let { welcomeLabel, filesToDownload } = await fetchConfig(ns)
+	let {
+		welcomeLabel,
+		filesToDownload
+	} = await fetchConfig(ns)
 
 	ns.tprintf("%s", welcomeLabel)
 
@@ -19,7 +23,7 @@ export async function main(ns) {
 	let count = 0;
 	for (let filename of filesToDownload) {
 		const path = baseUrl + filename
-		const save_filename = (!filename.startsWith('/') && filename.includes('/')) ? usrDirectory + filename : usrDirectory + filename;
+		const save_filename = (!filename.startsWith('/') && filename.includes('/')) ? usrDirectory + filename : filename;
 
 		try {
 			ns.scriptKill(save_filename, 'home')
@@ -69,7 +73,7 @@ async function clean(ns, filesToDownload) {
 
 async function fetchConfig(ns) {
 	try {
-		let local_filename = '/TheDroid/' + json_filename;
+		let local_filename = json_filename;
 		await ns.rm(local_filename)
 		await ns.wget(baseUrl + json_filename + '?ts=' + new Date().getTime(), local_filename)
 		return JSON.parse(ns.read(local_filename));
@@ -84,6 +88,11 @@ function terminalCommand(message) {
 	const terminalInput = /** @type {HTMLInputElement} */ (docs.getElementById("terminal-input"));
 	terminalInput.value = message;
 	const handler = Object.keys(terminalInput)[1];
-	terminalInput[handler].onChange({ target: terminalInput });
-	terminalInput[handler].onKeyDown({ keyCode: 13, preventDefault: () => null });
+	terminalInput[handler].onChange({
+		target: terminalInput
+	});
+	terminalInput[handler].onKeyDown({
+		keyCode: 13,
+		preventDefault: () => null
+	});
 }

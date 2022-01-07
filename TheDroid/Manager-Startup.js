@@ -1,4 +1,4 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
 	var autoCustomStats = false;
@@ -52,7 +52,7 @@ export async function main(ns) {
 		ns.toast("Starting Manager-Snow to make it snow.");
 		ns.run(usrDirectory + "Manager-Snow.js", 1);
 	}
-	
+
 	if (autoContracts && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Contracts.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Contracts to complete contracts.");
 		ns.run(usrDirectory + "Manager-Contracts.js", 1);

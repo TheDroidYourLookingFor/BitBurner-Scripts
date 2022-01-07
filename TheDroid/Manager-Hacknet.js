@@ -1,13 +1,15 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
-    const args = ns.flags([['help', false]]);
-	if (args.help) {
-		ns.tprint("This script will automatically buy Hacknet nodes.");
-		ns.tprint(`USAGE: run ${ns.getScriptName()}`);
-		ns.tprint("Example:");
-		ns.tprint(`> run ${ns.getScriptName()}`);
-		return;
-	}
+    const args = ns.flags([
+        ['help', false]
+    ]);
+    if (args.help) {
+        ns.tprint("This script will automatically buy Hacknet nodes.");
+        ns.tprint(`USAGE: run ${ns.getScriptName()}`);
+        ns.tprint("Example:");
+        ns.tprint(`> run ${ns.getScriptName()}`);
+        return;
+    }
     var reserveMoney = 1000000;
     var n = 1;
 
