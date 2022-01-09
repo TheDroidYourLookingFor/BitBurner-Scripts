@@ -80,6 +80,10 @@ export function srvCheckRootAccess(ns, svName) {
 	return ns.hasRootAccess(svName);
 }
 /** @param {import(".").NS } ns */
+export function srvCheckBackdoor(ns, svName) {
+	return ns.getServer(svName).backdoorInstalled;
+}
+/** @param {import(".").NS } ns */
 export async function attackSrvHack(ns, svName) {
 	debugMessage(ns, "Hacking " + svName + " from " + ns.getHostname());
 	await ns.hack(svName);
@@ -140,32 +144,52 @@ export async function pollServer(ns, svName) {
 	var outputSrvMoney = "\r\nServer Money:"
 	var outputSrvMaxMoney = "\r\nServer Max Money:"
 	ns.tprint("Polling server " + svName);
-	ns.tprint(""
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
-		+ outputScore + ' '.repeat(max_length - outputScore.length) + svScore
-		+ outputScore00 + ' '.repeat(max_length - outputScore00.length) + svScore00
-		+ outputScore01 + ' '.repeat(max_length - outputScore01.length) + svScore01
-		+ outputHost + ' '.repeat(max_length - outputHost.length) + svName
-		+ outputMaxRam + ' '.repeat(max_length - outputMaxRam.length) + svRAM + "GB"
-		+ outputPorts + ' '.repeat(max_length - outputPorts.length) + svPorts
-		+ outputHackTime + ' '.repeat(max_length - outputHackTime.length) + ns.nFormat(svExecTime, '0.00')
-		+ outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack
-		+ outputMinSec + ' '.repeat(max_length - outputMinSec.length) + svMinSec
-		+ outputSrvGrowth + ' '.repeat(max_length - outputSrvGrowth.length) + svGrowth
-		+ outputSrvMoney + ' '.repeat(max_length - outputSrvMoney.length) + ns.nFormat(svCurMoney, '$0,0.00')
-		+ outputSrvMaxMoney + ' '.repeat(max_length - outputSrvMaxMoney.length) + ns.nFormat(svMaxMoney, '$0,0.00')
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length));
+	ns.tprint("" +
+		outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
+		outputScore + ' '.repeat(max_length - outputScore.length) + svScore +
+		outputScore00 + ' '.repeat(max_length - outputScore00.length) + svScore00 +
+		outputScore01 + ' '.repeat(max_length - outputScore01.length) + svScore01 +
+		outputHost + ' '.repeat(max_length - outputHost.length) + svName +
+		outputMaxRam + ' '.repeat(max_length - outputMaxRam.length) + svRAM + "GB" +
+		outputPorts + ' '.repeat(max_length - outputPorts.length) + svPorts +
+		outputHackTime + ' '.repeat(max_length - outputHackTime.length) + ns.nFormat(svExecTime, '0.00') +
+		outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack +
+		outputMinSec + ' '.repeat(max_length - outputMinSec.length) + svMinSec +
+		outputSrvGrowth + ' '.repeat(max_length - outputSrvGrowth.length) + svGrowth +
+		outputSrvMoney + ' '.repeat(max_length - outputSrvMoney.length) + ns.nFormat(svCurMoney, '$0,0.00') +
+		outputSrvMaxMoney + ' '.repeat(max_length - outputSrvMaxMoney.length) + ns.nFormat(svMaxMoney, '$0,0.00') +
+		outputBlank + '-'.repeat(border_max_length - outputBlank.length));
 }
 /** @param {import(".").NS } ns */
 export function nFormatter(num, digits) {
-	const lookup = [
-		{ value: 1, symbol: "" },
-		{ value: 1e3, symbol: "k" },
-		{ value: 1e6, symbol: "m" },
-		{ value: 1e9, symbol: "b" },
-		{ value: 1e12, symbol: "t" },
-		{ value: 1e15, symbol: "p" },
-		{ value: 1e18, symbol: "e" }
+	const lookup = [{
+			value: 1,
+			symbol: ""
+		},
+		{
+			value: 1e3,
+			symbol: "k"
+		},
+		{
+			value: 1e6,
+			symbol: "m"
+		},
+		{
+			value: 1e9,
+			symbol: "b"
+		},
+		{
+			value: 1e12,
+			symbol: "t"
+		},
+		{
+			value: 1e15,
+			symbol: "p"
+		},
+		{
+			value: 1e18,
+			symbol: "e"
+		}
 	];
 	const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
 	var item = lookup.slice().reverse().find(function (item) {
@@ -174,10 +198,17 @@ export function nFormatter(num, digits) {
 	return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
 }
 /** @param {import(".").NS } ns */
-export function lookForHackableTargs(ns, serverList) {
-	serverList.forEach(function (server) {
+export async function lookForHackableTargs(ns, serverList) {
+	for (const server of serverList) {
 		if (!srvCheckRootAccess(ns, server.hostname)) srvFullHack(ns, server.hostname, server.numOpenPortsRequired, server.requiredHackingSkill);
-	});
+		if (!srvCheckBackdoor(ns, server.hostname) && srvCheckRootAccess(ns, server.hostname)) await srvBackdoor(ns, server.hostname);
+	}
+}
+/** @param {import(".").NS } ns */
+export async function lookForBackdoorTargs(ns, serverList) {
+	for (const server of serverList) {
+		if (!srvCheckBackdoor(ns, server.hostname) && srvCheckRootAccess(ns, server.hostname)) await srvBackdoor(ns, server.hostname);
+	}
 }
 /** @param {import(".").NS } ns */
 export async function lookForBestTarget(ns, serverList) {
@@ -211,6 +242,81 @@ export async function lookForBestTarget(ns, serverList) {
 	return bestTarget;
 }
 /** @param {import(".").NS } ns */
+export async function srvConnect(ns, svHost) {
+	let paths = {
+		"home": ""
+	};
+	let queue = Object.keys(paths);
+	let name;
+	let output;
+	let pathToTarget = [];
+	while ((name = queue.shift())) {
+		let path = paths[name];
+		let scanRes = ns.scan(name);
+		for (let newSv of scanRes) {
+			if (paths[newSv] === undefined) {
+				queue.push(newSv);
+				paths[newSv] = `${path},${newSv}`;
+				if (newSv == svHost)
+					pathToTarget = paths[newSv].substr(1).split(",");
+
+			}
+		}
+	}
+	output = "home; ";
+
+	pathToTarget.forEach(server => output += " connect " + server + ";");
+
+	const terminalInput = globalThis['document'].getElementById("terminal-input");
+	terminalInput.value = output;
+	const handler = Object.keys(terminalInput)[1];
+	terminalInput[handler].onChange({
+		target: terminalInput
+	});
+	terminalInput[handler].onKeyDown({
+		keyCode: 13,
+		preventDefault: () => null
+	});
+}
+/** @param {import(".").NS } ns */
+export async function srvBackdoor(ns, svName) {
+	let paths = {
+		"home": ""
+	};
+	let queue = Object.keys(paths);
+	let name;
+	let output;
+	let pathToTarget = [];
+	while ((name = queue.shift())) {
+		let path = paths[name];
+		let scanRes = ns.scan(name);
+		for (let newSv of scanRes) {
+			if (paths[newSv] === undefined) {
+				queue.push(newSv);
+				paths[newSv] = `${path},${newSv}`;
+				if (newSv == svName)
+					pathToTarget = paths[newSv].substr(1).split(",");
+
+			}
+		}
+	}
+	for (const server of pathToTarget) {
+		ns.connect(server);
+	}
+	consoleMessage(ns, `Backdooring ${svName}`)
+	await ns.installBackdoor();
+
+	// const terminalInput = globalThis['document'].getElementById("terminal-input");
+    // terminalInput.value="backdoor";
+    // const handler = Object.keys(terminalInput)[1];
+    // terminalInput[handler].onChange({target:terminalInput});
+    // terminalInput[handler].onKeyDown({keyCode:13,preventDefault:()=>null});
+
+	consoleMessage(ns, `Backdoor finished ${svName}`)
+	await ns.sleep(1);
+	ns.connect("home");
+}
+/** @param {import(".").NS } ns */
 export function srvFullHack(ns, svName, svPortsNeeded, svReqHack) {
 	debugMessage(ns, "Attempting to hack target: " + svName);
 	var numBusters = 0;
@@ -231,13 +337,12 @@ export function srvFullHack(ns, svName, svPortsNeeded, svReqHack) {
 		debugMessage(ns, "Attempting to SQLInject target: " + svName);
 		if (numBusters > 4) ns.sqlinject(svName);
 		ns.nuke(svName);
-		//ns.installBackdoor();
 		consoleMessage(ns, "Server hacked: " + svName);
 	} else {
 		if (numBusters < svPortsNeeded)
-			debugMessage(ns, "We do not have enough port busters."
-				+ "\r\nRequired: " + svReqHack
-				+ "\r\nCurrent: " + numBusters
+			debugMessage(ns, "We do not have enough port busters." +
+				"\r\nRequired: " + svReqHack +
+				"\r\nCurrent: " + numBusters
 			);
 	}
 }
@@ -272,9 +377,9 @@ export async function beginNetworkAttack(ns, checkRunning, fileName, tName) {
 				if (ns.isRunning(hackScripts[1], svName, tName) && checkRunning) {
 					debugMessage(ns, "Hack already running on " + svName);
 				} else {
-					debugMessage(ns, "Hack Threads: " + hack_threads
-						+ "\r\nGrow Threads: " + grow_threads
-						+ "\r\nWeaken Threads: " + weaken_threads
+					debugMessage(ns, "Hack Threads: " + hack_threads +
+						"\r\nGrow Threads: " + grow_threads +
+						"\r\nWeaken Threads: " + weaken_threads
 					);
 					debugMessage(ns, "Beginning multithreaded attack on " + tName + " from " + svName + ".");
 					await uploadToHost(ns, svName, hackScripts);
@@ -323,8 +428,7 @@ export function convert2DArrayToString(arr) {
 	return components.join(',').replace(/\s/g, '')
 }
 /** @param {import(".").NS } ns */
-export const codingContractTypesMetadata = [
-	{
+export const codingContractTypesMetadata = [{
 		name: 'Find Largest Prime Factor',
 		solver: function (data) {
 			var fac = 2
@@ -377,7 +481,7 @@ export const codingContractTypesMetadata = [
 				// Up
 				for (var col = l; col <= r; col++) {
 					spiral[k] = data[u][col]
-					++k
+						++k
 				}
 				if (++u > d) {
 					break
@@ -385,7 +489,7 @@ export const codingContractTypesMetadata = [
 				// Right
 				for (var row = u; row <= d; row++) {
 					spiral[k] = data[row][r]
-					++k
+						++k
 				}
 				if (--r < l) {
 					break
@@ -393,7 +497,7 @@ export const codingContractTypesMetadata = [
 				// Down
 				for (var col = r; col >= l; col--) {
 					spiral[k] = data[d][col]
-					++k
+						++k
 				}
 				if (--d < u) {
 					break
@@ -401,7 +505,7 @@ export const codingContractTypesMetadata = [
 				// Left
 				for (var row = d; row >= u; row--) {
 					spiral[k] = data[row][l]
-					++k
+						++k
 				}
 				if (++l > r) {
 					break
@@ -615,6 +719,7 @@ export const codingContractTypesMetadata = [
 					left > 0 ? --left : ++right
 				}
 			}
+
 			function dfs(pair, index, left, right, s, solution, res) {
 				if (s.length === index) {
 					if (left === 0 && right === 0 && pair === 0) {
@@ -649,6 +754,7 @@ export const codingContractTypesMetadata = [
 		solver: function (data) {
 			var num = data[0]
 			var target = data[1]
+
 			function helper(res, path, num, target, pos, evaluated, multed) {
 				if (pos === num.length) {
 					if (target === evaluated) {
@@ -779,9 +885,9 @@ export async function networkAttack(ns, checkRunning, tName) {
 				if (ns.isRunning(scriptWHG[1], svName, tName) && checkRunning) {
 					debugMessage(ns, "Hack already running on " + svName);
 				} else {
-					debugMessage(ns, "Hack Threads: " + hack_threads
-						+ "\r\nGrow Threads: " + grow_threads
-						+ "\r\nWeaken Threads: " + weaken_threads
+					debugMessage(ns, "Hack Threads: " + hack_threads +
+						"\r\nGrow Threads: " + grow_threads +
+						"\r\nWeaken Threads: " + weaken_threads
 					);
 					debugMessage(ns, "Starting multithreaded attack on " + tName + " from " + svName + ".");
 					await uploadToHost(ns, svName, scriptAll);
@@ -1035,7 +1141,7 @@ export async function countTotalScriptThreads(ns, svTarget, svScript) {
 			if (ns.getRunningScript(svScript, server.hostname, svTarget).threads > 0) {
 				totalThreads += ns.getRunningScript(svScript, server.hostname, svTarget).threads;
 			}
-		} catch (e) { }
+		} catch (e) {}
 	})
 	return totalThreads;
 }
@@ -1049,7 +1155,7 @@ export function countTotalThreads(ns, svTarget) {
 				if (ns.scriptRunning(svScript, server.hostname)) {
 					totalThreads += ns.getRunningScript(svScript, server.hostname, svTarget).threads;
 				}
-			} catch (e) { }
+			} catch (e) {}
 		})
 	})
 	return totalThreads;
@@ -1085,7 +1191,7 @@ export function displayTotalThreads(ns) {
 						++totalServersHack;
 					}
 				}
-			} catch (e) { }
+			} catch (e) {}
 		})
 	})
 	if (totalThreadsWeaken > 0 && totalThreadsWeaken != lastTotalThreadsWeaken) {
@@ -1116,9 +1222,9 @@ export function checkRunningTime(ns, svTarget, curMode) {
 					if (svScript.includes("Hack")) deploymentCountdown = ns.getHackTime(svTarget);
 					return rTime;
 				}
-			} catch (e) { }
+			} catch (e) {}
 		})
-	} catch (e) { }
+	} catch (e) {}
 	return rTime;
 }
 /** @param {import(".").NS } ns */
@@ -1163,27 +1269,27 @@ export function outputDeployment(ns, svTarget, lastMode) {
 	} else {
 		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000) + " / " + msToTime(ns.getWeakenTime(svTarget));
 	}
-	ns.print(""
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
-		+ outputBlank
-		+ ' '.repeat(15) + outputTheDruid
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
-		+ outputMode + ' '.repeat(max_length - outputMode.length) + lastMode
-		+ outputCountdown + ' '.repeat(max_length - outputCountdown.length) + outputRunning
-		+ outputTotalServers + ' '.repeat(max_length - outputTotalServers.length) + countTotalServers(ns)
-		+ outputTotalNetworkScripts + ' '.repeat(max_length - outputTotalNetworkScripts.length) + countTotalNetworkScripts(ns)
-		+ outputTotalThreads + ' '.repeat(max_length - outputTotalThreads.length) + countTotalThreads(ns, svTarget)
-		+ outputHack + ' '.repeat(max_length - outputHack.length) + `${ns.tFormat(ns.getHackTime(svTarget))} (t=${Math.ceil(ns.hackAnalyzeThreads(svTarget, money))})`
-		+ outputGrow + ' '.repeat(max_length - outputGrow.length) + `${ns.tFormat(ns.getGrowTime(svTarget))} (t=${Math.ceil(ns.growthAnalyze(svTarget, maxMoney / money))})`
-		+ outputWeaken + ' '.repeat(max_length - outputWeaken.length) + `${ns.tFormat(ns.getWeakenTime(svTarget))} (t=${Math.ceil((sec - minSec) * 20)})`
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length)
-		+ outputHost + ' '.repeat(max_length - outputHost.length) + svTarget
-		+ outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack
-		+ outputSec + ' '.repeat(max_length - outputSec.length) + svSec
-		+ outputSecurity + ' '.repeat(max_length - outputSecurity.length) + `+${(sec - minSec).toFixed(2)}`
-		+ outputMinSec + ' '.repeat(max_length - outputMinSec.length) + svMinSec
-		+ outputSrvGrowth + ' '.repeat(max_length - outputSrvGrowth.length) + svGrowth
-		+ outputSrvMoney + ' '.repeat(max_length - outputSrvMoney.length) + ns.nFormat(svCurMoney, '$0,0.00')
-		+ outputSrvMaxMoney + ' '.repeat(max_length - outputSrvMaxMoney.length) + ns.nFormat(svMaxMoney, '$0,0.00')
-		+ outputBlank + '-'.repeat(border_max_length - outputBlank.length));
+	ns.print("" +
+		outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
+		outputBlank +
+		' '.repeat(15) + outputTheDruid +
+		outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
+		outputMode + ' '.repeat(max_length - outputMode.length) + lastMode +
+		outputCountdown + ' '.repeat(max_length - outputCountdown.length) + outputRunning +
+		outputTotalServers + ' '.repeat(max_length - outputTotalServers.length) + countTotalServers(ns) +
+		outputTotalNetworkScripts + ' '.repeat(max_length - outputTotalNetworkScripts.length) + countTotalNetworkScripts(ns) +
+		outputTotalThreads + ' '.repeat(max_length - outputTotalThreads.length) + countTotalThreads(ns, svTarget) +
+		outputHack + ' '.repeat(max_length - outputHack.length) + `${ns.tFormat(ns.getHackTime(svTarget))} (t=${Math.ceil(ns.hackAnalyzeThreads(svTarget, money))})` +
+		outputGrow + ' '.repeat(max_length - outputGrow.length) + `${ns.tFormat(ns.getGrowTime(svTarget))} (t=${Math.ceil(ns.growthAnalyze(svTarget, maxMoney / money))})` +
+		outputWeaken + ' '.repeat(max_length - outputWeaken.length) + `${ns.tFormat(ns.getWeakenTime(svTarget))} (t=${Math.ceil((sec - minSec) * 20)})` +
+		outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
+		outputHost + ' '.repeat(max_length - outputHost.length) + svTarget +
+		outputReqHacking + ' '.repeat(max_length - outputReqHacking.length) + svReqHack +
+		outputSec + ' '.repeat(max_length - outputSec.length) + svSec +
+		outputSecurity + ' '.repeat(max_length - outputSecurity.length) + `+${(sec - minSec).toFixed(2)}` +
+		outputMinSec + ' '.repeat(max_length - outputMinSec.length) + svMinSec +
+		outputSrvGrowth + ' '.repeat(max_length - outputSrvGrowth.length) + svGrowth +
+		outputSrvMoney + ' '.repeat(max_length - outputSrvMoney.length) + ns.nFormat(svCurMoney, '$0,0.00') +
+		outputSrvMaxMoney + ' '.repeat(max_length - outputSrvMaxMoney.length) + ns.nFormat(svMaxMoney, '$0,0.00') +
+		outputBlank + '-'.repeat(border_max_length - outputBlank.length));
 }

@@ -1,5 +1,7 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
+    if (!ns.getPlayer().hasTixApiAccess) ns.exit();
+    
     ns.disableLog("sleep");
     ns.disableLog("stock.buy");
     ns.disableLog("stock.sell");

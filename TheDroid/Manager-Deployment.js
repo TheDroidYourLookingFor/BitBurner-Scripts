@@ -8,6 +8,7 @@ import {
 	srvCheckRootAccess,
 	lookForHackableTargs,
 	lookForBestTarget,
+	lookForBackdoorTargs,
 	outputDeployment,
 	networkAttack,
 	probeNetwork,
@@ -23,8 +24,10 @@ export async function main(ns) {
 	const batchLoops = 10;
 	// Disable the welcome settings message
 	const disableWelcomeMessage = false;
-	// Let the system automatically  hack new servers
+	// Let the system automatically hack new servers
 	const useAutoHack = true;
+	// Let the system automatically backdoor new servers
+	const useAutoBackdoor = true;
 	// Let the system automatically find the best target
 	const useAutoFindBest = true;
 	// Old method of scheduling
@@ -64,12 +67,17 @@ export async function main(ns) {
 	);
 
 	consoleMessage(ns, `[INFO]${ns.getScriptName()} starting up in ${lastMode} mode.`);
-	consoleMessage(ns, `[INFO]AutoFindBest: ${useAutoHack} | AutoHack: ${useAutoHack}`);
+	consoleMessage(ns, `[INFO]AutoFindBest: ${useAutoHack} | AutoHack: ${useAutoHack} | AutoBackdoor: ${useAutoBackdoor}`);
 
 	while (true) {
 		if (useAutoHack) {
 			serverList = probeNetwork(ns);
-			lookForHackableTargs(ns, serverList);
+			await lookForHackableTargs(ns, serverList);
+			await ns.asleep(1);
+		}
+		if (useAutoBackdoor) {
+			serverList = probeNetwork(ns);
+			await lookForBackdoorTargs(ns, serverList);
 			await ns.asleep(1);
 		}
 		if (useAutoFindBest) {

@@ -1,5 +1,4 @@
 /** @param {import(".").NS } ns */
-/** @param {import(".").NS } ns */
 //  
 //  I didn't write this script. Someone was kind enough
 //   to share it with me on Discord. I have modified it to
