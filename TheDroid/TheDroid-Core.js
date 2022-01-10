@@ -201,7 +201,6 @@ export function nFormatter(num, digits) {
 export async function lookForHackableTargs(ns, serverList) {
 	for (const server of serverList) {
 		if (!srvCheckRootAccess(ns, server.hostname)) srvFullHack(ns, server.hostname, server.numOpenPortsRequired, server.requiredHackingSkill);
-		if (!srvCheckBackdoor(ns, server.hostname) && srvCheckRootAccess(ns, server.hostname)) await srvBackdoor(ns, server.hostname);
 	}
 }
 /** @param {import(".").NS } ns */
@@ -285,7 +284,6 @@ export async function srvBackdoor(ns, svName) {
 	};
 	let queue = Object.keys(paths);
 	let name;
-	let output;
 	let pathToTarget = [];
 	while ((name = queue.shift())) {
 		let path = paths[name];
@@ -307,10 +305,10 @@ export async function srvBackdoor(ns, svName) {
 	await ns.installBackdoor();
 
 	// const terminalInput = globalThis['document'].getElementById("terminal-input");
-    // terminalInput.value="backdoor";
-    // const handler = Object.keys(terminalInput)[1];
-    // terminalInput[handler].onChange({target:terminalInput});
-    // terminalInput[handler].onKeyDown({keyCode:13,preventDefault:()=>null});
+	// terminalInput.value="backdoor";
+	// const handler = Object.keys(terminalInput)[1];
+	// terminalInput[handler].onChange({target:terminalInput});
+	// terminalInput[handler].onKeyDown({keyCode:13,preventDefault:()=>null});
 
 	consoleMessage(ns, `Backdoor finished ${svName}`)
 	await ns.sleep(1);

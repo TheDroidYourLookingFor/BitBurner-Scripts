@@ -1,15 +1,18 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
-	var autoCustomStats = false;
-	var autoProfitGraph = false;
-	var autoSnow = false;
-	var autoManageHacking = true;
-	var autoManageHackNet = true;
-	var autoManageStock = false;
-	var autoManageServers = true;
-	var autoBootOS = false;
-	var autoContracts = true;
+	let autoCustomStats = false;
+	let autoProfitGraph = false;
+	let autoSnow = false;
+	let autoManageHacking = true;
+	let autoManageHackNet = true;
+	let autoManageStock = false;
+	let autoManageServers = true;
+	let autoBootOS = false;
+	let autoContracts = true;
+	let autoManageFactions = false;
+	let autoManageGym = false;
+	let autoBuyTorRouter = false;
 
 	ns.toast("Droid Scripts Startup beginning");
 
@@ -56,5 +59,13 @@ export async function main(ns) {
 	if (autoContracts && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Contracts.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Contracts to complete contracts.");
 		ns.run(usrDirectory + "Manager-Contracts.js", 1);
+	}
+	if (autoManageFactions && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Faction.js", ns.getHostname())) {
+		ns.toast("Starting Manager-Faction for auto faction grinding.")
+		ns.run(usrDirectory + "Manager-Faction.js", 1);
+	}
+	if (autoManageGym && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Gym.js", ns.getHostname())) {
+		ns.toast("Starting Manager-Gym for auto stat grinding.")
+		ns.run(usrDirectory + "Manager-Gym.js", 1);
 	}
 }
