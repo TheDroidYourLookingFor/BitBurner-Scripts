@@ -102,6 +102,8 @@ export async function main(ns) {
         throw new Exception('Run the script from home')
     }
 
+    getCrimesData(ns);
+
     while (true) {
         let continueCommitingCrime = true
         const crimes = getItem(settings.keys.crimes)
