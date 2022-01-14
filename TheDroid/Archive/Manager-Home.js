@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	const usrDirectory = "/TheDroid/";
+	const usrDirectory = "/TheDroid/Archive/";
 	var hackScripts = [usrDirectory + "weaken.js", usrDirectory + "hack.js", usrDirectory + "grow.js", usrDirectory + "aio.js"];
 	var localHost = ns.getHostname();
 	var weaken_mem = ns.getScriptRam(hackScripts[0], localHost);

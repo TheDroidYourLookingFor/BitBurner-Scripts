@@ -3,7 +3,7 @@ export async function main(ns) {
     ns.disableLog("sleep");
     ns.disableLog("stock.buy");
     ns.disableLog("stock.sell");
-    ns.tail("/TheDroid/Manager-Stock.js", "home")
+    ns.tail()
     while (true) {
         tendStocks(ns);
         await ns.sleep(1*60*1000);

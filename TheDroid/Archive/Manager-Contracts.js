@@ -7,7 +7,7 @@ import {
 	usrProbeData01,
 	findAnswer,
 	findContracts
-} from "/TheDroid/TheDroid-Core.js";
+} from "/TheDroid/Archive/TheDroid-Core.js";
 
 export var contractsDb;
 /** @param {NS} ns **/

@@ -8,7 +8,7 @@
 
 const useDebug = false;
 if (useDebug) ns.tail(ns.getScriptName())
-const usrDirectory = "/TheDroid/";
+const usrDirectory = "/TheDroid/Archive/";
 
 const argsSchema = [
     ['useMoneyPercentage', 100],// ( --useMoney n ) how much n% money from players will be used to upgrade/buy a new server.

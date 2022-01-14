@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	const usrDirectory = "/TheDroid/";
+	const usrDirectory = "/TheDroid/Archive/";
 	var autoWindowMinimze = false;
 	var autoCustomStats = false;
 	var autoProfitGraph = false;

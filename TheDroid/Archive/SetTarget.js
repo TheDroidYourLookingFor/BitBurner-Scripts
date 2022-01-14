@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	const usrDirectory = "/TheDroid/";
+	const usrDirectory = "/TheDroid/Archive/";
 	var svName = ns.args[0];
 	await ns.write(usrDirectory + "best_target.txt", svName
 		+ "," + ns.getServerMaxRam(svName)

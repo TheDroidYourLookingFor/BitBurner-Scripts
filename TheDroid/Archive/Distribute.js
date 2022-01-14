@@ -7,7 +7,7 @@ import {
 	usrProbeData00,
 	usrProbeData01,
 	usrProbeData02
-} from "/TheDroid/TheDroid-Core.js";
+} from "/TheDroid/Archive/TheDroid-Core.js";
 
 /** @param {NS} ns **/
 export async function main(ns) {

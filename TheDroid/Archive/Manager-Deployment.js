@@ -5,7 +5,7 @@ import {
 	lookForHackableTargs,
 	usrProbeData00,
 	usrProbeData01
-} from "/TheDroid/TheDroid-Core.js";
+} from "/TheDroid/Archive/TheDroid-Core.js";
 /** @param {NS} ns **/
 export async function main(ns) {
 	const useNmap = true;
@@ -26,42 +26,42 @@ export async function main(ns) {
 	while (true) {
 		if (useNmap) {
 			ns.run(usrDirectory + "nmap.js", 1);
-			await ns.sleep(250);
+			await ns.sleep(10);
 		}
 		if (useAutoHack) {
 			ns.run(usrDirectory + "nmap.js", 1);
-			await ns.sleep(1000);
+			await ns.sleep(10);
 			await lookForHackableTargs(ns, usrDirectory + usrProbeData00);
-			await ns.sleep(250);
+			await ns.sleep(10);
 			await lookForHackableTargs(ns, usrDirectory + usrProbeData01);
 		}
 		if (useFind) {
 			ns.run(usrDirectory + "Find.js", 1);
-			await ns.sleep(250);
+			await ns.sleep(10);
 		}
 		switch (usrMode) {
 			default:
 				ns.run(usrDirectory + "SetupNewTargets.js", 1);
-				await ns.sleep(250);
+				await ns.sleep(10);
 				break;
 			case 1:
 				//Manager-Grow.js DeployToAll ReserveMemory
 				ns.run(usrDirectory + "Manager-Grow.js", 1, false, false);
-				await ns.sleep(250);
+				await ns.sleep(10);
 				break;
 			case 2:
 				ns.run(usrDirectory + "Manager-Hack.js", 1, false, false);
-				await ns.sleep(250);
+				await ns.sleep(10);
 				break;
 			case 3:
 				ns.run(usrDirectory + "Manager-Weaken.js", 1, false, false);
-				await ns.sleep(250);
+				await ns.sleep(10);
 				break;
 			case 4:
 				ns.run(usrDirectory + "SetupNewTargets.js", 1);
-				await ns.sleep(250);
+				await ns.sleep(10);
 				break;
 		}
-		await ns.asleep(20 * 1000);
+		await ns.asleep(250);
 	}
 }

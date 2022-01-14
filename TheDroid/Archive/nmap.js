@@ -1,6 +1,6 @@
 /** @param {NS} ns **/
 export async function main(ns) {
-	const usrDirectory = "/TheDroid/";
+	const usrDirectory = "/TheDroid/Archive/";
 	const useDebug = false;
 	if (useDebug) ns.tail(usrDirectory + "nmap.js", "home");
 	var servers = ["home"];

@@ -37,7 +37,7 @@ export async function main(ns) {
 
 	// Set your static target here if not using useAutoFindBest
 	const useUserTarget = false;
-	if (useUserTarget) svTarget = "the-hub";
+	if (useUserTarget) svTarget = "rho-construction";
 
 	lastTarget = svTarget;
 

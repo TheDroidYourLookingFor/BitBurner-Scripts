@@ -2,7 +2,7 @@
 const scriptToLaunch = 'Manager-Startup.js';
 const scriptToLaunchThreads = 1;
 const launchScript = true;
-const usrDirectory = "/TheDroid/";
+const usrDirectory = "/TheDroid/Archive/";
 const scVersion = 1.00;
 
 const baseUrl = 'https://raw.githubusercontent.com/TheDroidYourLookingFor/BitBurner-Scripts/main/'
