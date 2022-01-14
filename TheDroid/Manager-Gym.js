@@ -1,9 +1,10 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
     ns.tail();
+    ns.disableLog("ALL")
     let myStats = ns.getPlayer();
     let moneyReserve = 1000000;
-    let trainGoal = 200;
+    let trainGoal = 25;
     let trainLimit = 1500;
     let trainIncrement = 25;
     let currentTrainingStat = "strength";
@@ -13,10 +14,6 @@ export async function main(ns) {
     }];
 
     while (true) {
-        while (ns.getServerMoneyAvailable("home") < moneyReserve) {
-            if (ns.isBusy()) ns.stopAction();
-            ns.asleep(1000);
-        }
         myStats = ns.getPlayer();
         ns.disableLog("ALL");
         ns.clearLog();
@@ -40,6 +37,10 @@ export async function main(ns) {
     Int:        ${myStats.intelligence}
 ---------------------------------------------------
         `);
+        while (ns.getServerMoneyAvailable("home") < moneyReserve) {
+            if (ns.isBusy()) ns.stopAction();
+            await ns.asleep(250);
+        }
         if (currentTrainingStat == "strength" && myStats.strength >= trainGoal) {
             currentTrainingStat = "defense";
             ns.stopAction();
