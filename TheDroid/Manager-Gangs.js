@@ -67,6 +67,7 @@ export async function main(ns) {
 		}
 	}
 
+	ns.tprint(ns.gang.getAscensionResult("Wolf").str)
 	while (true) {
 		let myGang = ns.gang.getGangInformation();
 		let gangRoster = ns.gang.getMemberNames();
@@ -140,8 +141,12 @@ export async function main(ns) {
 
 		//Update Log
 		let max_length = 19;
+		let max_length2 = 15;
 		let border_max_length = 53;
 		let outputTheDruid = `TheDroid Gang Management`;
+		let outputHeaderName = `Name`;
+		let outputHeaderTask = `Task`;
+		let outputHeaderAscenscion = `Ascension`;
 		let outputBlank = "\r\n";
 
 		ns.clearLog()
@@ -150,13 +155,21 @@ export async function main(ns) {
 			outputBlank + ' '.repeat(13) + outputTheDruid +
 			outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
 			outputBlank + ' '.repeat(19) + "Current Gang" +
-			outputBlank + ' '.repeat(20) + myGang.faction +
+			outputBlank + ' '.repeat(20) + myGang.faction + outputBlank +
+			outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
+			outputHeaderName + ' '.repeat(max_length - outputHeaderName.length) + outputHeaderTask + ' '.repeat(28 - outputHeaderAscenscion.length) + outputHeaderAscenscion +
 			outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		);
-		for (let i = 0; i < gangRoster.length; i++) {
-			let memberName = rosterInfo[i].name;
-			let memberTask = rosterInfo[i].task;
-			ns.print(memberName + ' '.repeat(max_length - memberName.length) + memberTask)
+
+		for (const gMember of rosterInfo) {
+			let memberName = gMember.name;
+			let memberTask = gMember.task;
+			let memberCombatAscension;
+			if (ns.gang.getAscensionResult(memberName) != undefined) {
+				memberCombatAscension =  ns.nFormat(ns.gang.getAscensionResult(memberName).str, '0,0.00');
+			}
+			
+			ns.print(memberName + ' '.repeat(max_length - memberName.length) + memberTask + ' '.repeat(max_length2 - memberCombatAscension.length) + memberCombatAscension)
 		}
 		await ns.sleep(1000)
 	}
