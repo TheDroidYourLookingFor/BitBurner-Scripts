@@ -58,6 +58,7 @@ export async function main(ns) {
 	]
 
 	function memberBuy(equipType, gRoster) {
+		//Check for equipment purchases
 		for (const equip of equipType) {
 			for (const gMember of gRoster) {
 				if (gMember.str < 500) continue;
@@ -68,15 +69,7 @@ export async function main(ns) {
 		}
 	}
 
-	while (true) {
-		let myGang = ns.gang.getGangInformation();
-		let gangRoster = ns.gang.getMemberNames();
-		let rosterInfo = [];
-
-		for (const gMember of gangRoster) {
-			rosterInfo.push(ns.gang.getMemberInformation(gMember));
-		}
-
+	function memberAscend(gangRoster) {
 		//Check for ascensions
 		for (const gMember of gangRoster) {
 			if (ns.gang.getAscensionResult(gMember) == undefined) continue;
@@ -84,26 +77,9 @@ export async function main(ns) {
 				ns.gang.ascendMember(gMember);
 			}
 		}
+	}
 
-		//Check for recruits
-		if (ns.gang.canRecruitMember()) {
-			for (const gMember of memberNames) {
-				if (gangRoster.indexOf(gMember) === -1) {
-					var newName = gMember;
-					break;
-				}
-			}
-			ns.gang.recruitMember(newName);
-			ns.gang.setMemberTask(newName, "Train Combat")
-		}
-
-		//Check for equipment purchases
-		memberBuy(memberWeapons, gangRoster)
-		memberBuy(memberArmor, gangRoster)
-		memberBuy(memberVehicles, gangRoster)
-		memberBuy(memberCombatAugments, gangRoster)
-
-
+	function memberWarfare(myGang) {
 		//Territory warfare checks
 		let clashChance = [
 			ns.gang.getChanceToWinClash("Tetrads"),
@@ -118,26 +94,63 @@ export async function main(ns) {
 		}
 		if (clashChance.some(s => s < .6 || myGang.territory == 1)) ns.gang.setTerritoryWarfare(false)
 
+		return clashChance;
+	}
+
+	function memberTasks(gangRoster, myGang, memberCombatTasks) {
 		//Assign tasks
-		for (let i = 0; i < gangRoster.length; i++) {
-			if (rosterInfo[i].str > 100 && gangRoster.length < 6) {
-				ns.gang.setMemberTask(gangRoster[i], memberCombatTasks[0]);
+		let clashChance = memberWarfare(myGang);
+		for (const gMember of gangRoster) {
+			if (gMember.str > 100 && gangRoster.length < 6) {
+				ns.gang.setMemberTask(gMember, memberCombatTasks[0]);
 				continue;
 			}
-			if (rosterInfo[i].str < 500) {
-				ns.gang.setMemberTask(gangRoster[i], memberCombatTasks[1]);
+			if (gMember.str < 500) {
+				ns.gang.setMemberTask(gMember, memberCombatTasks[1]);
 				continue;
 			}
 			if (myGang.wantedPenalty < .05) {
-				ns.gang.setMemberTask(gangRoster[i], memberCombatTasks[2]);
+				ns.gang.setMemberTask(gMember, memberCombatTasks[2]);
 				continue;
 			}
 			if (clashChance.some(s => s < .8) && myGang.territory != 1 && gangRoster.length == 12) {
-				ns.gang.setMemberTask(gangRoster[i], memberCombatTasks[3]);
+				ns.gang.setMemberTask(gMember, memberCombatTasks[3]);
 				continue;
 			}
-			ns.gang.setMemberTask(gangRoster[i], memberCombatTasks[4]);
+			ns.gang.setMemberTask(gMember, memberCombatTasks[4]);
 		}
+	}
+
+	function recruitNewMembers(memberNames) {
+		//Check for recruits
+		if (ns.gang.canRecruitMember()) {
+			for (const gMember of memberNames) {
+				if (gangRoster.indexOf(gMember) === -1) {
+					var newName = gMember;
+					break;
+				}
+			}
+			ns.gang.recruitMember(newName);
+			ns.gang.setMemberTask(newName, "Train Combat")
+		}
+	}
+
+	while (true) {
+		let myGang = ns.gang.getGangInformation();
+		let gangRoster = ns.gang.getMemberNames();
+		let rosterInfo = [];
+
+		for (const gMember of gangRoster) {
+			rosterInfo.push(ns.gang.getMemberInformation(gMember));
+		}
+
+		memberAscend(gangRoster);
+		recruitNewMembers(memberNames);
+		memberBuy(memberWeapons, gangRoster);
+		memberBuy(memberArmor, gangRoster);
+		memberBuy(memberVehicles, gangRoster);
+		memberBuy(memberCombatAugments, gangRoster);
+		memberTasks(gangRoster, myGang, memberCombatTasks);
 
 		//Update Log
 		let max_length = 19;
@@ -168,7 +181,6 @@ export async function main(ns) {
 			if (ns.gang.getAscensionResult(memberName) != undefined) {
 				memberCombatAscension = ns.nFormat(ns.gang.getAscensionResult(memberName).str, '0,0.00');
 			}
-
 			ns.print(memberName + ' '.repeat(max_length - memberName.length) + memberTask.padEnd(17) + ' '.repeat(max_length2 - memberCombatAscension.length) + memberCombatAscension + "/" + ns.nFormat(memberAscension, '0,0.00'))
 		}
 		await ns.sleep(1000)
