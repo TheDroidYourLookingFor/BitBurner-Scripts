@@ -80,7 +80,7 @@ export async function main(ns) {
 		//Check for ascensions
 		for (const gMember of gangRoster) {
 			if (ns.gang.getAscensionResult(gMember) == undefined) continue;
-			if (ns.gang.getAscensionResult(gMember).str > memberAscension) {
+			if (ns.gang.getAscensionResult(gMember).str >= memberAscension) {
 				ns.gang.ascendMember(gMember);
 			}
 		}
