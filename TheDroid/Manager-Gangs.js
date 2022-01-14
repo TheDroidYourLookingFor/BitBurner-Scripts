@@ -2,6 +2,7 @@
 export async function main(ns) {
 	ns.disableLog("ALL")
 	const curMode = "Combat"
+	const memberAscension = 1.50;
 	const memberNames = [
 		"Battle-Droid-00",
 		"Battle-Droid-01",
@@ -67,7 +68,6 @@ export async function main(ns) {
 		}
 	}
 
-	ns.tprint(ns.gang.getAscensionResult("Wolf").str)
 	while (true) {
 		let myGang = ns.gang.getGangInformation();
 		let gangRoster = ns.gang.getMemberNames();
@@ -80,7 +80,7 @@ export async function main(ns) {
 		//Check for ascensions
 		for (const gMember of gangRoster) {
 			if (ns.gang.getAscensionResult(gMember) == undefined) continue;
-			if (ns.gang.getAscensionResult(gMember).str > 1.5) {
+			if (ns.gang.getAscensionResult(gMember).str > memberAscension) {
 				ns.gang.ascendMember(gMember);
 			}
 		}
@@ -141,7 +141,7 @@ export async function main(ns) {
 
 		//Update Log
 		let max_length = 19;
-		let max_length2 = 15;
+		let max_length2 = 10;
 		let border_max_length = 53;
 		let outputTheDruid = `TheDroid Gang Management`;
 		let outputHeaderName = `Name`;
@@ -164,12 +164,12 @@ export async function main(ns) {
 		for (const gMember of rosterInfo) {
 			let memberName = gMember.name;
 			let memberTask = gMember.task;
-			let memberCombatAscension;
+			let memberCombatAscension = ns.nFormat(0.00, '0,0.00');
 			if (ns.gang.getAscensionResult(memberName) != undefined) {
-				memberCombatAscension =  ns.nFormat(ns.gang.getAscensionResult(memberName).str, '0,0.00');
+				memberCombatAscension = ns.nFormat(ns.gang.getAscensionResult(memberName).str, '0,0.00');
 			}
-			
-			ns.print(memberName + ' '.repeat(max_length - memberName.length) + memberTask + ' '.repeat(max_length2 - memberCombatAscension.length) + memberCombatAscension)
+
+			ns.print(memberName + ' '.repeat(max_length - memberName.length) + memberTask.padEnd(17) + ' '.repeat(max_length2 - memberCombatAscension.length) + memberCombatAscension + "/" + ns.nFormat(memberAscension, '0,0.00'))
 		}
 		await ns.sleep(1000)
 	}
