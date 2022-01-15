@@ -206,7 +206,7 @@ export async function lookForHackableTargs(ns, serverList) {
 /** @param {import(".").NS } ns */
 export async function lookForBackdoorTargs(ns, serverList) {
 	for (const server of serverList) {
-		if (!srvCheckBackdoor(ns, server.hostname) && srvCheckRootAccess(ns, server.hostname)) await srvBackdoor(ns, server.hostname);
+		if (!srvCheckBackdoor(ns, server.hostname) && srvCheckRootAccess(ns, server.hostname) && !server.hostname.includes("hacknet")) await srvBackdoor(ns, server.hostname);
 	}
 }
 /** @param {import(".").NS } ns */
