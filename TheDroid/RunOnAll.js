@@ -69,9 +69,9 @@ export async function main(ns) {
 			debugMessage(ns, "Executing " + svScript + " with " + availableThreads + " threads on " + tName + " from " + svHost.hostname);
 			try {
 				ns.exec(svScript, svHost.hostname, availableThreads, tName, 0);
+				totalThreads += availableThreads;
+				totalServers++;
 			} catch (e) {}
-			totalThreads += availableThreads;
-			totalServers++;
 			await ns.sleep(1);
 		}
 	}

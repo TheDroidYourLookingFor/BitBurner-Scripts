@@ -979,6 +979,7 @@ export async function batch(ns, batchSize, svTarget) {
 			debugMessage(ns, "Server: " + server.hostname + " Weak: " + weakThreads + " Hack: " + hackThreads + " Grow: " + growThreads)
 			let wMem = ns.getScriptRam(svScripts[0]);
 			let availableThreads = Math.floor(server.maxRam / wMem) / 4;
+			if (server.hostname == "home") availableThreads = Math.floor((server.maxRam - server.ramUsed) / wMem) / 4;
 			if (availableThreads > 0) {
 				debugMessage(ns, `[INFO]${server.hostname} has started HWGW cycle on ${svTarget}.`);
 				await ns.scp(svScripts, "home", server.hostname);
@@ -1264,7 +1265,7 @@ export function outputDeployment(ns, svTarget, lastMode) {
 	if (lastMode == "WHG" | lastMode == "HWGW") {
 		outputRunning = msToTime(checkRunningTime(ns, "home", "HWGW") * 1000);
 	} else if (lastMode == "Prepping") {
-		outputRunning = msToTime(checkRunningTime(ns, "home", "Prepping") * 1000);
+		outputRunning = msToTime(checkRunningTime(ns, svTarget, "Prepping") * 1000);
 	} else {
 		outputRunning = msToTime(checkRunningTime(ns, svTarget) * 1000) + " / " + msToTime(ns.getWeakenTime(svTarget));
 	}

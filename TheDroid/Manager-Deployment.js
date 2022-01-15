@@ -20,7 +20,7 @@ let svTarget;
 let lastTarget;
 /** @param {import(".").NS } ns */
 export async function main(ns) {
-	const batchLoops = 10;
+	const batchLoops = 1;
 	// Disable the welcome settings message
 	const disableWelcomeMessage = false;
 	// Let the system automatically hack new servers
