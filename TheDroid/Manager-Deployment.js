@@ -31,6 +31,8 @@ export async function main(ns) {
 	const deployMode00 = false;
 	// Newer method of scheduling
 	const deployMode01 = true;
+	// Used Hacknet servers in Batch
+	const useHacknetNodes = false;
 
 	// Set your static target here if not using useAutoFindBest
 	const useUserTarget = false;
@@ -134,7 +136,7 @@ export async function main(ns) {
 				//outputDeployment(ns, svTarget, curMode, ns.getRunningScript(scriptWHG[1], "home", svTarget).onlineRunningTime);
 			} else {
 				try {
-					await batch(ns, batchLoops, svTarget);
+					await batch(ns, batchLoops, svTarget, useHacknetNodes);
 				} catch (e) {}
 			}
 		}

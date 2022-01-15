@@ -923,7 +923,7 @@ export async function networkAttack(ns, checkRunning, tName) {
 	}
 }
 /** @param {import(".").NS } ns */
-export async function batch(ns, batchSize, svTarget) {
+export async function batch(ns, batchSize, svTarget, useHacknetNodes) {
 	let curMode = "HWGW";
 	let waitTime = 0;
 	var svScripts = scriptAll;
@@ -976,19 +976,21 @@ export async function batch(ns, batchSize, svTarget) {
 		serverList = probeNetwork(ns);
 		serverList.push(ns.getServer("home"));
 		for (let server of serverList) {
-			debugMessage(ns, "Server: " + server.hostname + " Weak: " + weakThreads + " Hack: " + hackThreads + " Grow: " + growThreads)
-			let wMem = ns.getScriptRam(svScripts[0]);
-			let availableThreads = Math.floor(server.maxRam / wMem) / 4;
-			if (server.hostname == "home") availableThreads = Math.floor((server.maxRam - server.ramUsed) / wMem) / 4;
-			if (availableThreads > 0) {
-				debugMessage(ns, `[INFO]${server.hostname} has started HWGW cycle on ${svTarget}.`);
-				await ns.scp(svScripts, "home", server.hostname);
-				await ns.sleep(1);
-				ns.exec(svScripts[1], server.hostname, availableThreads, svTarget, hackDelay + delay, randomArg);
-				ns.exec(svScripts[0], server.hostname, availableThreads, svTarget, weak1Delay + delay, randomArg);
-				ns.exec(svScripts[2], server.hostname, availableThreads, svTarget, growDelay + delay, randomArg);
-				ns.exec(svScripts[0], server.hostname, availableThreads, svTarget, weak2Delay + delay, randomArg);
-				delay += timeDelay * 4
+			if (server.hostname.includes("hacknet-node") && !useHacknetNodes) {} else {
+				debugMessage(ns, "Server: " + server.hostname + " Weak: " + weakThreads + " Hack: " + hackThreads + " Grow: " + growThreads)
+				let wMem = ns.getScriptRam(svScripts[0]);
+				let availableThreads = Math.floor(server.maxRam / wMem) / 4;
+				if (server.hostname == "home") availableThreads = Math.floor((server.maxRam - server.ramUsed) / wMem) / 4;
+				if (availableThreads > 0) {
+					debugMessage(ns, `[INFO]${server.hostname} has started HWGW cycle on ${svTarget}.`);
+					await ns.scp(svScripts, "home", server.hostname);
+					await ns.sleep(1);
+					ns.exec(svScripts[1], server.hostname, availableThreads, svTarget, hackDelay + delay, randomArg);
+					ns.exec(svScripts[0], server.hostname, availableThreads, svTarget, weak1Delay + delay, randomArg);
+					ns.exec(svScripts[2], server.hostname, availableThreads, svTarget, growDelay + delay, randomArg);
+					ns.exec(svScripts[0], server.hostname, availableThreads, svTarget, weak2Delay + delay, randomArg);
+					delay += timeDelay * 4
+				}
 			}
 		}
 		waitTime = weak1Delay + delay;
