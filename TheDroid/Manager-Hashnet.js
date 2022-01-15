@@ -11,7 +11,7 @@ export async function main(ns) {
         return;
     }
     var reserveMoney = 1000000;
-    var reserveHashes = 100;
+    var reserveHashes = ns.hacknet.hashCapacity() / 3;
     let sellType = "money";
     var n = 1;
 
