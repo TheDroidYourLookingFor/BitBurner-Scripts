@@ -1,9 +1,10 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
-	ns.disableLog("ALL")
-	ns.tail()
+	ns.disableLog("ALL");
+	ns.tail();
 	const buyHackingStuff = true;
 	const memberAscension = 1.50;
+
 	const memberNames = [
 		"Battle-Droid-00",
 		"Battle-Droid-01",
@@ -17,14 +18,16 @@ export async function main(ns) {
 		"Battle-Droid-09",
 		"Battle-Droid-10",
 		"Battle-Droid-11"
-	]
+	];
+
 	const memberCombatTasks = [
 		"Mug People",
 		"Train Combat",
 		"Vigilante Justice",
 		"Territory Warfare",
 		"Human Trafficking"
-	]
+	];
+
 	const memberWeapons = [
 		"Baseball Bat",
 		"Katana",
@@ -34,31 +37,36 @@ export async function main(ns) {
 		"AK-47",
 		"M15A10 Assault Rifle",
 		"AWM Sniper Rifle"
-	]
+	];
+
 	const memberArmor = [
 		"Bulletproof Vest",
 		"Full Body Armor",
 		"Liquid Body Armor",
 		"Graphene Plating Armor"
-	]
+	];
+
 	const memberVehicles = [
 		"Ford Flex V20",
 		"ATX1070 Superbike",
 		"Mercedes-Benz S9001",
 		"White Ferrari"
-	]
+	];
+
 	const memberRootkits = [
 		"NUKE Rootkit",
 		"Soulstealer Rootkit",
 		"Demon Rootkit",
 		"Hmap Node",
 		"Jack the Ripper"
-	]
+	];
+
 	const memberHackingAugments = [
 		"BitWire",
 		"Neuralstimulator",
 		"DataJack"
-	]
+	];
+
 	const memberCombatAugments = [
 		"Bionic Arms",
 		"Bionic Legs",
@@ -68,7 +76,7 @@ export async function main(ns) {
 		"Synthetic Heart",
 		"Synfibril Muscle",
 		"Graphene Bone Lacings"
-	]
+	];
 
 	function memberBuy(equipType, gRoster) {
 		//Check for equipment purchases
@@ -76,7 +84,7 @@ export async function main(ns) {
 			for (const gMember of gRoster) {
 				if (gMember.str < 500) continue;
 				if (ns.gang.getEquipmentCost(equip) < ns.getServerMoneyAvailable('home')) {
-					ns.gang.purchaseEquipment(gMember, equip)
+					ns.gang.purchaseEquipment(gMember, equip);
 				}
 			}
 		}
@@ -101,11 +109,11 @@ export async function main(ns) {
 			ns.gang.getChanceToWinClash("Speakers for the Dead"),
 			ns.gang.getChanceToWinClash("NiteSec"),
 			ns.gang.getChanceToWinClash("The Black Hand")
-		]
+		];
 		if (clashChance.every(e => e > .7) && myGang.territory != 1) {
-			ns.gang.setTerritoryWarfare(true)
+			ns.gang.setTerritoryWarfare(true);
 		}
-		if (clashChance.some(s => s < .6 || myGang.territory == 1)) ns.gang.setTerritoryWarfare(false)
+		if (clashChance.some(s => s < .6 || myGang.territory == 1)) ns.gang.setTerritoryWarfare(false);
 
 		return clashChance;
 	}
@@ -134,7 +142,7 @@ export async function main(ns) {
 		}
 	}
 
-	function recruitNewMembers(memberNames) {
+	function recruitNewMembers(memberNames, gangRoster) {
 		//Check for recruits
 		if (ns.gang.canRecruitMember()) {
 			for (const gMember of memberNames) {
@@ -144,7 +152,7 @@ export async function main(ns) {
 				}
 			}
 			ns.gang.recruitMember(newName);
-			ns.gang.setMemberTask(newName, "Train Combat")
+			ns.gang.setMemberTask(newName, "Train Combat");
 		}
 	}
 
@@ -158,7 +166,7 @@ export async function main(ns) {
 		}
 
 		memberAscend(gangRoster);
-		recruitNewMembers(memberNames);
+		recruitNewMembers(memberNames, gangRoster);
 		memberBuy(memberWeapons, gangRoster);
 		memberBuy(memberArmor, gangRoster);
 		memberBuy(memberVehicles, gangRoster);
@@ -172,8 +180,8 @@ export async function main(ns) {
 		memberTasks(gangRoster, myGang, memberCombatTasks);
 
 		//Update Log
-		let max_length = 19;
-		let max_length2 = 10;
+		let max_length = 20;
+		let max_length2 = 9;
 		let border_max_length = 53;
 		let outputTheDruid = `TheDroid Gang Management`;
 		let outputHeaderName = `Name`;
@@ -189,7 +197,7 @@ export async function main(ns) {
 			outputBlank + ' '.repeat(19) + "Current Gang" +
 			outputBlank + ' '.repeat(20) + myGang.faction + outputBlank +
 			outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
-			outputHeaderName + ' '.repeat(max_length - outputHeaderName.length) + outputHeaderTask + ' '.repeat(28 - outputHeaderAscenscion.length) + outputHeaderAscenscion +
+			outputHeaderName + ' '.repeat(max_length - outputHeaderName.length) + outputHeaderTask + ' '.repeat(27 - outputHeaderAscenscion.length) + outputHeaderAscenscion +
 			outputBlank + '-'.repeat(border_max_length - outputBlank.length)
 		);
 
@@ -200,8 +208,8 @@ export async function main(ns) {
 			if (ns.gang.getAscensionResult(memberName) != undefined) {
 				memberCombatAscension = ns.nFormat(ns.gang.getAscensionResult(memberName).str, '0,0.00');
 			}
-			ns.print(memberName + ' '.repeat(max_length - memberName.length) + memberTask.padEnd(17) + ' '.repeat(max_length2 - memberCombatAscension.length) + memberCombatAscension + "/" + ns.nFormat(memberAscension, '0,0.00'))
+			ns.print(memberName + ' '.repeat(max_length - memberName.length) + memberTask.padEnd(17) + ' '.repeat(max_length2 - memberCombatAscension.length) + memberCombatAscension + "/" + ns.nFormat(memberAscension, '0,0.00'));
 		}
-		await ns.sleep(1000)
+		await ns.sleep(1000);
 	}
 }

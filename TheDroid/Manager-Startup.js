@@ -1,8 +1,8 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
 	const usrDirectory = "/TheDroid/";
-	let autoCustomStats = false;
-	let autoProfitGraph = false;
+	let autoCustomStats = true;
+	let autoProfitGraph = true;
 	let autoSnow = false;
 	let autoManageHacking = true;
 	let autoManageBackdoor = true;
