@@ -78,30 +78,41 @@ export async function main(ns) {
 		"Graphene Bone Lacings"
 	];
 
-	function memberBuy(equipType, gRoster) {
+	function memberBuy(equipType) {
 		//Check for equipment purchases
+		let gangRoster = ns.gang.getMemberNames();
+		let rosterInfo = [];
+		for (const gMember of gangRoster) {
+			rosterInfo.push(ns.gang.getMemberInformation(gMember));
+		}
 		for (const equip of equipType) {
-			for (const gMember of gRoster) {
+			for (const gMember of rosterInfo) {
 				if (gMember.str < 500) continue;
 				if (ns.gang.getEquipmentCost(equip) < ns.getServerMoneyAvailable('home')) {
-					ns.gang.purchaseEquipment(gMember, equip);
+					ns.gang.purchaseEquipment(gMember.name, equip);
 				}
 			}
 		}
 	}
 
-	function memberAscend(gangRoster) {
+	function memberAscend() {
 		//Check for ascensions
+		let gangRoster = ns.gang.getMemberNames();
+		let rosterInfo = [];
 		for (const gMember of gangRoster) {
-			if (ns.gang.getAscensionResult(gMember) == undefined) continue;
-			if (ns.gang.getAscensionResult(gMember).str >= memberAscension) {
-				ns.gang.ascendMember(gMember);
+			rosterInfo.push(ns.gang.getMemberInformation(gMember));
+		}
+		for (const gMember of rosterInfo) {
+			if (ns.gang.getAscensionResult(gMember.name) == undefined) continue;
+			if (ns.gang.getAscensionResult(gMember.name).str >= memberAscension) {
+				ns.gang.ascendMember(gMember.name);
 			}
 		}
 	}
 
-	function memberWarfare(myGang) {
+	function memberWarfare() {
 		//Territory warfare checks
+		let myGang = ns.gang.getGangInformation();
 		let clashChance = [
 			ns.gang.getChanceToWinClash("Tetrads"),
 			ns.gang.getChanceToWinClash("The Syndicate"),
@@ -118,32 +129,41 @@ export async function main(ns) {
 		return clashChance;
 	}
 
-	function memberTasks(gangRoster, myGang, memberCombatTasks) {
+	function memberTasks(memberCombatTasks) {
 		//Assign tasks
-		let clashChance = memberWarfare(myGang);
+		let myGang = ns.gang.getGangInformation();
+		let gangRoster = ns.gang.getMemberNames();
+		let rosterInfo = [];
 		for (const gMember of gangRoster) {
-			if (gMember.str > 100 && gangRoster.length < 6) {
-				ns.gang.setMemberTask(gMember, memberCombatTasks[0]);
+			rosterInfo.push(ns.gang.getMemberInformation(gMember));
+		}
+
+		let clashChance = memberWarfare(myGang);
+
+		for (const gMember of rosterInfo) {
+			if (gMember.str > 100 && rosterInfo.length < 6) {
+				ns.gang.setMemberTask(gMember.name, memberCombatTasks[0]);
 				continue;
 			}
 			if (gMember.str < 500) {
-				ns.gang.setMemberTask(gMember, memberCombatTasks[1]);
+				ns.gang.setMemberTask(gMember.name, memberCombatTasks[1]);
 				continue;
 			}
 			if (myGang.wantedPenalty < .05) {
-				ns.gang.setMemberTask(gMember, memberCombatTasks[2]);
+				ns.gang.setMemberTask(gMember.name, memberCombatTasks[2]);
 				continue;
 			}
-			if (clashChance.some(s => s < .8) && myGang.territory != 1 && gangRoster.length == 12) {
-				ns.gang.setMemberTask(gMember, memberCombatTasks[3]);
+			if (clashChance.some(s => s < .8) && myGang.territory != 1 && rosterInfo.length == 12) {
+				ns.gang.setMemberTask(gMember.name, memberCombatTasks[3]);
 				continue;
 			}
-			ns.gang.setMemberTask(gMember, memberCombatTasks[4]);
+			ns.gang.setMemberTask(gMember.name, memberCombatTasks[4]);
 		}
 	}
 
-	function recruitNewMembers(memberNames, gangRoster) {
+	function recruitNewMembers(memberNames) {
 		//Check for recruits
+		let gangRoster = ns.gang.getMemberNames();
 		if (ns.gang.canRecruitMember()) {
 			for (const gMember of memberNames) {
 				if (gangRoster.indexOf(gMember) === -1) {
@@ -160,24 +180,23 @@ export async function main(ns) {
 		let myGang = ns.gang.getGangInformation();
 		let gangRoster = ns.gang.getMemberNames();
 		let rosterInfo = [];
-
 		for (const gMember of gangRoster) {
 			rosterInfo.push(ns.gang.getMemberInformation(gMember));
 		}
 
-		memberAscend(gangRoster);
-		recruitNewMembers(memberNames, gangRoster);
-		memberBuy(memberWeapons, gangRoster);
-		memberBuy(memberArmor, gangRoster);
-		memberBuy(memberVehicles, gangRoster);
-		memberBuy(memberCombatAugments, gangRoster);
+		memberAscend();
+		recruitNewMembers(memberNames);
+		memberBuy(memberWeapons);
+		memberBuy(memberArmor);
+		memberBuy(memberVehicles);
+		memberBuy(memberCombatAugments);
 
 		if (buyHackingStuff) {
-			memberBuy(memberRootkits, gangRoster);
-			memberBuy(memberHackingAugments, gangRoster);
+			memberBuy(memberRootkits);
+			memberBuy(memberHackingAugments);
 		}
 
-		memberTasks(gangRoster, myGang, memberCombatTasks);
+		memberTasks(memberCombatTasks);
 
 		//Update Log
 		let max_length = 20;
