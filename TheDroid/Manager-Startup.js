@@ -5,16 +5,20 @@ export async function main(ns) {
 	let autoProfitGraph = false;
 	let autoSnow = false;
 	let autoManageHacking = true;
+	let autoManageBackdoor = true;
 	let autoManageHackNet = true;
-	let autoManageStock = false;
+	let autoManageStock = true;
 	let autoManageServers = true;
 	let autoBootOS = false;
 	let autoContracts = true;
 	let autoManageFactions = false;
 	let autoManageGym = false;
-	let autoBuyTorRouter = false;
+	let autoManageGang = true;
+	let autoBuyTorRouter = true;
 
 	ns.toast("Droid Scripts Startup beginning");
+
+	if (autoBuyTorRouter) ns.purchaseTor();
 
 	if (autoBootOS && ns.getHostname() == "home" && !ns.scriptRunning("/os/main.js", ns.getHostname())) {
 		ns.toast("Starting BootOS");
@@ -24,6 +28,11 @@ export async function main(ns) {
 	if (autoManageHacking && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Deployment.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Deployment for auto hacking.")
 		ns.run(usrDirectory + "Manager-Deployment.js", 1);
+	}
+
+	if (autoManageBackdoor && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Backdoor.js", ns.getHostname())) {
+		ns.toast("Starting Manager-Backdoor for auto backdoor.")
+		ns.run(usrDirectory + "Manager-Backdoor.js", 1);
 	}
 
 	if (autoManageServers && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Server.js", ns.getHostname())) {
@@ -67,5 +76,9 @@ export async function main(ns) {
 	if (autoManageGym && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Gym.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Gym for auto stat grinding.")
 		ns.run(usrDirectory + "Manager-Gym.js", 1);
+	}
+	if (autoManageGang && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Gangs.js", ns.getHostname())) {
+		ns.toast("Starting Manager-Gangs for auto Gang management.")
+		ns.run(usrDirectory + "Manager-Gangs.js", 1);
 	}
 }

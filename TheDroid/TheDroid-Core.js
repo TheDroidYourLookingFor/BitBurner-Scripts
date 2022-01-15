@@ -301,7 +301,7 @@ export async function srvBackdoor(ns, svName) {
 	for (const server of pathToTarget) {
 		ns.connect(server);
 	}
-	consoleMessage(ns, `Backdooring ${svName}`)
+	consoleMessage(ns, `Backdoor installation started on ${svName}`)
 	await ns.installBackdoor();
 
 	// const terminalInput = globalThis['document'].getElementById("terminal-input");
@@ -310,7 +310,8 @@ export async function srvBackdoor(ns, svName) {
 	// terminalInput[handler].onChange({target:terminalInput});
 	// terminalInput[handler].onKeyDown({keyCode:13,preventDefault:()=>null});
 
-	consoleMessage(ns, `Backdoor finished ${svName}`)
+	consoleMessage(ns, `Backdoor installation finished on ${svName}`)
+	logMessage(ns, `Backdoor installation finished on ${svName}`)
 	await ns.sleep(1);
 	ns.connect("home");
 }

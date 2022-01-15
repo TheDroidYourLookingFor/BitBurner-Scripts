@@ -23,18 +23,20 @@ export async function main(ns) {
 			for (let i = 0; i < contractsDb.length; i++) {
 				const contract = contractsDb[i]
 				const answer = findAnswer(contract)
-				if (answer != null) {
-					const solvingResult = ns.codingcontract.attempt(answer, contract.contract, contract.svName, {
-						returnReward: true
-					})
-					if (solvingResult) {
-						debugMessage(ns, `Solved ${contract.contract} on ${contract.svName}. ${solvingResult}`)
+				try {
+					if (answer != null) {
+						const solvingResult = ns.codingcontract.attempt(answer, contract.contract, contract.svName, {
+							returnReward: true
+						})
+						if (solvingResult) {
+							debugMessage(ns, `Solved ${contract.contract} on ${contract.svName}. ${solvingResult}`)
+						} else {
+							debugMessage(ns, `Wrong answer for ${contract.contract} on ${contract.svName}`)
+						}
 					} else {
-						debugMessage(ns, `Wrong answer for ${contract.contract} on ${contract.svName}`)
+						debugMessage(ns, `Unable to find the answer for: ${JSON.stringify(contract)}`)
 					}
-				} else {
-					debugMessage(ns, `Unable to find the answer for: ${JSON.stringify(contract)}`)
-				}
+				} catch (e) {}
 			}
 		}
 		await ns.sleep(10 * 60 * 1000)
