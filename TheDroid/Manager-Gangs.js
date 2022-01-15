@@ -2,7 +2,7 @@
 export async function main(ns) {
 	ns.disableLog("ALL");
 	ns.tail();
-	const buyHackingStuff = true;
+	const buyHackingStuff = false;
 	const memberAscension = 1.50;
 
 	const memberNames = [
@@ -204,7 +204,7 @@ export async function main(ns) {
 		for (const gMember of gangRoster) {
 			let memberName = ns.gang.getMemberInformation(gMember).name;
 			let memberTask = ns.gang.getMemberInformation(gMember).task;
-			let memberCombatAscension = ns.nFormat(0.00, '0,0.00');
+			let memberCombatAscension = ns.nFormat(1.00, '0,0.00');
 			if (ns.gang.getAscensionResult(memberName) != undefined) {
 				memberCombatAscension = ns.nFormat(ns.gang.getAscensionResult(memberName).str, '0,0.00');
 			}
