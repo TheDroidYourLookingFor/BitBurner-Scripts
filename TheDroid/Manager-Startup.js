@@ -6,7 +6,8 @@ export async function main(ns) {
 	let autoSnow = false;
 	let autoManageHacking = true;
 	let autoManageBackdoor = true;
-	let autoManageHackNet = true;
+	let autoManageHackNet = false;
+	let autoManageHashNet = true;
 	let autoManageStock = true;
 	let autoManageServers = true;
 	let autoBootOS = false;
@@ -43,6 +44,11 @@ export async function main(ns) {
 	if (autoManageHackNet && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Hacknet.js", ns.getHostname())) {
 		ns.toast("Starting Manager-Hacknet for Auto Hacknet Upgrading");
 		ns.run(usrDirectory + "Manager-Hacknet.js", 1);
+	}
+
+	if (autoManageHashNet && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Hashnet.js", ns.getHostname())) {
+		ns.toast("Starting Manager-Hashnet for Auto Hacknet Upgrading");
+		ns.run(usrDirectory + "Manager-Hashnet.js", 1);
 	}
 
 	if (autoManageStock && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Stock.js", ns.getHostname())) {
