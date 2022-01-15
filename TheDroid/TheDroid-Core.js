@@ -1213,7 +1213,10 @@ export function displayTotalThreads(ns) {
 export function checkRunningTime(ns, svTarget, curMode) {
 	let rTime = 0;
 	try {
-		if (curMode == "HWGW") return ns.getRunningScript("/TheDroid/Manager-Deployment.js", "home").onlineRunningTime;
+		// if (curMode == "HWGW") return ns.getRunningScript("/TheDroid/Manager-Deployment.js", "home").onlineRunningTime;
+		
+		let hostScripts = ns.ps("home").filter(p => p.filename === scriptWHG[0]);
+		if (curMode == "HWGW") return ns.getRunningScript(scriptWHG[0], "home", hostScripts[0].args[0], hostScripts[0].args[1], hostScripts[0].args[2]).onlineRunningTime;
 		if (curMode == "Prepping") return ns.getRunningScript("/TheDroid/Manager-Prep.js", "home", svTarget).onlineRunningTime;
 		scriptWHG.forEach(function (svScript) {
 			try {
