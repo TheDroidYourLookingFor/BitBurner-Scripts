@@ -1,7 +1,8 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
 	ns.disableLog("ALL")
-	const curMode = "Combat"
+	ns.tail()
+	const buyHackingStuff = true;
 	const memberAscension = 1.50;
 	const memberNames = [
 		"Battle-Droid-00",
@@ -45,6 +46,18 @@ export async function main(ns) {
 		"ATX1070 Superbike",
 		"Mercedes-Benz S9001",
 		"White Ferrari"
+	]
+	const memberRootkits = [
+		"NUKE Rootkit",
+		"Soulstealer Rootkit",
+		"Demon Rootkit",
+		"Hmap Node",
+		"Jack the Ripper"
+	]
+	const memberHackingAugments = [
+		"BitWire",
+		"Neuralstimulator",
+		"DataJack"
 	]
 	const memberCombatAugments = [
 		"Bionic Arms",
@@ -150,6 +163,12 @@ export async function main(ns) {
 		memberBuy(memberArmor, gangRoster);
 		memberBuy(memberVehicles, gangRoster);
 		memberBuy(memberCombatAugments, gangRoster);
+
+		if (buyHackingStuff) {
+			memberBuy(memberRootkits, gangRoster);
+			memberBuy(memberHackingAugments, gangRoster);
+		}
+
 		memberTasks(gangRoster, myGang, memberCombatTasks);
 
 		//Update Log

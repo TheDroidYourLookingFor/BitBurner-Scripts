@@ -77,7 +77,7 @@ export async function main(ns) {
 		}
 		if (useAutoBackdoor) {
 			serverList = probeNetwork(ns);
-			await lookForBackdoorTargs(ns, serverList);
+			try { await lookForBackdoorTargs(ns, serverList); } catch(e){}
 			await ns.asleep(1);
 		}
 		if (useAutoFindBest) {
