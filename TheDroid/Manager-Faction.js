@@ -179,7 +179,7 @@ export async function main(ns) {
     logMessage(ns, "Completed faction grinding for all available factions.");
     if (autoBuyEarlyGameAugments) {
         for (const faction of factionEarlyGame) {
-            buyAllFactionAugments(ns, faction);
+            buyAllFactionAugments(ns, faction.name);
         }
     }
     if (autoInstallAugments) installAugments(ns);
