@@ -12,6 +12,7 @@ export async function main(ns) {
     }
     var reserveMoney = 1000000;
     var reserveHashes = ns.hacknet.hashCapacity() / 3;
+    let cacheCap = 10;
     let sellType = "money";
     var n = 1;
 
@@ -100,17 +101,19 @@ export async function main(ns) {
                     );
                     await ns.sleep(100);
                 }
-                while (
-                    ns.hacknet.getCacheUpgradeCost(i, n) < Infinity &&
-                    ns.hacknet.upgradeCache(i, n)
-                ) {
-                    ns.print(
-                        "Upgraded " +
-                        ns.hacknet.getNodeStats(i).name +
-                        " cache to " +
-                        ns.hacknet.getNodeStats(i).cache
-                    );
-                    await ns.sleep(100);
+                if (ns.hacknet.getNodeStats(i).cache <= cacheCap) {
+                    while (
+                        ns.hacknet.getCacheUpgradeCost(i, n) < Infinity &&
+                        ns.hacknet.upgradeCache(i, n)
+                    ) {
+                        ns.print(
+                            "Upgraded " +
+                            ns.hacknet.getNodeStats(i).name +
+                            " cache to " +
+                            ns.hacknet.getNodeStats(i).cache
+                        );
+                        await ns.sleep(100);
+                    }
                 }
             }
             if (

@@ -11,6 +11,7 @@ let serverList = [];
 /** @param {import(".").NS } ns */
 export async function main(ns) {
     // Let the system automatically backdoor new servers
+    ns.disableLog("scan");
     const useAutoBackdoor = true;
 
     consoleMessage(ns, `[INFO]${ns.getScriptName()} starting up.`);

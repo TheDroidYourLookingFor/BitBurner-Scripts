@@ -15,15 +15,18 @@ export async function main(ns) {
 	let autoManageFactions = false;
 	let autoManageGym = false;
 	let autoManageGang = true;
-	let autoBuyTorRouter = true;
+	let autoManagePrograms = true;
 
 	ns.toast("Droid Scripts Startup beginning");
-
-	if (autoBuyTorRouter) ns.purchaseTor();
 
 	if (autoBootOS && ns.getHostname() == "home" && !ns.scriptRunning("/os/main.js", ns.getHostname())) {
 		ns.toast("Starting BootOS");
 		ns.run("/os/main.js", 1);
+	}
+
+	if (autoManagePrograms && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Programs.js", ns.getHostname())) {
+		ns.toast("Starting Manager-Programs for auto buying programs.")
+		ns.run(usrDirectory + "Manager-Programs.js", 1);
 	}
 
 	if (autoManageHacking && ns.getHostname() == "home" && !ns.scriptRunning(usrDirectory + "Manager-Deployment.js", ns.getHostname())) {
