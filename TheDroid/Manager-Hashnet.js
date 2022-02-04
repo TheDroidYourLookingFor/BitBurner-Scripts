@@ -12,10 +12,12 @@ export async function main(ns) {
     }
     var reserveMoney = 1000000;
     var reserveHashes = ns.hacknet.hashCapacity() / 3;
-    let cacheCap = 10;
+    let cacheCap = 5;
     let sellType = "money";
     var n = 1;
+    ns.tail();
 
+    ns.disableLog("disableLog");
     ns.disableLog("getServerMoneyAvailable");
     ns.disableLog("sleep");
 
@@ -69,6 +71,7 @@ export async function main(ns) {
                     ns.hacknet.getLevelUpgradeCost(i, n) < Infinity &&
                     ns.hacknet.upgradeLevel(i, n)
                 ) {
+                    printHashLog(ns, ns.hacknet.getNodeStats(i).name, "level", ns.hacknet.getNodeStats(i).level);
                     ns.print(
                         "Upgraded " +
                         ns.hacknet.getNodeStats(i).name +
@@ -81,6 +84,7 @@ export async function main(ns) {
                     ns.hacknet.getRamUpgradeCost(i, n) < Infinity &&
                     ns.hacknet.upgradeRam(i, n)
                 ) {
+                    printHashLog(ns, ns.hacknet.getNodeStats(i).name, "RAM", ns.hacknet.getNodeStats(i).ram);
                     ns.print(
                         "Upgraded " +
                         ns.hacknet.getNodeStats(i).name +
@@ -93,6 +97,7 @@ export async function main(ns) {
                     ns.hacknet.getCoreUpgradeCost(i, n) < Infinity &&
                     ns.hacknet.upgradeCore(i, n)
                 ) {
+                    printHashLog(ns, ns.hacknet.getNodeStats(i).name, "core", ns.hacknet.getNodeStats(i).cores);
                     ns.print(
                         "Upgraded " +
                         ns.hacknet.getNodeStats(i).name +
@@ -101,17 +106,19 @@ export async function main(ns) {
                     );
                     await ns.sleep(100);
                 }
-                if (ns.hacknet.getNodeStats(i).cache <= cacheCap) {
-                    while (
+                while (ns.hacknet.getNodeStats(i).cache < cacheCap) {
+                    if (
                         ns.hacknet.getCacheUpgradeCost(i, n) < Infinity &&
                         ns.hacknet.upgradeCache(i, n)
                     ) {
+                        printHashLog(ns, ns.hacknet.getNodeStats(i).name, "cache", ns.hacknet.getNodeStats(i).cache);
                         ns.print(
                             "Upgraded " +
                             ns.hacknet.getNodeStats(i).name +
                             " cache to " +
                             ns.hacknet.getNodeStats(i).cache
                         );
+                        reserveHashes = ns.hacknet.hashCapacity() / 3;
                         await ns.sleep(100);
                     }
                 }
@@ -150,3 +157,46 @@ export async function main(ns) {
         await ns.sleep(100);
     }
 };
+
+let hashMessageArray = [];
+/** @param {import(".").NS } ns */
+export function printHashLog(ns, upgradeName, UpgradeType, UpgradeLevel) {
+    //Update Log
+    let max_length = 20;
+    let max_length2 = 27;
+    let border_max_length = 53;
+    let outputTheDruid = `TheDroid Hash Management`;
+    let outputHeaderName = `Name`;
+    let outputHeaderTask = `Type`;
+    let outputHeaderLevel = `Level`;
+    let outputBlank = "\r\n";
+
+    let upgradeMessage = upgradeName + ' '.repeat(max_length - upgradeName.length) + UpgradeType + ' '.repeat(max_length2 - UpgradeLevel.length) + UpgradeLevel;
+
+    if (hashMessageArray.length > 0) {
+        if (hashMessageArray.length > 5) {
+            hashMessageArray.shift();
+            if (hashMessageArray.indexOf(upgradeMessage) == -1) {
+                hashMessageArray.push(upgradeMessage);
+            }
+        } else {
+            if (hashMessageArray.indexOf(upgradeMessage) == -1) {
+                hashMessageArray.push(upgradeMessage);
+            }
+        }
+    } else {
+        hashMessageArray.push(upgradeMessage);
+    }
+
+    ns.clearLog()
+    ns.print("" +
+        outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
+        outputBlank + ' '.repeat(13) + outputTheDruid +
+        outputBlank + '-'.repeat(border_max_length - outputBlank.length) +
+        outputHeaderName + ' '.repeat(max_length - outputHeaderName.length) + outputHeaderTask + ' '.repeat(max_length2 - outputHeaderLevel.length) + outputHeaderLevel +
+        outputBlank + '-'.repeat(border_max_length - outputBlank.length)
+    );
+    for (const hMessage of hashMessageArray) {
+        ns.print(hMessage);
+    }
+}
